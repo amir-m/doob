@@ -1,0 +1,19 @@
+{
+  "name": "hm-test",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "*",
+    "mongoose": "*",
+    "connect": "*",
+    "redis": "*",
+    "connect-redis": "*",
+    "colors": "*",
+    "path": "*",
+    "jasmine-node": "*",
+    "mongoose-validator": "*"
+  }
+}
