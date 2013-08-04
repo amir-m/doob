@@ -61,8 +61,7 @@ module.exports = function(fs, redisClient, models){
 		if (req.session && req.session.uid) delete req.session.uid;
 
 		if (!req.body.username || req.body.username.length < 1 || 
-			!req.body.password || req.body.password.length < 1 || 
-			!req.body.name || req.body.name.length < 1 || req.body.notExists == false) {
+			!req.body.password || req.body.password.length < 1 ) {
 			console.log('POST /register: Bad Registration Request.'.error);
 			return res.send(400);
 		};
