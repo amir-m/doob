@@ -1,6 +1,6 @@
 module.exports = function(fs, redisClient){
 
-	var index = function(req, res){
+	var index = function(req, res, next){
 		return res.sendfile('views/login.html');
 	};
 
