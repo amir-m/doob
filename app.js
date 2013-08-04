@@ -78,13 +78,13 @@ if ('development' == app.get('env')) {
 
 app.get('/public/*', routes.public);
 
-app.get('/', routes.index);
-
-// app.get('/exists', routes.exists);
+app.get('/logout', routes.logout);
 
 app.post('/login', routes.login);
 
 app.post('/register', routes.register);
+
+app.get('/', routes.index);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
