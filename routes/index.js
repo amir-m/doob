@@ -1,4 +1,4 @@
-module.exports = function(fs, dependencies){
+module.exports = function(fs, redisClient){
 
 	var index = function(req, res){
 		return res.sendfile('views/login.html');
