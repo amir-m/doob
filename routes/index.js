@@ -12,6 +12,10 @@ module.exports = function(fs, redisClient, models){
 	};
 
 	var login = function(req, res, next) {
+		console.log(req.body);
+		return res.send('LOGIN Request Recieved for: ' + req.body.username + ' Password: ' +
+			req.body.password + ' ...Thanks for loging in...');
+
 		if (req.session && req.session.uid) return res.redirect('/');
 
 		if (!req.body.username || req.body.username.length < 1 || 
@@ -44,7 +48,16 @@ module.exports = function(fs, redisClient, models){
 		});
 	}; 
 
+	var logout = function(req, res, next) {
+		return res.send('LOGOUT Request Recieved for: ' + req.body.username + ' Password: ' +
+			req.body.password + ' ...Thanks for loging in...');
+		
+	};
+
 	var register = function(req, res){
+		return res.send('REGISTER Request Recieved for: ' + req.body.username + ' Password: ' +
+			req.body.password + ' ...Thanks for loging in...');
+
 		if (req.session && req.session.uid) delete req.session.uid;
 
 		if (!req.body.username || req.body.username.length < 1 || 
@@ -79,6 +92,7 @@ module.exports = function(fs, redisClient, models){
 		index: index,
 		public: public,
 		login: login,
+		logout: logout,
 		register: register
 	}
 };
