@@ -82,7 +82,7 @@ module.exports = function(fs, redisClient, models){
 				};
 				req.session.uid = r.id;
 				console.log(req.session.uid);
-				return res.send('Successfully created: ' + req.body.username);
+				return res.redirect('/');
 			});
 		});
 	};
