@@ -54,9 +54,9 @@ module.exports = function(fs, redisClient, models){
 		
 	};
 
-	var register = function(req, res){
-		return res.send('REGISTER Request Recieved for: ' + req.body.username + ' Password: ' +
-			req.body.password + ' ...Thanks for loging in...');
+	var register = function(req, res, next){
+		// return res.send('REGISTER Request Recieved for: ' + req.body.username + ' Password: ' +
+		// 	req.body.password + ' ...Thanks for loging in...');
 
 		if (req.session && req.session.uid) delete req.session.uid;
 
@@ -82,7 +82,8 @@ module.exports = function(fs, redisClient, models){
 					return res.send(500);
 				};
 				req.session.uid = r.id;
-				return res.send(200);
+				console.log(req.session.uid);
+				return res.send('Successfully created: ' + req.body.username);
 			});
 		});
 	};
