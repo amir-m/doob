@@ -21,9 +21,6 @@ var login = function () {
 		}
 	});
 
-	// console.log(u.value);
-	// console.log(p.value);
-
 	return false;
 };
 
@@ -49,20 +46,11 @@ var register = function(){
 };
 
 var logout = function(){
-	var u = document.getElementById('l-u'),
-		p = document.getElementById('l-p'),
-		path = hostname + '/logout';
+	var path = hostname + '/logout';
 
 	http({
-		'method': 'POST',
-		'body': {
-			'username': u.value,
-			'password': p.value
-		},
+		'method': 'GET',
 		'path': path,
-		'headers': {
-			'Content-Type': 'application/json'
-		},
 		callback: function(res) {
 			console.log(res);
 		}
