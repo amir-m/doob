@@ -13,6 +13,9 @@ var login = function () {
 			'password': p.value
 		},
 		'path': path,
+		'headers': {
+			'Content-Type': 'application/json'
+		},
 		callback: function(res) {
 			console.log(res);
 		}
@@ -25,8 +28,8 @@ var login = function () {
 };
 
 var register = function(){
-	var u = document.getElementById('l-u'),
-		p = document.getElementById('l-p'),
+	var u = document.getElementById('r-u'),
+		p = document.getElementById('r-p'),
 		path = hostname + '/register';
 
 	http({
@@ -36,6 +39,9 @@ var register = function(){
 			'password': p.value
 		},
 		'path': path,
+		'headers': {
+			'Content-Type': 'application/json'
+		},
 		callback: function(res) {
 			console.log(res);
 		}
@@ -54,6 +60,9 @@ var logout = function(){
 			'password': p.value
 		},
 		'path': path,
+		'headers': {
+			'Content-Type': 'application/json'
+		},
 		callback: function(res) {
 			console.log(res);
 		}
@@ -70,8 +79,8 @@ var http = function(options){
 		request.setRequestHeader(header, options.headers[header]);
 
 	request.onload = function() { 
-		if (options.callback) options.callback(eval(request.response));
+		if (options.callback) options.callback(request.response);
 	};
 
-	request.send(options.body);
+	request.send(JSON.stringify(options.body));
 };
