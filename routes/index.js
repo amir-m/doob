@@ -1,7 +1,7 @@
 module.exports = function(fs, redisClient){
 
 	var index = function(req, res, next){
-		if (!req.uid)
+		if (req.session && !req.session.uid)
 			return res.sendfile('views/login.html');
 		else
 			return res.sendfile('views/index.html');
@@ -11,8 +11,13 @@ module.exports = function(fs, redisClient){
 		res.sendfile('public/'+req.params[0]);
 	};
 
+	var login = function(req, res, next) {
+		
+	}; 
+
 	return {
 		index: index,
-		public: public
+		public: public,
+		login: login
 	}
 };
