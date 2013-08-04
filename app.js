@@ -69,7 +69,7 @@ var models = {
 // };
 
 
-var routes = require('./routes/index')(fs, redisClient, models);
+var routes = require('./routes/index')(fs, redis, redisClient, models);
 
 // development only
 if ('development' == app.get('env')) {
