@@ -55,7 +55,7 @@ mongoose.connect("mongodb://localhost/doob", function(err){
 });
 
 var models = {
-  //User: require('./models/User')(mongoose)
+  User: require('./models/User')(mongoose)
 };
 
 //var userRoutes = require('./routes/user')(colors, mongoose, models);
@@ -69,7 +69,7 @@ var models = {
 // };
 
 
-var routes = require('./routes/index')(fs, redisClient);
+var routes = require('./routes/index')(fs, redisClient, models);
 
 // development only
 if ('development' == app.get('env')) {
