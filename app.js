@@ -46,12 +46,6 @@ colors.setTheme({
   error: 'red'
 });
 
-var dependencies = {
-  'audio': ['io'],
-  'effect': ['io'],
-  'playback': ['io', 'audio']
-};
-
 redisClient.on("error", function (err) {
   console.log("Error " + err);
 });
@@ -75,7 +69,7 @@ var models = {
 // };
 
 
-var routes = require('./routes/index')(fs);
+var routes = require('./routes/index')(fs, redisClient);
 
 // development only
 if ('development' == app.get('env')) {
