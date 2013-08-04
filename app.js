@@ -77,15 +77,12 @@ var models = {
 
 var routes = require('./routes/index')(fs);
 
-
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
 app.get('/public/*', routes.public);
-
-app.get('/modules', routes.modules);
 
 app.get('/', routes.index);
 
