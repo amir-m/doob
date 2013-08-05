@@ -20,7 +20,7 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 			}
 		});
 	}
-	// getMe();
+	getMe();
 	return {
 		login: function(u, p){
 			if (myInfo) return $location.path('/home');
