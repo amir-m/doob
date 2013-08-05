@@ -35,4 +35,11 @@ function hmCtrl ($scope, $http) {
 				console.log(res);
 		});
 	}
+
+	$scope.logout = function(){
+		
+		$http.get(hostname + '/logout').success(function(res) {
+			console.log(res);	
+		});
+	}
 }
