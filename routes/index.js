@@ -100,6 +100,13 @@ module.exports = function(fs, redis, redisClient, models){
 		});
 	};
 
+	var me = function(req, res, next) {
+		if (!req.session) return res.send(404);
+		if (!req.session.uid) return res.send(404);
+		redisClient.get(req.session.uid, function(error, reply){
+			return res.send(reply);
+		});
+	};
 
 	return {
 		index: index,
@@ -107,6 +114,7 @@ module.exports = function(fs, redis, redisClient, models){
 		partials: partials,
 		login: login,
 		logout: logout,
-		register: register
+		register: register,
+		me: me
 	}
 };
