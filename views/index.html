@@ -2,33 +2,11 @@
 	<head>
 		<link rel="stylesheet" type="text/css" href="/public/css/bootstrap.css">
 		<script src="/public/js/lib/angular.js"></script>
+		<script src="/public/js/app.js"></script>
   		<script src="/public/js/controllers.js"></script>
 		
 	</head>
 	<body style="padding-left: 25px" ng-controller="hmCtrl">
-		<h3>Sign-In</h3>
-		<form >
-			<fieldset>
-				<label>
-					<input ng-model="lu" class="form-control" placeholder="Username" required>
-				</label>
-				<label><input ng-model="lp" type="password" class="form-control" placeholder="Password" required></label>
-				<button type="submit" class="btn btn-default" ng-click="login()">Sign in</button>
-			</fieldset>
-		</form>
-		<form>
-			<h3>Or Sign-Up</h3>
-			<fieldset>
-				<label>
-					<input ng-model="ru" class="form-control" placeholder="Username" required>
-				</label>
-				<label><input ng-model="rp" type="password" class="form-control" placeholder="Password" required></label>
-				<button class="btn btn-default" ng-click="register()">Sign Up</button>
-			</fieldset>
-			<div class="form-group has-error">
-				<label ng-model="errmsg" class="control-label" for="inputError" style="display:none"></label>
-			</div>
-		</form>
-		<a ng-click="logout()">logout..</a>
+		<div ng-view></div>
 	</body>
 </html>
