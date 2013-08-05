@@ -15,9 +15,29 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 				console.log(res);
 				$location.path('/home')
 			});
-		}//,
-		// register: function(){},
-		// logout: function(){}
+		},
+		register: function(u, p){
+			$http({
+				method: 'POST',
+				data: {
+					'username': u,
+					'password': p
+				},
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				url: '/register'
+			}).success(function(res) {
+				console.log(res);
+				$location.path('/home')
+			});
+		},
+		logout: function(){
+			$http.get('/logout').success(function(res) {
+				console.log(res);	
+				$location.path('/login')
+			});
+		}
 	};
 }]).config(['$routeProvider', function($routeProvider) {
   $routeProvider.
