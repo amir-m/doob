@@ -11,6 +11,10 @@ module.exports = function(fs, redis, redisClient, models){
 		res.sendfile('public/'+req.params[0]);
 	};
 
+	var public = function(req, res, next){
+		res.sendfile('partials/'+req.params[0]);
+	};
+
 	var login = function(req, res, next) {
 		console.log('login');
 		// return res.send('LOGIN Request Recieved for: ' + req.body.username + ' Password: ' +
@@ -52,13 +56,13 @@ module.exports = function(fs, redis, redisClient, models){
 	}; 
 
 	var logout = function(req, res, next) {
-		if (!req.session || !req.session.uid) res.send('No user to logout bro !!!');
+		if (!req.session || !req.session.uid) res.redirect('/login');
 		console.log('GET /logout, uid: ' + req.session.uid);
 		redisClient.get(req.session.uid, function(err, reply){
 			delete req.session.uid;
 			redisClient.del(req.session.uid, redis.print);
 			res.send('logged out: ' + reply);
-			// res.redirect('/login');
+			res.redirect('/login');
 		});
 	};
 
@@ -100,6 +104,7 @@ module.exports = function(fs, redis, redisClient, models){
 	return {
 		index: index,
 		public: public,
+		partials: partials,
 		login: login,
 		logout: logout,
 		register: register
