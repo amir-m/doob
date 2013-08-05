@@ -29,7 +29,7 @@ app.use(express.cookieParser());
 app.use(express.session({ 
   store: new RedisStore({client: redisClient}), 
   secret: 'keyboard cat',
-  cookie: {maxAge: 10000} 
+  cookie: {maxAge: 120000} 
 }));
 app.use(app.router);
 
@@ -57,17 +57,6 @@ mongoose.connect("mongodb://localhost/doob", function(err){
 var models = {
   User: require('./models/User')(mongoose)
 };
-
-//var userRoutes = require('./routes/user')(colors, mongoose, models);
-// var routes = {
-//   index: require('./routes/index').index,
-//   public: require('./routes/index').public,
-//   module: require('./routes/index').module
-//   //login: userRoutes.login,
-//   //exists: userRoutes.exists,
-//   //register: userRoutes.register
-// };
-
 
 var routes = require('./routes/index')(fs, redis, redisClient, models);
 
