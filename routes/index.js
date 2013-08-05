@@ -94,7 +94,7 @@ module.exports = function(fs, redis, redisClient, models){
 		if (!req.session) return res.send(404);
 		if (!req.session.uid) return res.send(404);
 		redisClient.get(req.session.uid, function(error, reply){
-			return res.send(reply);
+			return res.send(")]}',\n {me: " + reply + "}");
 		});
 	};
 
