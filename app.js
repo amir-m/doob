@@ -29,7 +29,7 @@ app.use(express.cookieParser());
 app.use(express.session({ 
   store: new RedisStore({client: redisClient}), 
   secret: 'keyboard cat',
-  cookie: {maxAge: 120000} 
+  cookie: {maxAge: 600000} 
 }));
 app.use(app.router);
 
