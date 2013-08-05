@@ -11,7 +11,7 @@ module.exports = function(fs, redis, redisClient, models){
 		res.sendfile('public/'+req.params[0]);
 	};
 
-	var public = function(req, res, next){
+	var partials = function(req, res, next){
 		res.sendfile('partials/'+req.params[0]);
 	};
 
