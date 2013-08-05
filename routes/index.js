@@ -12,7 +12,7 @@ module.exports = function(fs, redis, redisClient, models){
 	};
 
 	var login = function(req, res, next) {
-		// console.log(req.body);
+		console.log('login');
 		// return res.send('LOGIN Request Recieved for: ' + req.body.username + ' Password: ' +
 		// 	req.body.password + ' ...Thanks for loging in...');
 
@@ -52,19 +52,20 @@ module.exports = function(fs, redis, redisClient, models){
 	}; 
 
 	var logout = function(req, res, next) {
-		if (!req.session || !req.session.uid) return res.send('No user to logout bro !!!');
+		if (!req.session || !req.session.uid) res.send('No user to logout bro !!!');
 		console.log('GET /logout, uid: ' + req.session.uid);
 		redisClient.get(req.session.uid, function(err, reply){
 			delete req.session.uid;
 			redisClient.del(req.session.uid, redis.print);
 			res.send('logged out: ' + reply);
+			// res.redirect('/login');
 		});
 	};
 
 	var register = function(req, res, next){
 		// return res.send('REGISTER Request Recieved for: ' + req.body.username + ' Password: ' +
 		// 	req.body.password + ' ...Thanks for loging in...');
-
+			
 		if (req.session && req.session.uid) delete req.session.uid;
 
 		if (!req.body.username || req.body.username.length < 1 || 
