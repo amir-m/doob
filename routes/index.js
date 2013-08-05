@@ -1,9 +1,9 @@
 module.exports = function(fs, redis, redisClient, models){
 
 	var index = function(req, res, next){
-		if (!req.session || !req.session.uid)
-			return res.sendfile('views/login.html');
-		else
+		// if (!req.session || !req.session.uid)
+		// 	return res.sendfile('views/login.html');
+		// else
 			return res.sendfile('views/index.html');
 	};
 
@@ -16,11 +16,6 @@ module.exports = function(fs, redis, redisClient, models){
 	};
 
 	var login = function(req, res, next) {
-		console.log('login');
-		// return res.send('LOGIN Request Recieved for: ' + req.body.username + ' Password: ' +
-		// 	req.body.password + ' ...Thanks for loging in...');
-
-		// if (req.session && req.session.uid) return res.redirect('/');
 
 		if (!req.body.username || req.body.username.length < 1 || 
 			!req.body.password || req.body.password.length < 1) {
