@@ -1,21 +1,30 @@
-function LoginCtrl($scope, $http, $location) {
+function LoginCtrl($scope, $http, $location, Auth) {
+
+	$scope.lrm = true;
+	$scope.rrm = true;
 
 	$scope.login = function(){
-		$http({
-			method: 'POST',
-			data: {
-				'username': $scope.lu,
-				'password': $scope.lp
-			},
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			url: '/login'
-		}).success(function(res) {
-				console.log(res);
-				$location.path('/home')
-		});
+		Auth.login($scope.lu, $scope.lp);
 	};
+
+	// $scope.login = function(){
+	// 	$http({
+	// 		method: 'POST',
+	// 		data: {
+	// 			'username': $scope.lu,
+	// 			'password': $scope.lp
+	// 		},
+	// 		headers: {
+	// 			'Content-Type': 'application/json'
+	// 		},
+	// 		url: '/login'
+	// 	}).success(function(res) {
+	// 			console.log(res);
+	// 			$location.path('/home')
+	// 	});
+	// };
+
+	// Todo: set cookie for remember me...
 
 	$scope.register = function(){
 		$http({
