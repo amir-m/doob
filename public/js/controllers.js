@@ -1,4 +1,4 @@
-function LoginCtrl = function () {
+function LoginCtrl() {
 
 	$http({
 		method: 'POST',
@@ -15,7 +15,7 @@ function LoginCtrl = function () {
 	});
 };
 
-function RegisterCtrl = function(){
+function RegisterCtrl(){
 	
 	$http({
 		method: 'POST',
