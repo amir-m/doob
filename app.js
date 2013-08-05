@@ -78,6 +78,8 @@ if ('development' == app.get('env')) {
 
 app.get('/public/*', routes.public);
 
+app.get('/partials/*', routes.partials);
+
 app.get('/logout', routes.logout);
 
 app.post('/login', routes.login);
