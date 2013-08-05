@@ -1,0 +1,2 @@
+function hmCtrl ($scope, $http) {
+}
