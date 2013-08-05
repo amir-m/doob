@@ -18,7 +18,7 @@ var login = function () {
 			'Content-Type': 'application/json'
 		},
 		callback: function(res) {
-			console.log(res);
+			window.location.href = '/';
 		}
 	});
 
@@ -44,7 +44,7 @@ var register = function(){
 			'Content-Type': 'application/json'
 		},
 		callback: function(res) {
-			console.log(res);
+			window.location.href = '/';
 		}
 	});
 };
@@ -59,7 +59,7 @@ var logout = function(){
 			'Content-Type': 'application/json'
 		},
 		callback: function(res) {
-			console.log(res);
+			window.location.href = '/';
 		}
 	});
 };
@@ -75,9 +75,8 @@ var http = function(options){
 
 	request.onload = function() { 
 		if (options.callback) options.callback(request.response);
-	};
 
-	console.log(options.body)
+	};
 
 	request.send(JSON.stringify(options.body));
 };
