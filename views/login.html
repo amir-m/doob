@@ -10,9 +10,9 @@
 		<form >
 			<fieldset>
 				<label>
-					<input id="l-u" class="form-control" placeholder="Username" required>
+					<input ng-model="l-u" class="form-control" placeholder="Username" required>
 				</label>
-				<label><input id="l-p" type="password" class="form-control" placeholder="Password" required></label>
+				<label><input ng-model="l-p" type="password" class="form-control" placeholder="Password" required></label>
 				<button type="submit" class="btn btn-default" onclick="login(); return false;">Sign in</button>
 			</fieldset>
 		</form>
@@ -20,13 +20,13 @@
 			<h3>Or Sign-Up</h3>
 			<fieldset>
 				<label>
-					<input id="r-u" class="form-control" placeholder="Username" required>
+					<input ng-model="r-u" class="form-control" placeholder="Username" required>
 				</label>
-				<label><input id="r-p" type="password" class="form-control" placeholder="Password" required></label>
+				<label><input ng-model="r-p" type="password" class="form-control" placeholder="Password" required></label>
 				<button class="btn btn-default" onclick="register(); return false;">Sign Up</button>
 			</fieldset>
 			<div class="form-group has-error">
-				<label id="err-msg" class="control-label" for="inputError" style="display:none"></label>
+				<label ng-model="err-msg" class="control-label" for="inputError" style="display:none"></label>
 			</div>
 		</form>
 		<a onclick="logout()">logout..</a>
