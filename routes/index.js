@@ -1,9 +1,9 @@
 module.exports = function(fs, redis, redisClient, models){
 
 	var index = function(req, res, next){
-		// if (!req.session || !req.session.uid)
-		// 	return res.sendfile('views/login.html');
-		// else
+		if (!req.session || !req.session.uid)
+			return res.sendfile('views/login.html');
+		else
 			return res.sendfile('views/index.html');
 	};
 
