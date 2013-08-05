@@ -23,6 +23,13 @@ function HomeCtrl ($scope, $http, $location, Auth) {
 		$scope.username = null;
 		Auth.logout();
 	}
+
+	$scope.me = function(){
+		$http.get('/me').success(function(data, status){
+			if (status == 404) console.log('already expired dude!!');
+			else console.log('you\'r good to go buddy: %s status: %s', data, status);
+		});
+	};
 };
 
 // HomeCtrl.$inject = ['$scope', '$http', '$location, Auth'];
