@@ -44,6 +44,11 @@ function LoginCtrl($scope, $http) {
 
 function HomeCtrl ($scope, $http) {
 
+	$http.get('/me').seccess(function(data, status){
+		// if (status == 404) redirect to /login...
+		$scope.username = data;
+	});
+
 	$scope.logout = function(){
 		
 		$http.get('/logout').success(function(res) {
