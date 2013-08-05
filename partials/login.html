@@ -1,0 +1,25 @@
+<h3>Sign-In</h3>
+<form >
+	<fieldset>
+		<label>
+			<input id="lu" class="form-control" placeholder="Username" required>
+		</label>
+		<label><input id="lp" type="password" class="form-control" placeholder="Password" required></label>
+		<button type="submit" class="btn btn-default" ng-click="login()">Sign in</button>
+	</fieldset>
+</form>
+
+<form>
+	<h3>Or Sign-Up</h3>
+	<fieldset>
+		<label>
+			<input id="ru" class="form-control" placeholder="Username" required>
+		</label>
+		<label><input id="rp" type="password" class="form-control" placeholder="Password" required></label>
+		<button class="btn btn-default" ng-click="register()">Sign Up</button>
+	</fieldset>
+	<div class="form-group has-error">
+		<label id="errmsg" class="control-label" for="inputError" style="display:none"></label>
+	</div>
+</form>
+<a ng-click="logout()">logout..</a>
