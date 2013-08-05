@@ -1,21 +1,29 @@
 angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, $location){
-	var me = null;
-	var getMe = function() {
-		$http.get('/me').success(function(data, status){
+	var myInfo = null;
+	function getMe (callback) {
+		// $http.get('/me', {headers: {'Content-Type': 'application/json'}}).
+		$http({
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				url: '/me'
+		}).success(function(data, status, headers){
 			if (status == 404) {
 				console.log('already expired dude!!');
-				me = null;
-				$location.path('/login');
+				myInfo = null;
+				if (callback) callback();
 			}
 			else {
-				me = JSON.parse(data);
-				console.log(me);
+				myInfo = data;
+				if (callback) callback(myInfo);
 			}
 		});
 	}
+	// getMe();
 	return {
 		login: function(u, p){
-			if (me) $location.path('/home');
+			if (myInfo) return $location.path('/home');
 			$http({
 				method: 'POST',
 				data: {
@@ -27,14 +35,13 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 				},
 				url: '/login'
 			}).success(function(res) {
-				getMe(function(res){
-					me = res;
-					$location.path('/home');
+				getMe(function(){
+					$location.path('/home');	
 				});
 			});
 		},
 		register: function(u, p){
-			if (me) $location.path('/home');
+			if (myInfo) return $location.path('/home');
 			$http({
 				method: 'POST',
 				data: {
@@ -46,19 +53,23 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 				},
 				url: '/register'
 			}).success(function(res) {
-				getMe(function(res){
-					me = res;
-					$location.path('/home');
+				getMe(function(){
+					$location.path('/home');	
 				});
 			});
 		},
 		logout: function(){
 			$http.get('/logout').success(function(res) {
-				me = null;
+				myInfo = null;
 				$location.path('/login')
 			});
 		},
-		me: me
+		get me() {
+			return myInfo;
+		},
+		get username() {
+			return myInfo ? myInfo['username'] : null;
+		}
 	};
 }]).config(['$routeProvider', function($routeProvider) {
   $routeProvider.
