@@ -25,7 +25,7 @@
 					<input ng-model="ru" class="form-control" placeholder="Username" required>
 				</label>
 				<label><input ng-model="rp" type="password" class="form-control" placeholder="Password" required></label>
-				<button class="btn btn-default" onclick="register(); return false;">Sign Up</button>
+				<button class="btn btn-default" ng-click="register()">Sign Up</button>
 			</fieldset>
 			<div class="form-group has-error">
 				<label ng-model="errmsg" class="control-label" for="inputError" style="display:none"></label>
