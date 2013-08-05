@@ -5,6 +5,8 @@ var login = function () {
 		p = document.getElementById('lp'),
 		path = '/login';
 
+	console.log(u.value);
+
 	http({
 		'method': 'POST',
 		'body': {
@@ -75,5 +77,7 @@ var http = function(options){
 		if (options.callback) options.callback(request.response);
 	};
 
-	request.send(options.body);
+	console.log(options.body)
+
+	request.send(JSON.stringify(options.body));
 };
