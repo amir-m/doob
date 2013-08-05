@@ -32,8 +32,8 @@ module.exports = function(fs, redis, redisClient, models){
 				redisClient.set(r.id, req.body.username.toString(), redis.print);
 				redisClient.get(r.id, function(err, reply) {
 					console.log('Successfully login: ' + reply);	
+					return res.redirect('/');
 				});
-				return res.redirect('/')
 				//res.send(")]}',\n [{me: " + req.body.username.toString() + "}]");
 			}
 			
@@ -42,12 +42,7 @@ module.exports = function(fs, redis, redisClient, models){
 				res.status(500);
 				return res.send('Sorry! We had a problem logging you in. Please try '
 					+ 'again a bit later. Thanks!');
-
 			}
-
-			if (req.session && req.session.uid) delete req.session.uid;
-
-			return res.send(401);
 		});
 	}; 
 
