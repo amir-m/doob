@@ -5,22 +5,19 @@ function hmCtrl ($scope, $http) {
 	$scope.login = function () {
 		var path = hostname + '/login';
 
-		http({
-			'method': 'POST',
-			'body': {
+		$http({
+			method: 'POST',
+			data: {
 				'username': $scope.lu,
 				'password': $scope.lp
 			},
-			'path': path,
-			'headers': {
+			headers: {
 				'Content-Type': 'application/json'
 			},
-			callback: function(res) {
+			url: path
+		}).success(function(res) {
 				console.log(res);
-			}
 		});
-
-		return false;
 	};
 
 	var http = function(options){
