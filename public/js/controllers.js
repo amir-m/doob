@@ -1,14 +1,15 @@
 function hmCtrl ($scope, $http) {
+	
+	var hostname = 'http://localhost:8080';
+
 	var login = function () {
-		var u = document.getElementById('l-u'),
-			p = document.getElementById('l-p'),
-			path = hostname + '/login';
+		var path = hostname + '/login';
 
 		http({
 			'method': 'POST',
 			'body': {
-				'username': u.value,
-				'password': p.value
+				'username': $scope['l-u'],
+				'password': $scope['l-p']
 			},
 			'path': path,
 			'headers': {
@@ -20,5 +21,21 @@ function hmCtrl ($scope, $http) {
 		});
 
 		return false;
+	};
+
+	var http = function(options){
+
+		var request = new XMLHttpRequest();
+
+		request.open(options.method, options.path);
+
+		for (var header in options.headers)
+			request.setRequestHeader(header, options.headers[header]);
+
+		request.onload = function() { 
+			if (options.callback) options.callback(request.response);
+		};
+
+		request.send(JSON.stringify(options.body));
 	};
 }
