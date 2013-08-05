@@ -1,4 +1,4 @@
-function LoginCtrl($scope, $http) {
+function LoginCtrl($scope, $http, $location) {
 
 	$scope.login = function(){
 		$http({
@@ -13,6 +13,7 @@ function LoginCtrl($scope, $http) {
 			url: '/login'
 		}).success(function(res) {
 				console.log(res);
+				$location.path('/home')
 		});
 	};
 
@@ -29,23 +30,15 @@ function LoginCtrl($scope, $http) {
 			}
 		}).success(function(res) {
 				console.log(res);
+				$location.path('/home')
 		});
 	};
-
-	$scope.logout = function(){
-		$http.get('/logout').success(function(res) {
-			console.log(res);	
-		});
-	}
-
 };
 
+function HomeCtrl ($scope, $http, $location) {
 
-
-function HomeCtrl ($scope, $http) {
-
-	$http.get('/me').seccess(function(data, status){
-		// if (status == 404) redirect to /login...
+	$http.get('/me').success(function(data, status){
+		if (status == 404) return $location.path('/login');
 		$scope.username = data;
 	});
 
@@ -53,8 +46,12 @@ function HomeCtrl ($scope, $http) {
 		
 		$http.get('/logout').success(function(res) {
 			console.log(res);	
+			$scope.username = null;
+			$location.path('/login')
+
+			// TODO: 	redirect to login
 		});
 	}
 };
 
-HomeCtrl.$inject = ['$scope', '$http'];
+HomeCtrl.$inject = ['$scope', '$http', '$location'];
