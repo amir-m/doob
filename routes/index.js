@@ -56,13 +56,12 @@ module.exports = function(fs, redis, redisClient, models){
 	}; 
 
 	var logout = function(req, res, next) {
-		if (!req.session || !req.session.uid) res.redirect('/login');
+		if (!req.session || !req.session.uid) res.send(404);
 		console.log('GET /logout, uid: ' + req.session.uid);
 		redisClient.get(req.session.uid, function(err, reply){
 			delete req.session.uid;
 			redisClient.del(req.session.uid, redis.print);
 			res.send('logged out: ' + reply);
-			res.redirect('/login');
 		});
 	};
 
