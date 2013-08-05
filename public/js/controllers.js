@@ -2,14 +2,14 @@ function hmCtrl ($scope, $http) {
 	
 	var hostname = 'http://localhost:8080';
 
-	var login = function () {
+	$scope.login = function () {
 		var path = hostname + '/login';
 
 		http({
 			'method': 'POST',
 			'body': {
-				'username': $scope['l-u'],
-				'password': $scope['l-p']
+				'username': $scope.lu,
+				'password': $scope.lp
 			},
 			'path': path,
 			'headers': {
