@@ -1,36 +1,46 @@
-function LoginCtrl() {
+function LoginCtrl($scope, $http) {
 
-	$http({
-		method: 'POST',
-		data: {
-			'username': $scope.lu,
-			'password': $scope.lp
-		},
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		url: '/login'
-	}).success(function(res) {
-			console.log(res);
-	});
+	$scope.login = function(){
+		$http({
+			method: 'POST',
+			data: {
+				'username': $scope.lu,
+				'password': $scope.lp
+			},
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			url: '/login'
+		}).success(function(res) {
+				console.log(res);
+		});
+	};
+
+	$scope.register = function(){
+		$http({
+			method: 'POST',
+			data: {
+				'username': $scope.ru,
+				'password': $scope.rp
+			},
+			url: '/register',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		}).success(function(res) {
+				console.log(res);
+		});
+	};
+
+	$scope.logout = function(){
+		$http.get('/logout').success(function(res) {
+			console.log(res);	
+		});
+	}
+
 };
 
-function RegisterCtrl(){
-	
-	$http({
-		method: 'POST',
-		data: {
-			'username': $scope.ru,
-			'password': $scope.rp
-		},
-		url: '/register',
-		headers: {
-			'Content-Type': 'application/json'
-		}
-	}).success(function(res) {
-			console.log(res);
-	});
-}
+
 
 function hmCtrl ($scope, $http) {
 
