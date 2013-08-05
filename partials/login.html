@@ -2,9 +2,9 @@
 <form >
 	<fieldset>
 		<label>
-			<input id="lu" class="form-control" placeholder="Username" required>
+			<input ng-model="lu" class="form-control" placeholder="Username" required>
 		</label>
-		<label><input id="lp" type="password" class="form-control" placeholder="Password" required>
+		<label><input ng-model="lp" type="password" class="form-control" placeholder="Password" required>
 
 		</label>
 		<input type="checkbox" ng-model="lrm"> Remember Me<br>
@@ -16,13 +16,13 @@
 	<h3>Or Sign-Up</h3>
 	<fieldset>
 		<label>
-			<input id="ru" class="form-control" placeholder="Username" required>
+			<input ng-model="ru" class="form-control" placeholder="Username" required>
 		</label>
-		<label><input id="rp" type="password" class="form-control" placeholder="Password" required></label>
-		<input type="checkbox" ng-model="lrm"> Remember Me<br>
+		<label><input ng-model="rp" type="password" class="form-control" placeholder="Password" required></label>
+		<input type="checkbox" ng-model="rrm"> Remember Me<br>
 		<button class="btn btn-default" ng-click="register()">Sign Up</button>
 	</fieldset>
 	<div class="form-group has-error">
-		<label id="errmsg" class="control-label" for="inputError" style="display:none"></label>
+		<label ng-model="errmsg" class="control-label" for="inputError" style="display:none"></label>
 	</div>
 </form>
