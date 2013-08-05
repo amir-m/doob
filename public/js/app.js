@@ -1,6 +1,21 @@
 angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, $location){
+	var me = null;
+	var getMe = function() {
+		$http.get('/me').success(function(data, status){
+			if (status == 404) {
+				console.log('already expired dude!!');
+				me = null;
+				$location.path('/login');
+			}
+			else {
+				me = JSON.parse(data);
+				console.log(me);
+			}
+		});
+	}
 	return {
 		login: function(u, p){
+			if (me) $location.path('/home');
 			$http({
 				method: 'POST',
 				data: {
@@ -12,11 +27,14 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 				},
 				url: '/login'
 			}).success(function(res) {
-				console.log(res);
-				$location.path('/home')
+				getMe(function(res){
+					me = res;
+					$location.path('/home');
+				});
 			});
 		},
 		register: function(u, p){
+			if (me) $location.path('/home');
 			$http({
 				method: 'POST',
 				data: {
@@ -28,16 +46,19 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 				},
 				url: '/register'
 			}).success(function(res) {
-				console.log(res);
-				$location.path('/home')
+				getMe(function(res){
+					me = res;
+					$location.path('/home');
+				});
 			});
 		},
 		logout: function(){
 			$http.get('/logout').success(function(res) {
-				console.log(res);	
+				me = null;
 				$location.path('/login')
 			});
-		}
+		},
+		me: me
 	};
 }]).config(['$routeProvider', function($routeProvider) {
   $routeProvider.
