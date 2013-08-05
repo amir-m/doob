@@ -1,4 +1,6 @@
-function LoginCtrl($scope, Auth) {
+function LoginCtrl($scope, Auth, $location) {
+
+	if (Auth.me) $location.path('/home');
 
 	$scope.lrm = true;
 	$scope.rrm = true;
@@ -12,12 +14,9 @@ function LoginCtrl($scope, Auth) {
 	};
 };
 
-function HomeCtrl ($scope, $http, $location, Auth) {
+function HomeCtrl ($scope, $location, Auth) {
 
-	// $http.get('/me').success(function(data, status){
-	// 	if (status == 404) return $location.path('/login');
-	// 	$scope.username = data;
-	// });
+	if (!Auth.me) $location.path('/login');
 
 	$scope.username = Auth.username;
 
@@ -27,7 +26,7 @@ function HomeCtrl ($scope, $http, $location, Auth) {
 	}
 
 	$scope.me = function(){
-			console.log(Auth.me);
+		console.log(Auth.me);
 	};
 };
 
