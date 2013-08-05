@@ -5,6 +5,7 @@ function LoginCtrl($scope, Auth) {
 
 	$scope.login = function(){
 		Auth.login($scope.lu, $scope.lp);
+		return false;
 	};
 	$scope.register = function(){
 		Auth.register($scope.ru, $scope.rp);
@@ -24,4 +25,4 @@ function HomeCtrl ($scope, $http, $location, Auth) {
 	}
 };
 
-HomeCtrl.$inject = ['$scope', '$http', '$location'];
+// HomeCtrl.$inject = ['$scope', '$http', '$location, Auth'];
