@@ -80,6 +80,8 @@ app.get('/public/*', routes.public);
 
 app.get('/partials/*', routes.partials);
 
+app.get('/me', routes.me);
+
 app.get('/logout', routes.logout);
 
 app.post('/login', routes.login);
