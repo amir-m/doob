@@ -52,4 +52,4 @@ function HomeCtrl ($scope, $http) {
 	}
 };
 
-hmCtrl.$inject = ['$scope', '$http'];
+HomeCtrl.$inject = ['$scope', '$http'];
