@@ -14,10 +14,12 @@ function LoginCtrl($scope, Auth) {
 
 function HomeCtrl ($scope, $http, $location, Auth) {
 
-	$http.get('/me').success(function(data, status){
-		if (status == 404) return $location.path('/login');
-		$scope.username = data;
-	});
+	// $http.get('/me').success(function(data, status){
+	// 	if (status == 404) return $location.path('/login');
+	// 	$scope.username = data;
+	// });
+
+	$scope.username = Auth.username;
 
 	$scope.logout = function(){
 		$scope.username = null;
@@ -25,10 +27,7 @@ function HomeCtrl ($scope, $http, $location, Auth) {
 	}
 
 	$scope.me = function(){
-		$http.get('/me').success(function(data, status){
-			if (status == 404) console.log('already expired dude!!');
-			else console.log('you\'r good to go buddy: %s status: %s', data, status);
-		});
+			console.log(Auth.me);
 	};
 };
 
