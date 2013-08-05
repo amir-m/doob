@@ -1,6 +1,7 @@
 <html lang="en" ng-app="hm">
 	<head>
 		<link rel="stylesheet" type="text/css" href="/public/css/bootstrap.css">
+		<script type="text/javascript" src="/public/js/login.js"></script>
 		
 	</head>
 	<body style="padding-left: 25px" ng-controller="hmCtrl">
@@ -9,10 +10,10 @@
 		<form >
 			<fieldset>
 				<label>
-					<input ng-model="lu" class="form-control" placeholder="Username" required>
+					<input id="lu" class="form-control" placeholder="Username" required>
 				</label>
-				<label><input ng-model="lp" type="password" class="form-control" placeholder="Password" required></label>
-				<button type="submit" class="btn btn-default" ng-click="login()">Sign in</button>
+				<label><input id="lp" type="password" class="form-control" placeholder="Password" required></label>
+				<button type="submit" class="btn btn-default" onclick="login(); return false;">Sign in</button>
 			</fieldset>
 		</form>
 
@@ -20,16 +21,16 @@
 			<h3>Or Sign-Up</h3>
 			<fieldset>
 				<label>
-					<input ng-model="ru" class="form-control" placeholder="Username" required>
+					<input id="ru" class="form-control" placeholder="Username" required>
 				</label>
-				<label><input ng-model="rp" type="password" class="form-control" placeholder="Password" required></label>
-				<button class="btn btn-default" ng-click="register()">Sign Up</button>
+				<label><input id="rp" type="password" class="form-control" placeholder="Password" required></label>
+				<button class="btn btn-default" onclick="register(); return false;">Sign Up</button>
 			</fieldset>
 			<div class="form-group has-error">
-				<label ng-model="errmsg" class="control-label" for="inputError" style="display:none"></label>
+				<label id="errmsg" class="control-label" for="inputError" style="display:none"></label>
 			</div>
 		</form>
-		<a ng-click="logout()">logout..</a>
+		<a onclick="logout(); return false;">logout..</a>
 
 	</body>
 </html>
