@@ -33,7 +33,8 @@ module.exports = function(fs, redis, redisClient, models){
 				redisClient.get(r.id, function(err, reply) {
 					console.log('Successfully login: ' + reply);	
 				});
-				return res.send(")]}',\n, [{me: " + req.body.username.toString() + "}]");
+				return res.redirect('/')
+				//res.send(")]}',\n [{me: " + req.body.username.toString() + "}]");
 			}
 			
 			if (r && r.erro && r.error.code == 500) {
