@@ -42,7 +42,7 @@ function LoginCtrl($scope, $http) {
 
 
 
-function hmCtrl ($scope, $http) {
+function HomeCtrl ($scope, $http) {
 
 	$scope.logout = function(){
 		
