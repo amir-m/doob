@@ -37,12 +37,13 @@ module.exports = function(fs, redis, redisClient, models){
 				//res.send(")]}',\n [{me: " + req.body.username.toString() + "}]");
 			}
 			
-			if (r && r.erro && r.error.code == 500) {
+			if (r && r.error && r.error.code == 500) {
 				console.log('POST /login Failed to fetch the user info!'.error);
 				res.status(500);
 				return res.send('Sorry! We had a problem logging you in. Please try '
 					+ 'again a bit later. Thanks!');
 			}
+			if (r && r.error && r.error.code == 401) return res.send(401);
 		});
 	}; 
 
