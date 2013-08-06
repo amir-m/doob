@@ -63,7 +63,11 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 				getMe(function(){
 					$location.path('/home');	
 				});
-			});
+			}).error(function(error, status){
+				if (status == 401) 
+					if (callback) return callback(status);
+					else return;
+			});;
 		},
 		logout: function(){
 			$http.get('/logout').success(function(res) {
