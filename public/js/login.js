@@ -1,14 +1,10 @@
-// var hostname = 'http://localhost:8080';
 
 var login = function () {
 	var u = document.getElementById('lu'),
 		p = document.getElementById('lp'),
-		err = document.getElementById('err'),
 		path = '/login';
 
-	err.value = "";
-
-	console.log(u.value);
+	var err = document.getElementById('err'); 
 
 	http({
 		'method': 'POST',
@@ -22,7 +18,7 @@ var login = function () {
 		},
 		callback: function(status) {
 			if (status == 401) {
-				err.value = "invalid username or password";
+				err.innerHTML = "Invalid username or password";
 				return;
 			}
 			window.location.href = '/';
@@ -40,6 +36,8 @@ var register = function(){
 		p = document.getElementById('rp'),
 		path = '/register';
 
+	var err = document.getElementById('err'); 
+
 	http({
 		'method': 'POST',
 		'body': {
@@ -52,7 +50,7 @@ var register = function(){
 		},
 		callback: function(status) {
 			if (status == 400) {
-				err.value = "invalid username or password";
+				err.innerHTML = "Bad registeration request";
 				return;
 			}
 			window.location.href = '/';
@@ -71,6 +69,7 @@ var http = function(options){
 		request.setRequestHeader(header, options.headers[header]);
 
 	request.onload = function() { 
+		console.log(request.status)
 		if (options.callback) options.callback(request.status);
 
 	};
