@@ -1,2 +1,10 @@
 <h4>Welcome {{username}} :) | <a ng-click="logout()">Logout :(</a></h4>
-<a ng-click="me()">me</a>
+
+<div class="navbar">
+  <a class="navbar-brand" href="#">doob.io</a>
+  <ul class="nav navbar-nav">
+    <li class="active"><a href="/home">Home</a></li>
+    <li><a href="/me">{{username}}</a></li>
+    <li><a ng-click="logout()">logout</a></li>
+  </ul>
+</div>
