@@ -1,0 +1,35 @@
+html(lang='en')
+head
+  link(rel='stylesheet', type='text/css', href='/public/css/bootstrap.css')
+    script(type='text/javascript', src='/public/js/login.js')
+  body(style='padding-left: 25px;')
+    h3 Sign-In
+    form
+      fieldset
+        label
+          input#lu.form-control(placeholder='Username', required='required')
+        | &nbsp
+        label
+          input#lp.form-control(type='password', placeholder='Password', required='required')
+        | &nbsp
+        input(type='checkbox', checked='checked')
+        | Remember Me
+        br
+        button.btn.btn-default(type='submit', onclick='login(); return false;') Sign in
+    form
+      h3 Or Sign-Up
+      fieldset
+        label
+          input#ru.form-control(placeholder='Username', required='required')
+        | &nbsp
+        label
+          input#rp.form-control(type='password', placeholder='Password', required='required')
+        | &nbsp
+        input(type='checkbox', checked='checked')
+        | Remember Me
+        br
+        button.btn.btn-default(onclick='register(); return false;') Sign Up
+      .form-group.has-error
+        label#errmsg.control-label(for='inputError', style='display: none;')
+    .form-group.has-error
+      p#err.control-label(for='inputError')
