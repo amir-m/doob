@@ -68,26 +68,25 @@ module.exports = function(fs, redis, redisClient, models){
 			console.log('POST /register: Bad Registration Request.'.error);
 			return res.send(400);
 		};
-		models.User.userExists(req.body.username, function(yes){
-			if (yes) {
-				console.log('POST /register: User Exists.'.error);
-				return res.send(400)
+
+ 		models.User.createUser({
+ 			username: req.body.username,
+ 			password: req.body.password,
+ 		}, function(r){
+			if (!r) {
+				console.log('models.User.createUser callback error:'.error);
+				console.log(r.error);
+				return res.send(500);
 			};
-	 		models.User.createUser({
-	 			username: req.body.username,
-	 			password: req.body.password,
-	 			name: req.body.name
-	 		}, function(r){
-				if (!r || (r && r.error)) {
-					console.log('models.User.createUser callback error:'.error);
-					console.log(r.error);
-					return res.send(500);
-				};
-				req.session.uid = r.id;
-				redisClient.set(r.id, req.body.username, redis.print);
-				console.log('Successfully registered: ' + req.session.uid);
-				return res.redirect('/');
-			});
+			if (r.error){
+				console.log('models.User.createUser Bad Request'.error);
+				return res.send(400);
+				
+			}
+			req.session.uid = r.id;
+			redisClient.set(r.id, req.body.username, redis.print);
+			console.log('Successfully registered: ' + req.session.uid);
+			return res.redirect('/');
 		});
 	};
 
