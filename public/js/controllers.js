@@ -14,7 +14,7 @@ function LoginCtrl($scope, Auth, $location) {
 	};
 	$scope.register = function(){
 		Auth.register($scope.ru, $scope.rp, function(status){
-			if (status == 401) $scope.err = 'Bad registration request';
+			if (status == 400) $scope.err = 'Bad registration request';
 		});
 		return false;
 	};
