@@ -22,7 +22,7 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 	}
 	getMe();
 	return {
-		login: function(u, p){
+		login: function(u, p, callback){
 			if (myInfo) return $location.path('/home');
 			$http({
 				method: 'POST',
@@ -34,10 +34,17 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 					'Content-Type': 'application/json'
 				},
 				url: '/login'
-			}).success(function(res) {
+			}).success(function(res, status) {
+				if (status == 401) 
+					if (callback) return callback(status);
+					else return;
 				getMe(function(){
 					$location.path('/home');	
 				});
+			}).error(function(error, status){
+				if (status == 401) 
+					if (callback) return callback(status);
+					else return;
 			});
 		},
 		register: function(u, p){
