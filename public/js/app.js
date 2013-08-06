@@ -47,7 +47,7 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 					else return;
 			});
 		},
-		register: function(u, p){
+		register: function(u, p, callback){
 			if (myInfo) return $location.path('/home');
 			$http({
 				method: 'POST',
@@ -64,7 +64,7 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 					$location.path('/home');	
 				});
 			}).error(function(error, status){
-				if (status == 401) 
+				if (status == 400) 
 					if (callback) return callback(status);
 					else return;
 			});;
