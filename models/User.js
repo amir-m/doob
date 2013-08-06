@@ -21,25 +21,28 @@ module.exports = function(mongoose) {
 
 	var createUser = function(options, callback){
 		if (!options || !options.username || !options.password) 
-			if (callback) return callback({error: 401});
+			if (callback) return callback({error: 400);
+			else return;
 
 		userExists(options.username, function(yes){
-			if (yes) return callback({error: 401});
-		});
+			if (yes) 
+				if (callback) return callback({error: 400});
+				else return;
 
-		// Base-64 encoding of ObjectId
-		options._id = _objectId();
-		options.password = _password(options.password);
+			// Base-64 encoding of ObjectId
+			options._id = _objectId();
+			options.password = _password(options.password);
 
-		var user = new User(options);
+			var user = new User(options);
 
-		user.save(function(err){
-			if (err) {
-				console.log('models.User.create callback error:'.error);
-				return callback({error: err});
-			};
-			console.log('models.User.create: a user succesfully registered.'.info);
-			if (callback) return callback({success: true, id: user._id});
+			user.save(function(err){
+				if (err) {
+					console.log('models.User.create callback error:'.error);
+					return callback({error: err});
+				};
+				console.log('models.User.create: a user succesfully registered.'.info);
+				if (callback) return callback({success: true, id: user._id});
+			});
 		});
 	};
 
