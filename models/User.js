@@ -20,7 +20,12 @@ module.exports = function(mongoose) {
 	var User = mongoose.model('User', UserSchema);
 
 	var createUser = function(options, callback){
-		if (!options) return;
+		if (!options || !options.username || !options.password) 
+			if (callback) return callback({error: 401});
+
+		userExists(options.username, function(yes){
+			if (yes) return callback({error: 401});
+		});
 
 		// Base-64 encoding of ObjectId
 		options._id = _objectId();
@@ -54,7 +59,7 @@ module.exports = function(mongoose) {
 				
 			if (doc) return callback({success: true, id: doc.id});
 			
-			callback();
+			callback({error: {code: 401, err: 'Invalid username/password'}});
 
 		});
 	};
