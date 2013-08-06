@@ -86,6 +86,7 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
   $routeProvider.
       when('/login', {templateUrl: 'partials/login.html', controller: LoginCtrl}).
       when('/home', {templateUrl: 'partials/index.html', controller: HomeCtrl}).
+      when('/me', {templateUrl: 'partials/me.html', controller: HomeCtrl}).
       // when('/register', {templateUrl: 'views/register.html', controller: RegisterCtrl}).
       otherwise({redirectTo: '/home'});
 }]);
