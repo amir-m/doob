@@ -3,7 +3,10 @@
 var login = function () {
 	var u = document.getElementById('lu'),
 		p = document.getElementById('lp'),
+		err = document.getElementById('err'),
 		path = '/login';
+
+	err.value = "";
 
 	console.log(u.value);
 
@@ -17,7 +20,11 @@ var login = function () {
 		'headers': {
 			'Content-Type': 'application/json'
 		},
-		callback: function(res) {
+		callback: function(status) {
+			if (status == 401) {
+				err.value = "invalid username or password";
+				return;
+			}
 			window.location.href = '/';
 		}
 	});
@@ -43,26 +50,16 @@ var register = function(){
 		'headers': {
 			'Content-Type': 'application/json'
 		},
-		callback: function(res) {
+		callback: function(status) {
+			if (status == 400) {
+				err.value = "invalid username or password";
+				return;
+			}
 			window.location.href = '/';
 		}
 	});
 };
 
-var logout = function(){
-	var path = '/logout';
-
-	http({
-		'method': 'GET',
-		'path': path,
-		'headers': {
-			'Content-Type': 'application/json'
-		},
-		callback: function(res) {
-			window.location.href = '/';
-		}
-	});
-};
 
 var http = function(options){
 
@@ -74,7 +71,7 @@ var http = function(options){
 		request.setRequestHeader(header, options.headers[header]);
 
 	request.onload = function() { 
-		if (options.callback) options.callback(request.response);
+		if (options.callback) options.callback(request.status);
 
 	};
 
