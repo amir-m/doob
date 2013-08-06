@@ -2,15 +2,19 @@ function LoginCtrl($scope, Auth, $location) {
 
 	if (Auth.me) $location.path('/home');
 
+	$scope.err = null;
 	$scope.lrm = true;
 	$scope.rrm = true;
 
 	$scope.login = function(){
-		Auth.login($scope.lu, $scope.lp);
+		Auth.login($scope.lu, $scope.lp, function(status){
+			if (status == 401) $scope.err = 'Invalid username or password';
+		});
 		return false;
 	};
 	$scope.register = function(){
 		Auth.register($scope.ru, $scope.rp);
+		return false;
 	};
 };
 
