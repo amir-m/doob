@@ -21,7 +21,7 @@ module.exports = function(mongoose) {
 
 	var createUser = function(options, callback){
 		if (!options || !options.username || !options.password) 
-			if (callback) return callback({error: 400);
+			if (callback) return callback({error: 400});
 			else return;
 
 		userExists(options.username, function(yes){
