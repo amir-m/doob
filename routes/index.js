@@ -17,6 +17,14 @@ module.exports = function(fs, redis, redisClient, models){
 	};
 
 	var login = function(req, res, next) {
+		
+		var requestor = {
+			ip: req.ip,
+			date: new Date(),
+			timestamp: (new Date()).getTime(),
+			host: req.host,
+			path: req.path
+		};
 
 		if (!req.body.username || req.body.username.length < 1 || 
 			!req.body.password || req.body.password.length < 1) {
@@ -25,7 +33,7 @@ module.exports = function(fs, redis, redisClient, models){
 			return res.send('Email and Password Are Required.');
 		};
 
-		models.User.authenticateUser(req.body.username, req.body.password, function(r){
+		models.User.authenticateUser(req.body.username, req.body.password, requestor, function(r){
 			
 			if (r && r.success) {
 				console.log('POST /login Successfull Login.'.info);
