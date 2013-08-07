@@ -28,7 +28,9 @@ module.exports = function(mongoose) {
 			if (callback) return callback({error: 400});
 			else return;
 
-		userExists(options.username, function(yes){
+		options.usernameLowerCase = options.username.toLowerCase();
+
+		userExists(options.usernameLowerCase, function(yes){
 			if (yes) 
 				if (callback) return callback({error: 400});
 				else return;
@@ -53,8 +55,7 @@ module.exports = function(mongoose) {
 	var authenticateUser = function(username, password, logins, callback){
 
 		User.findOne({
-			username: username//,
-			//password: crypto.createHash('sha256').update(password).digest('hex')
+			usernameLowerCase: username.toLowerCase() 
 		}, function(err, doc) {
 			
 			if (err) return callback({
