@@ -122,22 +122,25 @@ module.exports = function(mongoose) {
 		});
 	};
 
-	var me = function(username, requestor, callback) {
+	var me = function(id, requestor, callback) {
 
 		if (!callback) return;
 
-		User.findOne({usernameLowerCase: username.toLowerCase()}, function(err, doc){
+		User.findOne({_id: id}, function(err, doc){
 			
 			if (err) return callback({error: 500});
 			
 			if (!doc) return callback({error: 404});
 
-			// Callback the user info
-			callback({
+			var res = {
 				username: doc.username,
-				lastLogIn: doc.logins[doc.logins.length - 1][date],
 				activities: doc.activities
-			});
+			};
+
+			if (doc.logins.length > 0) res.lastLogIn = doc.logins[doc.logins.length - 1]['date'];
+
+			// Callback the user info
+			callback(res);
 
 			doc.getMe.push(requestor);
 			doc.save();
