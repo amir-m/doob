@@ -30,6 +30,10 @@ function HomeCtrl ($scope, $location, Auth) {
 		$scope.username = null;
 		Auth.logout();
 	}
+
+	$scope.me = function(){
+		console.log(Auth.me);
+	}
 };
 
 // HomeCtrl.$inject = ['$scope', '$http', '$location, Auth'];
