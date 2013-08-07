@@ -136,10 +136,17 @@ module.exports = function(fs, redis, redisClient, models){
 
 		if (!req.session) return res.send(404);
 		if (!req.session.uid) return res.send(404);
-		redisClient.get(req.session.uid, function(error, reply){
-			res.set('Content-Type', 'application/json');
-			res.send({'username': reply.toString()});
+
+		// models.User.me(req.session.uid, requestor, res.send);
+
+		models.User.me(req.session.uid, requestor, function(_me){
+			res.send(_me);
 		});
+
+		// redisClient.get(req.session.uid, function(error, reply){
+		// 	res.set('Content-Type', 'application/json');
+		// 	res.send({'username': reply.toString()});
+		// });
 	};
 
 	return {
