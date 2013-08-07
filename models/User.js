@@ -10,7 +10,8 @@ module.exports = function(mongoose) {
 		password: {type: String, required: true},
 		logins: [],
 		badLogins: [],
-		logouts: []
+		logouts: [],
+		getMe: []
 	});
 
 	// schema settings
@@ -52,7 +53,7 @@ module.exports = function(mongoose) {
 		});
 	};
 
-	var authenticateUser = function(username, password, logins, callback){
+	var authenticateUser = function(username, password, requestor, callback){
 
 		User.findOne({
 			usernameLowerCase: username.toLowerCase() 
@@ -69,7 +70,7 @@ module.exports = function(mongoose) {
 			if (doc) {
 				// password matches with username
 				if (doc.password == crypto.createHash('sha256').update(password).digest('hex')) {
-					doc.logins.push(logins);
+					doc.logins.push(requestor);
 					doc.save();
 					console.log(doc.logins.length);
 					return callback({success: true, id: doc.id});
@@ -77,7 +78,7 @@ module.exports = function(mongoose) {
 				// password doesn't match with username
 				else {
 					console.log('badLogins')
-					doc.badLogins.push(logins);
+					doc.badLogins.push(requestor);
 					doc.save();
 				}
 			}
@@ -92,6 +93,18 @@ module.exports = function(mongoose) {
 		User.findOne({username: username}, function(err, doc){
 			if (doc) return callback(true);
 			return callback(false);
+		});
+	};
+
+	var logout = function(username, requestor) {
+		User.findOne({usernameLowerCase: username}, function(err, doc){
+			if (err) return console.log('User.logout.ERROR: ' + err);
+
+			if (doc) {
+				doc.logouts.push(requestor);
+				doc.save();
+			}
+
 		});
 	};
 
