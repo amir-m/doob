@@ -1,10 +1,14 @@
-<h4>Welcome {{username}} :) | <a ng-click="logout()">Logout :(</a></h4>
-
 <div class="navbar">
   <a class="navbar-brand" href="#">doob.io</a>
   <ul class="nav navbar-nav">
-    <li class="active"><a href="/home">Home</a></li>
-    <li><a href="/me">{{username}}</a></li>
-    <li><a ng-click="logout()">logout</a></li>
+    <li class="active"><a href="#/home">Home</a></li>
+    <li><a  class="dropdown-toggle" data-toggle="dropdown">
+    {{username}} <span class="caret"></span>
+  	</a>
+    <ul class="dropdown-menu">
+    	<li><a href="#/me">{{username}}</a></li>
+    	<li class="divider"></li>
+    	<li><a ng-click="logout()">logout</a></li>
+	</ul></li>
   </ul>
 </div>
