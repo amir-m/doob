@@ -1,3 +1,5 @@
+// hm.controller('LoginCtrl', LoginCtrl);
+
 function LoginCtrl($scope, Auth, $location) {
 
 	if (Auth.me) $location.path('/home');
