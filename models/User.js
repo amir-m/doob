@@ -6,9 +6,11 @@ module.exports = function(mongoose) {
 	var UserSchema = new mongoose.Schema({
 		_id: {type: String, required: true, unique: true},
 		username: {type: String, required: true, unique: true},
+		usernameLowerCase: {type: String, required: true, unique: true},
 		password: {type: String, required: true},
 		logins: [],
-		badLogins: []
+		badLogins: [],
+		logouts: []
 	});
 
 	// schema settings
@@ -25,7 +27,7 @@ module.exports = function(mongoose) {
 		if (!options || !options.username || !options.password) 
 			if (callback) return callback({error: 400});
 			else return;
-			
+
 		userExists(options.username, function(yes){
 			if (yes) 
 				if (callback) return callback({error: 400});
