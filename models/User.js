@@ -5,13 +5,20 @@ module.exports = function(mongoose) {
 	// defining schemas
 	var UserSchema = new mongoose.Schema({
 		_id: {type: String, required: true, unique: true},
+
+		// Profile
 		username: {type: String, required: true, unique: true},
 		usernameLowerCase: {type: String, required: true, unique: true},
 		password: {type: String, required: true},
+
+		// Request Trackers
 		logins: [],
 		badLogins: [],
 		logouts: [],
-		getMe: []
+		getMe: [],
+
+		// Activities
+		activities: []
 	});
 
 	// schema settings
@@ -115,6 +122,29 @@ module.exports = function(mongoose) {
 		});
 	};
 
+	var me = function(username, requestor, callback) {
+
+		if (!callback) return;
+
+		User.findOne({usernameLowerCase: username.toLowerCase()}, function(err, doc){
+			
+			if (err) return callback({error: 500});
+			
+			if (!doc) return callback({error: 404});
+
+			// Callback the user info
+			callback({
+				username: doc.username,
+				lastLogIn: doc.logins[doc.logins.length - 1][date],
+				activities: doc.activities
+			});
+
+			doc.getMe.push(requestor);
+			doc.save();
+
+		});
+	};
+
 	var _objectId = function() {
 		return new Buffer((new mongoose.Types.ObjectId).toString()).toString('base64');
 	};
@@ -126,6 +156,7 @@ module.exports = function(mongoose) {
 	return {
 		createUser: createUser,
 		authenticateUser: authenticateUser,
-		logout: logout
+		logout: logout,
+		me: me
 	};
 };
