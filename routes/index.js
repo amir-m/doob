@@ -17,13 +17,14 @@ module.exports = function(fs, redis, redisClient, models){
 	};
 
 	var login = function(req, res, next) {
-		
+	
 		var requestor = {
 			ip: req.ip,
 			date: new Date(),
 			timestamp: (new Date()).getTime(),
 			host: req.host,
-			path: req.path
+			path: req.path,
+			sessionID: req.cookies['connect.sid']
 		};
 
 		if (!req.body.username || req.body.username.length < 1 || 
@@ -57,6 +58,16 @@ module.exports = function(fs, redis, redisClient, models){
 	}; 
 
 	var logout = function(req, res, next) {
+		
+		var requestor = {
+			ip: req.ip,
+			date: new Date(),
+			timestamp: (new Date()).getTime(),
+			host: req.host,
+			path: req.path,
+			sessionID: req.cookies['connect.sid']
+		};
+
 		if (!req.session || !req.session.uid) res.send(404);
 		console.log('GET /logout, uid: ' + req.session.uid);
 		redisClient.get(req.session.uid, function(err, reply){
@@ -67,9 +78,16 @@ module.exports = function(fs, redis, redisClient, models){
 	};
 
 	var register = function(req, res, next){
-		// return res.send('REGISTER Request Recieved for: ' + req.body.username + ' Password: ' +
-		// 	req.body.password + ' ...Thanks for loging in...');
-			
+		
+		var requestor = {
+			ip: req.ip,
+			date: new Date(),
+			timestamp: (new Date()).getTime(),
+			host: req.host,
+			path: req.path,
+			sessionID: req.cookies['connect.sid']
+		};
+
 		if (req.session && req.session.uid) delete req.session.uid;
 
 		if (!req.body.username || req.body.username.length < 1 || 
@@ -100,6 +118,16 @@ module.exports = function(fs, redis, redisClient, models){
 	};
 
 	var me = function(req, res, next) {
+		
+		var requestor = {
+			ip: req.ip,
+			date: new Date(),
+			timestamp: (new Date()).getTime(),
+			host: req.host,
+			path: req.path,
+			sessionID: req.cookies['connect.sid']
+		};
+
 		if (!req.session) return res.send(404);
 		if (!req.session.uid) return res.send(404);
 		redisClient.get(req.session.uid, function(error, reply){
