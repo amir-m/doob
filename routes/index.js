@@ -68,12 +68,17 @@ module.exports = function(fs, redis, redisClient, models){
 			sessionID: req.cookies['connect.sid']
 		};
 
-		if (!req.session || !req.session.uid) res.send(404);
+		if (!req.session || !req.session.uid) return res.send(404);
+		
 		console.log('GET /logout, uid: ' + req.session.uid);
+
 		redisClient.get(req.session.uid, function(err, reply){
+
+			models.User.logout(reply, requestor);
 			delete req.session.uid;
 			redisClient.del(req.session.uid, redis.print);
-			res.send('logged out: ' + reply);
+			res.send(200);
+
 		});
 	};
 
@@ -99,6 +104,7 @@ module.exports = function(fs, redis, redisClient, models){
  		models.User.createUser({
  			username: req.body.username,
  			password: req.body.password,
+ 			requestor: requestor
  		}, function(r){
 			if (!r) {
 				console.log('models.User.createUser callback error:'.error);
@@ -132,10 +138,7 @@ module.exports = function(fs, redis, redisClient, models){
 		if (!req.session.uid) return res.send(404);
 		redisClient.get(req.session.uid, function(error, reply){
 			res.set('Content-Type', 'application/json');
-			// console.log(")]}',\n['me', '" + reply.toString() + "']")
-			return res.send({'username': reply.toString()});
-			// console.log('/m REPLY: %s', reply);
-			// return res.send(reply);
+			res.send({'username': reply.toString()});
 		});
 	};
 
