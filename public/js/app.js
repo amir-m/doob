@@ -70,9 +70,12 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 			});;
 		},
 		logout: function(){
+			// $location.path('/login');
 			$http.get('/logout').success(function(res) {
 				myInfo = null;
-				$location.path('/login')
+				$location.path('/login');
+			}).error(function(){
+				$location.path('/login');
 			});
 		},
 		get me() {
