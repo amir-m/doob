@@ -6,7 +6,9 @@ module.exports = function(mongoose) {
 	var UserSchema = new mongoose.Schema({
 		_id: {type: String, required: true, unique: true},
 		username: {type: String, required: true, unique: true},
-		password: {type: String, required: true}
+		password: {type: String, required: true},
+		logins: [],
+		badLogins: []
 	});
 
 	// schema settings
@@ -46,11 +48,11 @@ module.exports = function(mongoose) {
 		});
 	};
 
-	var authenticateUser = function(username, password, callback){
+	var authenticateUser = function(username, password, logins, callback){
 
 		User.findOne({
-			username: username,
-			password: crypto.createHash('sha256').update(password).digest('hex')
+			username: username//,
+			//password: crypto.createHash('sha256').update(password).digest('hex')
 		}, function(err, doc) {
 			
 			if (err) return callback({
@@ -60,8 +62,24 @@ module.exports = function(mongoose) {
 				}
 			});
 				
-			if (doc) return callback({success: true, id: doc.id});
+			// username is correct
+			if (doc) {
+				// password matches with username
+				if (doc.password == crypto.createHash('sha256').update(password).digest('hex')) {
+					doc.logins.push(logins);
+					doc.save();
+					console.log(doc.logins.length);
+					return callback({success: true, id: doc.id});
+				}
+				// password doesn't match with username
+				else {
+					console.log('badLogins')
+					doc.badLogins.push(logins);
+					doc.save();
+				}
+			}
 			
+			// username doesn't exist or bad password..
 			callback({error: {code: 401, err: 'Invalid username/password'}});
 
 		});
