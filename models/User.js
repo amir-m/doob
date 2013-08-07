@@ -25,6 +25,7 @@ module.exports = function(mongoose) {
 	var User = mongoose.model('User', UserSchema);
 
 	var createUser = function(options, callback){
+
 		if (!options || !options.username || !options.password) 
 			if (callback) return callback({error: 400});
 			else return;
@@ -39,6 +40,8 @@ module.exports = function(mongoose) {
 			// Base-64 encoding of ObjectId
 			options._id = _objectId();
 			options.password = _password(options.password);
+			var r = options.requestor;
+			delete options.requestor;
 
 			var user = new User(options);
 
@@ -50,6 +53,9 @@ module.exports = function(mongoose) {
 				console.log('models.User.create: a user succesfully registered.'.info);
 				if (callback) return callback({success: true, id: user._id});
 			});
+
+			user.logins.push(r);
+			user.save();
 		});
 	};
 
@@ -97,14 +103,15 @@ module.exports = function(mongoose) {
 	};
 
 	var logout = function(username, requestor) {
+
 		User.findOne({usernameLowerCase: username}, function(err, doc){
+
 			if (err) return console.log('User.logout.ERROR: ' + err);
 
 			if (doc) {
 				doc.logouts.push(requestor);
 				doc.save();
 			}
-
 		});
 	};
 
@@ -117,9 +124,8 @@ module.exports = function(mongoose) {
 	};
 
 	return {
-		User: User,
 		createUser: createUser,
 		authenticateUser: authenticateUser,
-		userExists: userExists
+		logout: logout
 	};
 };
