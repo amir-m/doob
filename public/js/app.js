@@ -1,6 +1,6 @@
 angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, $location){
 	var myInfo = null;
-	function getMe (callback) {
+	function _getMe (callback) {
 		// $http.get('/me', {headers: {'Content-Type': 'application/json'}}).
 		$http({
 				method: 'GET',
@@ -20,8 +20,9 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 			}
 		});
 	}
-	getMe();
-	return {
+	_getMe();
+	
+	var auth = {
 		login: function(u, p, callback){
 			if (myInfo) return $location.path('/home');
 			$http({
@@ -38,7 +39,7 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 				if (status == 401) 
 					if (callback) return callback(status);
 					else return;
-				getMe(function(){
+				_getMe(function(){
 					$location.path('/home');	
 				});
 			}).error(function(error, status){
@@ -60,7 +61,7 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 				},
 				url: '/register'
 			}).success(function(res) {
-				getMe(function(){
+				_getMe(function(){
 					$location.path('/home');	
 				});
 			}).error(function(error, status){
@@ -85,6 +86,8 @@ angular.module('hm', []).factory('Auth', ['$http', '$location', function($http, 
 			return myInfo ? myInfo['username'] : null;
 		}
 	};
+
+	return auth;
 }]).config(['$routeProvider', function($routeProvider) {
   $routeProvider.
       when('/login', {templateUrl: 'partials/login.html', controller: LoginCtrl}).
