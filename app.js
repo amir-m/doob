@@ -1,5 +1,6 @@
 var express = require('express');
 var http = require('http');
+var https = require('https');
 var mongoose = require('mongoose');
 var redis = require('redis');
 var redisClient = redis.createClient();
@@ -8,6 +9,11 @@ var connect = require('connect');
 var path = require('path'); 
 var colors = require('colors');
 var fs = require('fs');
+
+var httpsOptions = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+};
 
 var app = express();
 
@@ -81,6 +87,10 @@ app.get('/', routes.index);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
+});
+
+https.createServer(httpsOptions, app).listen(8083, function(){
+    console.log('Express server listening on port ' + 8083);
 });
 
 
