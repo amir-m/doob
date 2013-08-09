@@ -91,3 +91,47 @@ services.factory('Auth', ['$http', '$location', function($http, $location){
 
     return auth;
 }]);
+
+services.factory('Me', ['$resource', function($resource){
+    return $resource('/me/activity/:resource', {resource: '@resource'});
+}]);
+
+services.factory('Authenticate', ['$http', '$q', function($http, $q){
+
+    var token = null;
+
+    var login = function() {
+        if (token) return true;
+    }
+
+    return function(){
+        if (!token) {
+
+        }
+    };
+}]);
+
+
+
+services.factory('fetchUser', ['$q', '$http', 'Auth', function($q, $http, $Auth) {
+
+    var deferred = $q.defer();
+
+    var fetchUser = function(){
+
+        deferred.resolve(me);
+
+        deferred.reject('Unauthorized user!');
+    }
+
+
+
+    deferred.promise.then(Auth.login).
+    then.(fetchMe)
+    then(function(me){
+
+    },
+    function(error){
+
+    });
+}]);
