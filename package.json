@@ -15,6 +15,7 @@
     "colors": "*",
     "path": "*",
     "jasmine-node": "*",
-    "mongoose-validator": "*"
+    "mongoose-validator": "*",
+    "socket.io": "*"
   }
 }
