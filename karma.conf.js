@@ -22,7 +22,7 @@ module.exports = function(config) {
         'public/js/lib/jquery.js',
         'public/js/lib/*',
         'public/js/*',
-      'test/t.spec.js'
+      'test/*'
 //      'public/test/*Spec.js',
 //      'public/test/**/*Spec.js',
 //      'public/test/**/*Spec.js',
