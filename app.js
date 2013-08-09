@@ -1,21 +1,18 @@
-var express = require('express');
-var http = require('http');
-var https = require('https');
+var app = require('express')();
+var server = require('http').createServer(app);
 var mongoose = require('mongoose');
-var redis = require('redis');
-var redisClient = redis.createClient();
+var redisClient = require('redis').createClient();
 var RedisStore = require('connect-redis')(express);
 var connect = require('connect');
 var path = require('path'); 
 var colors = require('colors');
 var fs = require('fs');
+var io = require('socket.io').listen(server);
 
 var httpsOptions = {
     key: fs.readFileSync('key.pem'),
     cert: fs.readFileSync('cert.pem')
 };
-
-var app = express();
 
 // all environments
 app.set('port', process.env.PORT || 8080);
@@ -85,14 +82,17 @@ app.post('/register', routes.register);
 
 app.get('/', routes.index);
 
-http.createServer(app).listen(app.get('port'), function(){
+//http.createServer(app).listen(app.get('port'), function(){
+//  console.log('Express server listening on port ' + app.get('port'));
+//});
+//
+//https.createServer(httpsOptions, app).listen(8083, function(){
+//    console.log('Express server listening on port ' + 8083);
+//});
+
+server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
-
-https.createServer(httpsOptions, app).listen(8083, function(){
-    console.log('Express server listening on port ' + 8083);
-});
-
 
 
 
