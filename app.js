@@ -12,10 +12,10 @@ var redis = require('redis');
 if (process.env.REDISTOGO_URL) {
 
   var rtg   = require("url").parse(process.env.REDISTOGO_URL);
-  console.log(rtg)
   var redisClient = redis.createClient(rtg.port, rtg.hostname);
   var pub = redis.createClient(rtg.port, rtg.hostname);
   var sub = redis.createClient(rtg.port, rtg.hostname);
+
   redisClient.auth(rtg.auth.split(":")[1]); 
   pub.auth(rtg.auth.split(":")[1]); 
   sub.auth(rtg.auth.split(":")[1]); 
@@ -134,6 +134,8 @@ if (process.env.MONGOLAB_URI)
   var mg = require("url").parse(process.env.MONGOLAB_URI);
 else
   var mg = "mongodb://localhost/doob";
+
+console.log(mg);
 
 mongoose.connect(mg, function(err){
     if (err) throw err;
