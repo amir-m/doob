@@ -8,7 +8,24 @@ var server = require('http').createServer(app);
 // }, app);
 var mongoose = require('mongoose');
 var redis = require('redis');
-var redisClient = redis.createClient();
+
+if (process.env.REDISTOGO_URL) {
+
+  var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+  console.log(rtg)
+  var redisClient = redis.createClient(rtg.port, rtg.hostname);
+  var pub = redis.createClient(rtg.port, rtg.hostname);
+  var sub = redis.createClient(rtg.port, rtg.hostname);
+  redis.auth(rtg.auth.split(":")[1]); 
+} 
+
+else {
+  var redisClient = redis.createClient();
+  var pub = redis.createClient();
+  var sub = redis.createClient();
+}
+
+// var redisClient = redis.createClient();
 var RedisStore = require('connect-redis')(express);
 var connect = require('connect');
 var sessionStore = new RedisStore({client: redisClient});
@@ -17,7 +34,7 @@ var colors = require('colors');
 var io = require('socket.io').listen(server);
 var cookieParser = express.cookieParser('revolution!');
 var SessionSockets = require('session.socket.io');
-var broadcaster = redis.createClient(), subscriber = redis.createClient();
+// var broadcaster = redis.createClient(), subscriber = redis.createClient();
 var nodemailer = require('nodemailer');
 var async = require('async');
 var host = 'https://localhost:8080';
@@ -94,14 +111,13 @@ colors.setTheme({
 // Socket server config and setup.
 var sessionSockets = new SessionSockets(io, sessionStore, cookieParser, 'sessionid');
 var ioRedisStore = require('./node_modules/socket.io/lib/stores/redis');
-var pub = redis.createClient();
-var sub = redis.createClient();
+
 io.configure(function(){
-    // io.set('store', new ioRedisStore({
-    //     redisPub: pub,
-    //     redisSub: sub,
-    //     redisClient : redisClient
-    // }));
+    io.set('store', new ioRedisStore({
+        redisPub: pub,
+        redisSub: sub,
+        redisClient : redisClient
+    }));
 
     io.set('log level', 1);
     // io.set("transports", ["websocket"]);
@@ -112,7 +128,12 @@ redisClient.on("error", function (err) {
   console.log("Error ".error + err);
 });
 
-mongoose.connect("mongodb://localhost/doob", function(err){
+if (process.env.MONGOLAB_URI)
+  var mg = require("url").parse(process.env.MONGOLAB_URI);
+else
+  var mg = "mongodb://localhost/doob";
+
+mongoose.connect(mg, function(err){
     if (err) throw err;
 });
 
