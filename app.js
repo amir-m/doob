@@ -93,7 +93,7 @@ colors.setTheme({
 
 // Socket server config and setup.
 var sessionSockets = new SessionSockets(io, sessionStore, cookieParser, 'sessionid');
-var ioRedisStore = require('/apps/hm/node_modules/socket.io/lib/stores/redis');
+var ioRedisStore = require('./external/redis');
 var pub = redis.createClient();
 var sub = redis.createClient();
 io.configure(function(){
