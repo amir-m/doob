@@ -1,18 +1,43 @@
-<html lang="en" ng-app="hm">
+<html lang="en">
+
 	<head>
-		<script src="/public/js/lib/jquery.js"></script>
 		<link rel="stylesheet" type="text/css" href="/public/css/bootstrap.css">
-		<link rel="stylesheet" type="text/css" href="/public/css/bootstrap-glyphicons.css">
-        <script src="/public/js/lib/jquery.js"></script>
-        <script src="/public/js/bootstrap.min.js"></script>
-		<script src="/public/js/lib/angular.js"></script>
-        <script src="/public/js/lib/angular-resource.min.js"></script>
-		<script src="/public/js/app.js"></script>
-        <script src="/public/js/services.js"></script>
-  		<script src="/public/js/controllers.js"></script>
-		
+        <link rel="stylesheet" type="text/css" href="/public/css/style.css">
+        <script src="/socket.io/socket.io.js"></script>
+        <script data-main="/public/js/main" src="/public/js/lib/require.js"></script>
 	</head>
+
 	<body ng-controller="HomeCtrl">
+
+        <div  class="navbar navbar-fixed-top invisible" ng-class="navBarClass()">
+
+          <div class="navbar-inner">
+            <a class="brand" href="#">doob.io</a>
+            <ul class="nav ">
+              <li class="dropdown" >
+                <a class="dropdown-toggle">
+                  <i class="icon-user" ></i>&nbsp; {{username}}
+                  <span class="caret"></span>
+                </a>
+                <ul data-toggle="dropdown" class="dropdown-menu">
+                    <li><a ng-mouseover="">Subsribers &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{subscriberCount}}</a></li>
+                    <li class="divider"></li>
+                    <li><a ng-click="logout()">logout</a></li>
+                </ul>
+              </li>
+              <li >
+                <form class="form-search input-append">
+                  <input popover-placement="right" popover="Search..." 
+                popover-trigger="focus" class="input-medium search-query" ng-model="remote" placeholder="Search">
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
+
 		<div ng-view></div>
 	</body>
 </html>
+
+
+<!--<script src="/public/js/lib/socket.io.js"> -->

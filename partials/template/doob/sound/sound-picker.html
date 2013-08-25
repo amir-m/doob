@@ -1,0 +1,24 @@
+<span class="dropdown">
+	
+	<button  tooltip-placement="right" tooltip="Add Sound" 
+	class="btn btn-small dropdown-toggle" ng-click="loadedSounds()">
+		<icon class="icon-plus"></icon>
+	</button>
+
+	<ul class="dropdown-menu" style="max-height: 200px; overflow: hidden;overflow-y: auto;">
+		
+		<li>
+			<a stopEvent='click'>
+				<icon class="icon-download-alt"></icon> Load...
+			</a>
+		</li>
+		
+		<li class="divider" ng-show="noSoundsIndoob" ></li>
+		<li ng-show="noSoundsIndoob" ng-repeat="sound in sounds">
+			<a>
+				<icon class="icon-plus"></icon> {{sound}}&nbsp;&nbsp; 
+				<doob.play.inline sound="sound" context="context" stop-event="click"></doob.play.inline>
+			</a>
+		</li>
+	</ul>
+</span>

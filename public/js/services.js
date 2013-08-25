@@ -1,32 +1,43 @@
 var services = angular.module('hm.services', ['ngResource']);
 
-services.factory('Auth', ['$http', '$location', function($http, $location){
+// console.log(services)
+
+
+services.factory('Auth', ['$http', '$location', '$q', function($http, $location, $q){
     var myInfo = null;
     function _getMe (callback) {
         // $http.get('/me', {headers: {'Content-Type': 'application/json'}}).
         $http({
+            cache: false,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             },
             url: '/me'
         }).success(function(data, status, headers){
-                if (status == 404) {
-                    console.log('already expired dude!!');
-                    myInfo = null;
-                    if (callback) callback();
-                }
-                else {
-                    myInfo = data;
-                    if (callback) callback(myInfo);
-                }
-            });
+            myInfo = data;
+            if (callback) callback(myInfo);
+        }).error(function(data, status, headers){
+            myInfo = null;
+            callback(null);
+        });
     }
-    _getMe();
 
+    var authenticate = function() {
+        var delay = $q.defer();
+        _getMe(function(me){
+            if (me) delay.resolve(true);
+            else delay.reject(false);
+        });
+        // _getMe(function() {
+        //   delay.resolve(true);
+        // }, function() {
+        //   delay.reject(false);
+        // });
+        return delay.promise;
+    }
     var auth = {
         login: function(u, p, callback){
-            if (myInfo) return $location.path('/home');
             $http({
                 method: 'POST',
                 data: {
@@ -38,17 +49,13 @@ services.factory('Auth', ['$http', '$location', function($http, $location){
                 },
                 url: '/login'
             }).success(function(res, status) {
-                    if (status == 401)
-                        if (callback) return callback(status);
-                        else return;
-                    _getMe(function(){
-                        $location.path('/home');
-                    });
-                }).error(function(error, status){
-                    if (status == 401)
-                        if (callback) return callback(status);
-                        else return;
+                _getMe(function(){
+                    $location.path('/home');
+                    if (callback) return callback(status);
                 });
+            }).error(function(error, status){
+                if (callback) return callback(status);
+            });
         },
         register: function(u, p, callback){
             if (myInfo) return $location.path('/home');
@@ -81,6 +88,7 @@ services.factory('Auth', ['$http', '$location', function($http, $location){
                     $location.path('/login');
                 });
         },
+        authenticate: authenticate,    
         get me() {
             return myInfo;
         },
@@ -92,46 +100,78 @@ services.factory('Auth', ['$http', '$location', function($http, $location){
     return auth;
 }]);
 
-services.factory('Me', ['$resource', function($resource){
-    return $resource('/me/activity/:resource', {resource: '@resource'});
-}]);
+services.factory('socket', function ($rootScope, $http, Auth) {
 
-services.factory('Authenticate', ['$http', '$q', function($http, $q){
 
-    var token = null;
+    var socket = io.connect('/', {reconnect: false, 'try multiple transports': false});
 
-    var login = function() {
-        if (token) return true;
-    }
+    var interval;
+    var reconnectCount = 0;
+    
+    socket.on('disconnect', function () {
+        console.log('disconnected from socket server...');
+        interval = setInterval(_reconnect, 5000);
+    });
 
-    return function(){
-        if (!token) {
+    socket.on('connection', function () {
+        console.log('connected to the socket server.');
 
+        // register my name to the socket server
+        socket.emit('register:me', Auth.username);
+    });
+
+
+    var _reconnect = function () {
+        ++reconnectCount;
+        if (reconnectCount == 40) {
+            clearInterval(interval);
+        }
+
+        console.log('reconnecting to socket server...');
+        var promise = Auth.authenticate();
+
+        promise.then(function(){
+            console.log("reconnected to the socket server");
+                socket.socket.reconnect();
+                clearInterval(interval);
+        }, function(){
+            console.log("connection failed! try to reconnect in 5 seconds...");
+        });
+    };
+
+    return {
+        on: function (eventName, callback) {
+            socket.on(eventName, function () {
+                var args = arguments;
+                $rootScope.$apply(function () {
+                    callback.apply(socket, args);
+                });
+            });
+        },
+        emit: function (eventName, data, callback) {
+            socket.emit(eventName, data, function () {
+                var args = arguments;
+                $rootScope.$apply(function () {
+                    if (callback) {
+                        callback.apply(socket, args);
+                    }
+                });
+            })
+        },
+        connect: function(){
+            if (!socket.socket.connected) socket.socket.reconnect();
         }
     };
-}]);
+});
 
 
+// doob provides general services for other audio processors services.
+// services.factory('doob', function(){
 
-services.factory('fetchUser', ['$q', '$http', 'Auth', function($q, $http, $Auth) {
+// });
 
-    var deferred = $q.defer();
+// // io provides modular audio routing services for all audio nodes.
+// services.factory('io', function(doob){
 
-    var fetchUser = function(){
+// });
 
-        deferred.resolve(me);
-
-        deferred.reject('Unauthorized user!');
-    }
-
-
-
-    deferred.promise.then(Auth.login).
-    then.(fetchMe)
-    then(function(me){
-
-    },
-    function(error){
-
-    });
-}]);

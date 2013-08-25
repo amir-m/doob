@@ -1,0 +1,37 @@
+<div style="border:2px solid gray;border-radius:5px;overflow: hidden;overflow-x: auto;">
+	
+	
+	<table class="table table-hover">
+		<thead>
+			<th>
+				<td style="">
+				<a>{{instanceName}}</a> | <a>{{pattern.name}}</a> | 
+				
+				<doob.sound.picker></doob.sound.picker>		
+				<button class="btn btn-small" ng-click="pattern.play(1)">
+					<icon class="icon-play"></icon>
+				</button>
+				<button class="btn btn-small" ng-click="pattern.stop()">
+					<icon class="icon-stop"></icon>
+				</button>
+				</td>
+
+			</th>
+		</thead>
+		<tbody>
+			<tr ng-repeat="patternSound in patternSounds" class="sound-pattern">
+				<td >{{patternSound}}</td>
+				<td class="btn-group" style="">
+					<span ng-repeat="beat in beats()">
+						<span ng-show="$index % 4 == 0 && $index != 0 && $index % 8 != 0 && $index % 12 != 0 && $index % 16 != 0" class="quarter-divider"></span>
+						<span ng-show="$index % 8 == 0 && $index != 0 && $index % 16 != 0 && $index % 12 != 0" class="half-divider"></span>
+						<span ng-show="$index % 12 == 0 && $index != 0" class="three-quarters-divider"></span>
+						<span ng-show="$index % 16 == 0 && $index != 0" class="one-divider"></span>
+						<doob.pattern.note index="$index + 1"></doob.pattern.note>
+
+					</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

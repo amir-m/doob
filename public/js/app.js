@@ -1,10 +1,6 @@
-angular.module('hm', ['hm.services']).config(['$routeProvider', function($routeProvider) {
-  $routeProvider.
-      when('/login', {templateUrl: 'partials/login.html', controller: LoginCtrl}).
-      when('/home', {templateUrl: 'partials/index.html', controller: HomeCtrl}).
-      when('/me', {templateUrl: 'partials/me.html', controller: HomeCtrl}).
-      // when('/register', {templateUrl: 'views/register.html', controller: RegisterCtrl}).
-      otherwise({redirectTo: '/login'});
+define(['angular', 'angularResource', 'uiBootstrap', 'controllers/controllers', 'services/services', 
+      'directives/directives', 'filters/filters'], function(angular){
 
-}]);
-
+    return angular.module('hm', ['ngResource', 'ui.bootstrap', 'controllers', 'services', 
+          'directives', 'filters']);
+});
