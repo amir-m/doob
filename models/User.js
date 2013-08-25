@@ -1,6 +1,7 @@
-module.exports = function(mongoose) {
+module.exports = function(mongoose, async) {
 
-	var crypto = require('crypto');
+	var bcrypt = require('bcrypt');
+
 
 	// defining schemas
 	var UserSchema = new mongoose.Schema({
@@ -18,7 +19,14 @@ module.exports = function(mongoose) {
 		getMe: [],
 
 		// Activities
-		activities: []
+		activities: [],
+
+		// Social
+		followers: [],
+		following: []
+
+		// Instroments
+
 	});
 
 	// schema settings
@@ -31,93 +39,149 @@ module.exports = function(mongoose) {
 	// models
 	var User = mongoose.model('User', UserSchema);
 
-	var createUser = function(options, callback){
+
+	var createUser = function(options, callbackFn){
 
 		if (!options || !options.username || !options.password) 
-			if (callback) return callback({error: 400});
+			if (callbackFn) return callbackFn({error: 400});
 			else return;
 
 		options.usernameLowerCase = options.username.toLowerCase();
+		// Base-64 encoding of ObjectId
+		options._id = _objectId();
+		var r = options.requestor;
+		delete options.requestor;
 
-		userExists(options.usernameLowerCase, function(yes){
-			if (yes) 
-				if (callback) return callback({error: 400});
-				else return;
 
-			// Base-64 encoding of ObjectId
-			options._id = _objectId();
-			options.password = _password(options.password);
-			var r = options.requestor;
-			delete options.requestor;
+		async.waterfall([
+			function(callback){
+				// check if the user exists
+				userExists(options.usernameLowerCase, function(yes) {
+					console.log('---inside async.1.userExist---'.info);
+					callback(null, yes);
+				});
+			},	
+			function(userExist, callback) {
+				console.log('---inside async.2---'.info);
 
-			var user = new User(options);
+				// the user already exists, call the callback function with error code 400 
+				if (userExist) callback({error: 400});
+				// user does not exist, proceed to next function
+				else callback(null);
+			}, 
+			function(callback) {
+				// set password.
+				console.log('---inside async.3---'.info);
 
-			user.save(function(err){
-				if (err) {
-					console.log('models.User.create callback error:'.error);
-					return callback({error: err});
-				};
-				console.log('models.User.create: a user succesfully registered.'.info);
-				if (callback) return callback({success: true, id: user._id});
-			});
 
-			user.logins.push(r);
-			user.save();
+				// get salt from bcrypt
+				bcrypt.genSalt(10, function(err, salt) {
+					callback(err, salt);
+				});
+			}, 
+			function(salt, callback) {
+				console.log('---inside async.4---'.info);
+				// get password hash from salt
+				bcrypt.hash(options.password, salt, function(err, hash) {
+					options.password = hash;
+					callback(err);
+				});
+			},
+			function(callback) {
+				// create a new user
+				var user = new User(options);
+
+				user.save(function(err){
+					if (err) {
+						console.log('models.User.create callbackFn error:'.error);
+						callback(err)
+						// return callbackFn({error: err});
+					} else {
+						console.log('models.User.create: a user succesfully registered.'.info);
+						user.logins.push(r);
+						user.save();
+						callback(null, {success: true, id: user._id});
+					}
+				});
+			}
+
+		], function(error, result) {
+			// last function
+			if (callbackFn) callbackFn(error, result); 
 		});
 	};
 
-	var authenticateUser = function(username, password, requestor, callback){
+	var authenticateUser = function(username, password, requestor, callbackFn){
 
-		User.findOne({
-			usernameLowerCase: username.toLowerCase() 
-		}, function(err, doc) {
+		if (!username || !password) 
 			
-			if (err) return callback({
-				error: {
-					code: 500,
-					err: err
-				}
-			});
-				
-			// username is correct
-			if (doc) {
-				// password matches with username
-				if (doc.password == crypto.createHash('sha256').update(password).digest('hex')) {
-					doc.logins.push(requestor);
-					doc.save();
-					console.log(doc.logins.length);
-					return callback({success: true, id: doc.id});
-				}
-				// password doesn't match with username
-				else {
-					console.log('badLogins')
-					doc.badLogins.push(requestor);
-					doc.save();
+			if (callbackFn && typeof callbackFn == 'function') 
+				return callbackFn({
+					error: {
+						code: 400,
+						err: 'Username and Password are required!'
+					}
+				});
+
+			else return;
+
+		async.waterfall([
+			function(callback) {
+				// check if the user exists.
+				User.findOne({
+					usernameLowerCase: username.toLowerCase() 
+				}, function(error, user) {
+					callback(error, user);
+				});
+			},
+			function(user, callback) {
+				// username doesn't exist or bad password..		
+				if (!user) {
+					callback({error: {code: 401, err: 'Invalid username/password'}});
+				} 
+				else
+					// compare the user's password to the supplied password
+					bcrypt.compare(password, user.password, function(error, result) {
+    					callback(error, result, user);
+					});
+			}, 
+			function(matched, user, callback) {
+				if (!matched) {
+					user.badLogins.push(requestor);
+					user.save();
+					callback({error: {code: 401, err: 'Invalid username/password'}});
+				} else {
+					user.logins.push(requestor);
+					user.save();
+					callback(null, {success: true, id: user.id, username: user.username});
 				}
 			}
-			
-			// username doesn't exist or bad password..
-			callback({error: {code: 401, err: 'Invalid username/password'}});
-
+		],
+		function(error, result) {
+			if (callbackFn) callbackFn(error, result)
 		});
 	};
 
 	var userExists = function(username, callback) {
-		User.findOne({username: username}, function(err, doc){
+
+		if (!username || !callback) return;
+		
+		User.findOne({usernameLowerCase: username.toLowerCase()}, function(err, doc){
 			if (doc) return callback(true);
 			return callback(false);
 		});
 	};
 
-	var logout = function(username, requestor) {
+	var logout = function(id, requestor, callback) {
 
-		User.findOne({usernameLowerCase: username}, function(err, doc){
+		User.findOne({_id: id}, function(err, doc){
 
 			if (err) return console.log('User.logout.ERROR: ' + err);
 
 			if (doc) {
 				doc.logouts.push(requestor);
 				doc.save();
+				callback(doc.username);
 			}
 		});
 	};
@@ -148,18 +212,95 @@ module.exports = function(mongoose) {
 		});
 	};
 
+	var follow = function(me, userIwantToFollow, callbackFn) {
+		
+		// i want to follow another user
+
+		if (!me || !userIwantToFollow) return callbackFn(404);
+
+		async.waterfall(
+		[
+			function(callback) {
+				User.findOne({
+					usernameLowerCase: me.toLowerCase() 
+				}, function(error, _me){
+					callback(error, _me);
+				});
+			},
+			function(_me, callback) {
+				User.findOne({
+					usernameLowerCase: userIwantToFollow.toLowerCase() 
+				}, function(error, _userIwantToFollow) {
+					callback(error, _userIwantToFollow, _me);
+				});
+			}, 
+			function(_userIwantToFollow, _me, callback) {
+				_me.following.push(userIwantToFollow);
+				_userIwantToFollow.followers.push(me);
+				_me.save();
+				_userIwantToFollow.save();
+				callback(null, 200);
+			}
+		],
+		function(error, result) {
+			if (callbackFn) callbackFn(error, result);
+		});
+	};
+
+	var unFollow = function(me, userIwantToUnfollow, callback) {
+
+		// i want to stop following another user (userIwantToUnfollow)
+
+		if (!me || !userIwantToUnfollow) return callbackFn(404);
+
+		async.waterfall(
+		[
+			function(callback) {
+				User.findOne({
+					usernameLowerCase: me.toLowerCase() 
+				}, function(error, _me){
+					callback(error, _me);
+				});
+			},
+			function(_me, callback) {
+				User.findOne({
+					usernameLowerCase: userIwantToUnfollow.toLowerCase() 
+				}, function(error, _userIwantToUnfollow) {
+					callback(error, _userIwantToUnfollow, _me);
+				});
+			}, 
+			function(_userIwantToUnfollow, _me, callback) {
+				_me.following.splice(_me.following.indexOf(userIwantToUnfollow), 1);
+				_userIwantToUnfollow.followers.splice(_userIwantToUnfollow.followers.indexOf(me), 1);
+				_me.save();
+				_userIwantToUnfollow.save();
+				callback(null, 200);
+			}
+		],
+		function(error, result) {
+			if (callbackFn) callbackFn(error, result);
+		});
+	};
+
+	var getUser = function(name, callback) {
+		User.findOne({usernameLowerCase: name.toLowerCase()}, ['username', 'followers', 'following']
+		, function(error, user) {
+			callback(user);
+		});
+	};
+
 	var _objectId = function() {
 		return new Buffer((new mongoose.Types.ObjectId).toString()).toString('base64');
 	};
 
-	var _password = function(pass) {
-		return crypto.createHash('sha256').update(pass).digest('hex');
-	};
-
 	return {
+		User: User,
 		createUser: createUser,
 		authenticateUser: authenticateUser,
 		logout: logout,
-		me: me
+		me: me,
+		follow: follow,
+		unFollow: unFollow,
+		getUser: getUser
 	};
 };

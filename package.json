@@ -16,6 +16,10 @@
     "path": "*",
     "jasmine-node": "*",
     "mongoose-validator": "*",
-    "socket.io": "*"
-  }
+    "socket.io": "*",
+    "session.socket.io": "*",
+    "nodemailer": "*",
+    "bcrypt": "*",
+    "async": "*"
+    }
 }

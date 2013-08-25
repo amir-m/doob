@@ -1,21 +1,53 @@
-var app = require('express')();
+var fs = require('fs');
+var express = require('express');
+var app = express();
 var server = require('http').createServer(app);
+// var server = require('https').createServer({
+//   key: fs.readFileSync('key.pem'),
+//   cert: fs.readFileSync('cert.pem')
+// }, app);
 var mongoose = require('mongoose');
-var redisClient = require('redis').createClient();
+var redis = require('redis');
+var redisClient = redis.createClient();
 var RedisStore = require('connect-redis')(express);
 var connect = require('connect');
+var sessionStore = new RedisStore({client: redisClient});
 var path = require('path'); 
 var colors = require('colors');
-var fs = require('fs');
 var io = require('socket.io').listen(server);
+var cookieParser = express.cookieParser('revolution!');
+var SessionSockets = require('session.socket.io');
+var broadcaster = redis.createClient(), subscriber = redis.createClient();
+var nodemailer = require('nodemailer');
+var async = require('async');
+var host = 'https://localhost:8080';
 
-var httpsOptions = {
-    key: fs.readFileSync('key.pem'),
-    cert: fs.readFileSync('cert.pem')
-};
+// var smtpTransport = nodemailer.createTransport("SMTP",{
+//    service: "Gmail",
+//    auth: {
+//        user: "amir39648@gmail.com",
+//        pass: "Carex615"
+//    }
+// });
+// var mailOptions = {
+//    from: "amir39648@gmail.com", // sender address
+//    to: "amir@doob.io", // list of receivers
+//    subject: "Test Email", // Subject line
+//    text: "You got right? Thanks :)" // plaintext body
+// };
+// smtpTransport.sendMail(mailOptions, function(error, response){
+//    if(error){
+//        console.log(error);
+//    }else{
+//        console.log("Message sent: " + response.message);
+//    }
+// });
 
-// all environments
+
+
+// Express configurations.
 app.set('port', process.env.PORT || 8080);
+// app.set('SSLPort', 8000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.set('view options', {layout: false});
@@ -24,18 +56,27 @@ app.use(express.favicon('./public/img/icon.png'));
 app.use(express.logger('dev'));
 app.use(connect.bodyParser());
 app.use(express.methodOverride());
-app.use(express.cookieParser());
-// app.use(express.session({
-//   secret:'doob.io is TOP SECRET!',
-//   store: new connect()
-// }));
+app.use(cookieParser);
 app.use(express.session({ 
-  store: new RedisStore({client: redisClient}), 
-  secret: 'keyboard cat',
-  cookie: {maxAge: 600000} 
+  store: sessionStore, 
+  key: 'sessionid',
+  secret: 'revolution!',
+  cookie: {
+    maxAge: null,
+    httpOnly: true
+  } 
 }));
+
+app.use(function(req, res, next){
+  // redirect all non-https trafic to https..
+  if (req.protocol != 'https') return res.redirect(host + req.url);
+  next();
+});
+
+
 app.use(app.router);
 
+// Using color themes.
 colors.setTheme({
   silly: 'rainbow',
   input: 'grey',
@@ -49,8 +90,26 @@ colors.setTheme({
   error: 'red'
 });
 
+
+// Socket server config and setup.
+var sessionSockets = new SessionSockets(io, sessionStore, cookieParser, 'sessionid');
+var ioRedisStore = require('/apps/hm/node_modules/socket.io/lib/stores/redis');
+var pub = redis.createClient();
+var sub = redis.createClient();
+io.configure(function(){
+    // io.set('store', new ioRedisStore({
+    //     redisPub: pub,
+    //     redisSub: sub,
+    //     redisClient : redisClient
+    // }));
+
+    io.set('log level', 1);
+    // io.set("transports", ["websocket"]);
+});
+
+
 redisClient.on("error", function (err) {
-  console.log("Error " + err);
+  console.log("Error ".error + err);
 });
 
 mongoose.connect("mongodb://localhost/doob", function(err){
@@ -58,41 +117,161 @@ mongoose.connect("mongodb://localhost/doob", function(err){
 });
 
 var models = {
-  User: require('./models/User')(mongoose)
+  User: require('./models/User')(mongoose, async)
 };
 
-var routes = require('./routes/index')(fs, redis, redisClient, models);
+var routes = {
+  index: require('./routes/index')(),
+  user: require('./routes/user')(fs, redis, redisClient, models, io)
+};
+
 
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/public/*', routes.public);
+app.get('/public/*', routes.index.public);
 
-app.get('/partials/*', routes.partials);
+app.get('/template/*', routes.index.template);
 
-app.get('/me', routes.me);
+app.get('/partials/*', routes.index.partials);
 
-app.get('/logout', routes.logout);
+app.get('/ping', routes.index.ping);
 
-app.post('/login', routes.login);
+app.get('/me', routes.user.me);
 
-app.post('/register', routes.register);
+app.get('/logout', routes.user.logout);
 
-app.get('/', routes.index);
+app.get('/user/:name', routes.user.getUser);
 
-//http.createServer(app).listen(app.get('port'), function(){
-//  console.log('Express server listening on port ' + app.get('port'));
-//});
-//
-//https.createServer(httpsOptions, app).listen(8083, function(){
-//    console.log('Express server listening on port ' + 8083);
-//});
+app.post('/login', routes.user.login);
 
-server.listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+app.post('/register', routes.user.register);
+
+app.get('/', routes.index.index);
+
+
+sub.subscribe('amir');
+
+sessionSockets.on('connection', function(err, socket, session){
+  if (err) throw err;
+
+  if (!session || !session.uid) {
+    socket.disconnect();
+    return;
+  }
+  var events = require('./events/handlers')(io, socket, session, redisClient, models);
+
+
+  if (session.username) {
+    // socket.set('username', user.username);
+    io.sockets.sockets[session.username] = socket.id;
+    console.log('connecting: %s to %s'.prompt, session.username, socket.id);
+
+    events.joinRoome(session.username);
+  }
+
+  else
+    models.User.User.findOne({_id: session.uid}, function(error, user){
+      if (error) throw error;
+      if (!user || !user.username) throw 'BAD USER !!!';
+
+      session.username = user.username;
+      session.save();
+      
+      io.sockets.sockets[session.username] = socket.id;
+      console.log('connecting: %s to %s'.prompt, session.username, socket.id);
+
+      events.joinRoome(session.username);
+    });
+
+  // io.sockets.socket.get('username', function(){
+  //   if (err) console.log(err); 
+  // });
+  socket.on('test', function(user){
+    // pub.publish('test', user);
+    socket.broadcast.emit('test');
+  });
+
+  socket.on('user:broadcast:entire:session', events.u_b_e_s);
+  
+  socket.on('user:subscribe', events.userSubscribe);
+
+  socket.on('user:unsubscribe', events.userUnsubscribe);
+
+  socket.on('user:new:pattern', function(data){
+    socket.get('username', function(name){
+      // if ()
+    });
+  });
+
+  socket.on('disconnect', events.disconnect);
+
+  socket.on('doob:assets', function(data){
+    pub.publish()
+    console.log(data);
+  });
+
 });
 
+
+server.listen(app.get('port'), function(){
+  console.log('Express server listening on port '.prompt + app.get('port'));
+});
+
+// httpServer.listen(8081, function(){
+//   console.log('Express server listening on port '.prompt + 8081);
+// });
+
+// secureServer.listen(app.get('SSLPort'), function(){
+//   console.log('Express Secure server listening on port '.prompt + app.get('SSLPort'));
+// });
+
+// redisClient.sadd('connected', 'key1', function(err){
+//   redisClient.sismember('connected', 'key1', function(err, reply){
+//     console.log('redis reply bitch: %s', reply)
+//     redisClient.smembers('connected', function(err, reply){
+//       console.log(reply.indexOf('key1'));
+//     });
+//   })
+// })
+
+
+
+
+// var key1 = 'key1';
+// var s = { 'array': ['amir', 'yashar'] };
+// redisClient.hmset(key1, s, function(error){
+//   if (error) throw error;
+//   // console.log(s);
+//   redisClient.hgetall('key1', function(error, obj){
+//     console.log('first hget');
+//     console.log(obj);
+//     obj['array'].push('gholam');
+//     console.log(obj);
+//     // redisClient.hmset(key1, {"sid": 'qwertyxzaq12ax' }, 
+//     //   function(error){
+//     //     if (error) throw error;
+//     //     redisClient.hgetall('key1', function(error, obj){
+//     //       if (error) throw error;
+//     //       console.log('second hget');
+//     //       console.log(obj);
+//     //     });
+//     //   });
+//   }) 
+// });
+
+// redisClient.FLUSHALL(function(){
+//   redisClient.keys('*', function(error, obj){
+//     obj.forEach(function(r, i){
+//       console.log(i + ":" + r);
+//     });
+//   }) 
+// })
+
+// broadcaster.del('Amir', function(error){
+//   if (error) throw err;
+// });
 
 
