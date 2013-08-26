@@ -39,7 +39,7 @@ var SessionSockets = require('session.socket.io');
 // var broadcaster = redis.createClient(), subscriber = redis.createClient();
 var nodemailer = require('nodemailer');
 var async = require('async');
-var host = 'https://localhost:8080';
+// var host = 'https://localhost:8080';
 
 // var smtpTransport = nodemailer.createTransport("SMTP",{
 //    service: "Gmail",
@@ -86,11 +86,11 @@ app.use(express.session({
   } 
 }));
 
-app.use(function(req, res, next){
-  // redirect all non-https trafic to https..
-  if (req.protocol != 'https') return res.redirect(host + req.url);
-  next();
-});
+// app.use(function(req, res, next){
+//   // redirect all non-https trafic to https..
+//   if (req.protocol != 'https') return res.redirect(host + req.url);
+//   next();
+// });
 
 
 app.use(app.router);
