@@ -1,7 +1,7 @@
 define(['controllers/controllers', 'services/auth', 'services/socket', 'services/doob', 'uiBootstrap'], 
 function(controllers){
 	
-	controllers.controller('HomeCtrl', ['$scope', '$location', '$rootScope', 'Auth', 'socket',
+	controllers.controller('home-ctrl', ['$scope', '$location', '$rootScope', 'Auth', 'socket',
 	'doobio', 'io', 'audio', 'sequencer', 'effects', 
 		function ($scope, $location, $rootScope, Auth, socket, doobio, io, audio, sequencer, effects) {
 

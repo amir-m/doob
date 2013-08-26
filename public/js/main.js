@@ -4,7 +4,7 @@ require.config({
 		angular: 'lib/angular',
 		angularResource: 'lib/angular-resource',
 		// jquery: 'lib/jquery',
-		domReady: 'lib/domReady',
+		domready: 'lib/domready',
 		uiBootstrap: 'lib/ui-bootstrap-tpls-0.5.0',
 		doob: 'lib/doob',
 		io: 'lib/io',
@@ -27,20 +27,20 @@ require([
 	'domReady',
 	// 'jquery',
 	'uiBootstrap',
-	'controllers/HomeCtrl',
-	'controllers/LoginCtrl',
-	'services/Auth',
+	'controllers/home-ctrl',
+	'controllers/login-ctrl',
+	'services/auth',
 	'services/socket',
 	'services/io',
 	'services/audio',
 	'services/sequencer',
 	'services/effects',
-	'directives/playInline',
-	'directives/soundPicker',
-	'directives/soundPattern',
-	'directives/soundPatterns',
-	'directives/stopEvent',
-	'directives/patternNote',
+	'directives/playinline',
+	'directives/soundpicker',
+	'directives/soundpattern',
+	'directives/soundpatterns',
+	'directives/stopevent',
+	'directives/patternnote',
 	], function(angular, app, domReady, $) {
 		
 		'use strict';
@@ -48,8 +48,8 @@ require([
 		app.config(['$routeProvider', '$httpProvider', 
 			function($routeProvider, $httpProvider) {
 		  $routeProvider.
-		      when('/login', {templateUrl: 'partials/login.html', controller: 'LoginCtrl'}).
-		      when('/home', {templateUrl: 'partials/index.html', controller: 'HomeCtrl', resolve:
+		      when('/login', {templateUrl: 'partials/login.html', controller: 'login-ctrl'}).
+		      when('/home', {templateUrl: 'partials/index.html', controller: 'home-ctrl', resolve:
 		      	function(Auth, $location, $rootScope, doobio){
 		      		var status = Auth.authenticate();
 		      		status.then(function(){
