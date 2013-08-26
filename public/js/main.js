@@ -24,7 +24,7 @@ require.config({
 require([
 	'angular',
 	'app', 
-	'domReady',
+	'domready',
 	// 'jquery',
 	'uiBootstrap',
 	'controllers/home-ctrl',
@@ -35,12 +35,12 @@ require([
 	'services/audio',
 	'services/sequencer',
 	'services/effects',
-	'directives/playinline',
-	'directives/soundpicker',
-	'directives/soundpattern',
-	'directives/soundpatterns',
-	'directives/stopevent',
-	'directives/patternnote',
+	'directives/play-inline',
+	'directives/sound-picker',
+	'directives/sound-pattern',
+	'directives/sound-patterns',
+	'directives/stop-event',
+	'directives/pattern-note',
 	], function(angular, app, domReady, $) {
 		
 		'use strict';

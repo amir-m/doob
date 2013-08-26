@@ -1,6 +1,6 @@
 define(['services/services'], function(services){
 
-	services.factory('Auth',  ['$rootScope', '$http', '$location', '$q', 'socket', 
+	services.factory('auth',  ['$rootScope', '$http', '$location', '$q', 'socket', 
 			function ($rootScope, $http, $location, $q, socket){
 			// socket.disconnect(false);
 		    var myInfo = {};
