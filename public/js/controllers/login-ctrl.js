@@ -1,9 +1,9 @@
 define(['controllers/controllers'], function(controllers){
 	
-	controllers.controller('login-ctrl', ['$scope', '$location','Auth', 
-	function ($scope, $location, Auth) {
+	controllers.controller('login-ctrl', ['$scope', '$location','auth', 
+	function ($scope, $location, auth) {
 
-		var promise = Auth.authenticate();
+		var promise = auth.authenticate();
 
 		promise.then(function(value){
 			console.log(value)
@@ -15,14 +15,14 @@ define(['controllers/controllers'], function(controllers){
 		$scope.rrm = true;
 
 		$scope.login = function(){
-			Auth.login($scope.lu, $scope.lp, $scope.lrm, function(status){
+			auth.login($scope.lu, $scope.lp, $scope.lrm, function(status){
 				if (status == 401) $scope.err = 'Invalid username or password';
 			});
 			return false;
 		};
 
 		$scope.register = function(){
-			Auth.register($scope.ru, $scope.rp, $scope.rrm, function(status){
+			auth.register($scope.ru, $scope.rp, $scope.rrm, function(status){
 				if (status == 400) $scope.err = 'Bad registration request';
 			});
 			return false;

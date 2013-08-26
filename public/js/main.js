@@ -50,8 +50,8 @@ require([
 		  $routeProvider.
 		      when('/login', {templateUrl: 'partials/login.html', controller: 'login-ctrl'}).
 		      when('/home', {templateUrl: 'partials/index.html', controller: 'home-ctrl', resolve:
-		      	function(Auth, $location, $rootScope, doobio){
-		      		var status = Auth.authenticate();
+		      	function(auth, $location, $rootScope, doobio){
+		      		var status = auth.authenticate();
 		      		status.then(function(){
 		      			// if user can be authenticated, create a doob instance for the
 		      			// current logged in user. TODO: Fetch user's doob instances, activities, etc

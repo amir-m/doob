@@ -1,9 +1,9 @@
 define(['controllers/controllers', 'services/auth', 'services/socket', 'services/doob', 'uiBootstrap'], 
 function(controllers){
 	
-	controllers.controller('home-ctrl', ['$scope', '$location', '$rootScope', 'Auth', 'socket',
+	controllers.controller('home-ctrl', ['$scope', '$location', '$rootScope', 'auth', 'socket',
 	'doobio', 'io', 'audio', 'sequencer', 'effects', 
-		function ($scope, $location, $rootScope, Auth, socket, doobio, io, audio, sequencer, effects) {
+		function ($scope, $location, $rootScope, auth, socket, doobio, io, audio, sequencer, effects) {
 
 		$scope.$on('$routeChangeSuccess', function(next, current) { 
 			// socket.connect();
@@ -16,11 +16,11 @@ function(controllers){
 		$rootScope.doob = doobio;
 
 		// Check if the user's logged in
-		var promise = Auth.authenticate();
+		var promise = auth.authenticate();
 
 		promise.then(function(){
-			console.log(Auth.username)
-			$rootScope.username = Auth.username;
+			console.log(auth.username)
+			$rootScope.username = auth.username;
 		}, function(){
 			return $location.path('/login');
 		});
@@ -55,7 +55,7 @@ function(controllers){
 		// functions
 		$scope.logout = function(){
 			$rootScope.username = null;
-			Auth.logout();
+			auth.logout();
 		}
 		
 		$scope.unsubsc = function(){
