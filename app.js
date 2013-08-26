@@ -112,17 +112,10 @@ colors.setTheme({
 
 // Socket server config and setup.
 var sessionSockets = new SessionSockets(io, sessionStore, cookieParser, 'sessionid');
-var ioRedisStore = require('./node_modules/socket.io/lib/stores/redis');
 
 io.configure(function(){
-    io.set('store', new ioRedisStore({
-        redisPub: pub,
-        redisSub: sub,
-        redisClient : redisClient
-    }));
-
     io.set('log level', 1);
-    // io.set("transports", ["websocket"]);
+    io.set("transports", ["xhr-polling"]);
 });
 
 
