@@ -131,11 +131,9 @@ redisClient.on("error", function (err) {
 });
 
 if (process.env.MONGOLAB_URI)
-  var mg = require("url").parse(process.env.MONGOLAB_URI);
+  var mg = process.env.MONGOLAB_URI;//require("url").parse(process.env.MONGOLAB_URI);
 else
   var mg = "mongodb://localhost/doob";
-
-console.log(mg);
 
 mongoose.connect(mg, function(err){
     if (err) throw err;
