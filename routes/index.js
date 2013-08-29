@@ -1,4 +1,4 @@
-module.exports = function(){
+module.exports = function(models, sessionMaxAge){
 
 	var index = function(req, res, next){
 		res.set({
@@ -19,14 +19,35 @@ module.exports = function(){
 		res.sendfile('partials/'+req.params[0]);
 	};
 
+	// Scenario 1.
 	var ping = function(req, res, next){
-
-		console.log(req.host)
-		console.log(req.protocol)
-
-		if (req.session && req.session.uid && req.session.username) return res.send(200);
 		
+		// Scenario 1. 1
+		if (req.session && req.session.uid && req.session.username) {
+
+			req.session.cookie.expires = new Date(Date.now() + sessionMaxAge);
+			req.session.cookie.maxAge = sessionMaxAge;
+			
+			return res.send(200);
+		}
+		
+		// Scenario 1. 2
 		return res.send(401);
+	};
+
+	var destroy = function(req, res, next){
+		
+		if (req.session) {
+
+			req.session.destroy(function(error){
+				if (error) console.log(error);
+				return res.send(200);
+			});
+			
+		}
+		
+		// 
+		else return res.send(400);
 	};
 
 	return {
@@ -34,6 +55,7 @@ module.exports = function(){
 		public: public,
 		template: template,
 		partials: partials,
-		ping: ping
+		ping: ping,
+		destroy: destroy
 	}
 };

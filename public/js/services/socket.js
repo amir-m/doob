@@ -14,7 +14,7 @@ define(['services/services'], function(services){
 	    	$http({
 	            cache: false,
 	            method: 'GET',	   
-	            url: '/me'
+	            url: '/ping'
 	        }).success(function(){
 	    		delay.resolve(true);
 	    	}).error(function(){

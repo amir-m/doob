@@ -20,6 +20,7 @@
     "session.socket.io": "*",
     "nodemailer": "*",
     "bcrypt": "*",
-    "async": "*"
+    "async": "*",
+    "express-useragent": "*"
     }
 }

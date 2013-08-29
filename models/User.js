@@ -1,6 +1,7 @@
 module.exports = function(mongoose, async) {
 
 	var bcrypt = require('bcrypt');
+	var logins = require('../models/logins')(mongoose);
 
 
 	// defining schemas
@@ -14,7 +15,6 @@ module.exports = function(mongoose, async) {
 
 		// Request Trackers
 		logins: [],
-		badLogins: [],
 		logouts: [],
 		getMe: [],
 
@@ -145,14 +145,19 @@ module.exports = function(mongoose, async) {
     					callback(error, result, user);
 					});
 			}, 
+
+			// Scenario 2. 2.a
 			function(matched, user, callback) {
+
+				// Scenario 2. 2.a.i
+				// User can't be authenticated
 				if (!matched) {
-					user.badLogins.push(requestor);
-					user.save();
+
+					logins.badLogin(user._id, requestor);
 					callback({error: {code: 401, err: 'Invalid username/password'}});
 				} else {
-					user.logins.push(requestor);
-					user.save();
+
+					logins.successfulLogin(user._id, requestor);
 					callback(null, {success: true, id: user.id, username: user.username});
 				}
 			}

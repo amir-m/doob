@@ -3,13 +3,6 @@ define(['controllers/controllers'], function(controllers){
 	controllers.controller('login-ctrl', ['$scope', '$location','auth', 
 	function ($scope, $location, auth) {
 
-		var promise = auth.authenticate();
-
-		promise.then(function(value){
-			console.log(value)
-			return $location.path('/home');
-		});
-
 		$scope.err = null;
 		$scope.lrm = true;
 		$scope.rrm = true;

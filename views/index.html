@@ -12,28 +12,102 @@
         <div  class="navbar navbar-fixed-top invisible" ng-class="navBarClass()">
 
           <div class="navbar-inner">
-            <a class="brand" href="#">doob.io</a>
+            <a class="brand" href="#" style="font-family:Verdana;letter-spacing:-2px">doob.io</a>
+
             <ul class="nav ">
-              <li class="dropdown" >
-                <a class="dropdown-toggle">
-                  <i class="icon-user" ></i>&nbsp; {{username}}
-                  <span class="caret"></span>
+              <!-- notifications drop down-->
+              <li>
+                <a>
+                  <icon class="icon-bell"></icon>
                 </a>
-                <ul data-toggle="dropdown" class="dropdown-menu">
-                    <li><a ng-mouseover="">Subsribers &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{subscriberCount}}</a></li>
+              </li>
+              <!-- messages drop down-->
+              <li>
+                <a>
+                  <icon class="icon-envelope"></icon>
+                </a>
+              </li>
+              <!-- user drop down-->
+              <li class="dropdown" >
+                <a class="dropdown-toggle" data-toggle="dropdown" >
+                  <i class="icon-user" ></i>&nbsp; {{username}}
+                  
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                      <a ng-mouseover="">Broadcast 
+                        <icon class="icon-globe pull-right">
+                        </icon>
+                      </a>
+                    </li>
+                    <li>
+                      <a ng-mouseover="">Settings 
+                        <icon class="icon-wrench pull-right">
+                        </icon>
+                      </a>
+                    </li>
+                    <li ng-show="subscriberCount > 0">
+                      <a ng-mouseover="">{{subscriberCount}} Subsribers 
+                        <icon class="icon-eye-open pull-right">
+                        </icon>
+                      </a>
+                    </li>
                     <li class="divider"></li>
-                    <li><a ng-click="logout()">logout</a></li>
+                    <li><a ng-click="logout()">Logout</a></li>
                 </ul>
               </li>
-              <li >
-                <form class="form-search input-append">
-                  <input popover-placement="right" popover="Search..." 
-                popover-trigger="focus" class="input-medium search-query" ng-model="remote" placeholder="Search">
-                </form>
+              <!-- projects drop down-->
+              <li class="dropdown" >
+                <a class="dropdown-toggle" data-toggle="dropdown">
+                  Project
+                  
+                </a>
+                <ul class="dropdown-menu">
+                  <li>
+                      <a ng-mouseover="">
+                        <i class="icon-share-alt"></i>
+                        Open Seed
+                      </a>
+                    </li>
+                    <li>
+                      <a ng-mouseover="">
+                        <i class="icon-plus"></i> Create New Seed 
+                      </a>
+                    </li>
+                    <li>
+                      <a ng-mouseover="">
+                        <i class="icon-search"></i>
+                        Explore Seeds
+                      </a>
+                    </li>
+                    
+                </ul>
               </li>
+
+
+
+
+<li>
+
+
+
+
+
+
+
+
+
             </ul>
           </div>
         </div>
+
+
+
+
+
+
+
+
 
 		<div ng-view></div>
 	</body>

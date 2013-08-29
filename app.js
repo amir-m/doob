@@ -39,6 +39,14 @@ var SessionSockets = require('session.socket.io');
 // var broadcaster = redis.createClient(), subscriber = redis.createClient();
 var nodemailer = require('nodemailer');
 var async = require('async');
+var useragent = require('express-useragent');
+
+//                  m  * s  *  ms
+var sessionMaxAge = 20 * 60 * 1000;
+//                 m * d  * h  * m  * s  * ms    
+var cookieMaxAge = 1 * 30 * 24 * 60 * 60 * 1000;
+
+
 // var host = 'https://localhost:8080';
 
 // var smtpTransport = nodemailer.createTransport("SMTP",{
@@ -81,14 +89,16 @@ app.use(express.session({
   key: 'sessionid',
   secret: 'revolution!',
   cookie: {
-    maxAge: null,
+    maxAge: sessionMaxAge,
     httpOnly: true
   } 
 }));
+app.use(useragent.express());
 
 // app.use(function(req, res, next){
 //   // redirect all non-https trafic to https..
-//   if (req.protocol != 'https') return res.redirect(host + req.url);
+//   // if (req.protocol != 'https') return res.redirect(host + req.url);
+//   console.log(req.useragent);
 //   next();
 // });
 
@@ -130,15 +140,18 @@ else
 
 mongoose.connect(mg, function(err){
     if (err) throw err;
+    console.log('connected to mongoDB: %s', mg);
 });
 
 var models = {
-  User: require('./models/User')(mongoose, async)
+  User: require('./models/User')(mongoose, async),
+  Session: require('./models/session')(mongoose, async)//,
+  // Logins: require('./models/logins')(mongoose)
 };
 
 var routes = {
-  index: require('./routes/index')(),
-  user: require('./routes/user')(fs, redis, redisClient, models, io)
+  index: require('./routes/index')(models, sessionMaxAge),
+  user: require('./routes/user')(fs, redis, redisClient, models, io, sessionMaxAge, cookieMaxAge)
 };
 
 
@@ -155,9 +168,11 @@ app.get('/partials/*', routes.index.partials);
 
 app.get('/ping', routes.index.ping);
 
-app.get('/me', routes.user.me);
+app.post('/destroy', routes.index.destroy);
 
-app.get('/logout', routes.user.logout);
+app.post('/me', routes.user.me);
+
+app.post('/logout', routes.user.logout);
 
 app.get('/user/:name', routes.user.getUser);
 
@@ -171,6 +186,9 @@ app.get('/', routes.index.index);
 sub.subscribe('amir');
 
 sessionSockets.on('connection', function(err, socket, session){
+
+  // console.log(session)
+
   if (err) throw err;
 
   if (!session || !session.uid) {
@@ -178,7 +196,6 @@ sessionSockets.on('connection', function(err, socket, session){
     return;
   }
   var events = require('./events/handlers')(io, socket, session, redisClient, models);
-
 
   if (session.username) {
     // socket.set('username', user.username);
@@ -290,4 +307,5 @@ server.listen(app.get('port'), function(){
 //   if (error) throw err;
 // });
 
+// console.log(require('crypto').createHash('sha256').update('u.password').digest('hex').toString())
 

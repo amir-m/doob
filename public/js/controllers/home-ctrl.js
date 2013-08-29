@@ -2,38 +2,30 @@ define(['controllers/controllers', 'services/auth', 'services/socket', 'services
 function(controllers){
 	
 	controllers.controller('home-ctrl', ['$scope', '$location', '$rootScope', 'auth', 'socket',
-	'doobio', 'io', 'audio', 'sequencer', 'effects', 
-		function ($scope, $location, $rootScope, auth, socket, doobio, io, audio, sequencer, effects) {
+	'doobio', 'io', 'audio', 'sequencer', 'effects', '$http',
+		function ($scope, $location, $rootScope, auth, socket, doobio, io, audio, sequencer, effects
+			, $http) {
 
 		$scope.$on('$routeChangeSuccess', function(next, current) { 
 			// socket.connect();
 		});
-
-		console.log($rootScope.username);
 
 		if (!doobio.get($rootScope.username) && $rootScope.username) 
 			doobio.create($rootScope.username);
 		$rootScope.doob = doobio;
 
 		// Check if the user's logged in
-		var promise = auth.authenticate();
-
-		promise.then(function(){
-			console.log(auth.username)
-			$rootScope.username = auth.username;
-		}, function(){
-			return $location.path('/login');
-		});
+		auth.authenticate('/home');
 
 		var kick, hat, clap, kickHat, kickHat2, rev;
 
 		$scope.navBarClass = function() {
 
-			// if ($rootScope.username) return 'visible';
+			if ($rootScope.username) return 'visible';
 
-			// return 'invisible';
+			return 'invisible';
 
-			return 'visible';
+			// return 'visible';
 		}
 
 		// scope variables.
@@ -54,15 +46,19 @@ function(controllers){
 
 		// functions
 		$scope.logout = function(){
-			$rootScope.username = null;
-			auth.logout();
+			auth.logout(this);
 		}
 		
 		$scope.unsubsc = function(){
-			socket.emit('user:unsubscribe', {
-				username: $rootScope.username,
-				from: 'amir'
-			});
+			// socket.emit('user:unsubscribe', {
+			// 	username: $rootScope.username,
+			// 	from: 'amir'
+			// });
+			$http.post('/me').success(function(data){
+				console.log(data)
+			}).error(function(status){
+				console.log('shit $s', status)
+			})
 		}
 		
 
