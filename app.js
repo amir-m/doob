@@ -143,8 +143,10 @@ mongoose.connect(mg, function(err){
     console.log('connected to mongoDB: %s', mg);
 });
 
+var loginModels = require('./models/logins')(mongoose)
+
 var models = {
-  User: require('./models/User')(mongoose, async),
+  User: require('./models/User')(mongoose, async, loginModels),
   Session: require('./models/session')(mongoose, async)//,
   // Logins: require('./models/logins')(mongoose)
 };

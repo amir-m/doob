@@ -1,7 +1,7 @@
-module.exports = function(mongoose, async) {
+module.exports = function(mongoose, async, logins) {
 
 	var bcrypt = require('bcrypt');
-	var logins = require('../models/logins')(mongoose);
+	// var logins = require('../models/logins')(mongoose);
 
 
 	// defining schemas
