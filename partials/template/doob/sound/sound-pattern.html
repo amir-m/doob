@@ -1,33 +1,32 @@
-<div style="border:2px solid gray;border-radius:5px;overflow: hidden;overflow-x: auto;">
-	
-	
-	<table class="table table-hover">
-		<thead>
-			<th>
-				<td style="">
-				<a>{{instanceName}}</a> | <a>{{pattern.name}}</a> | 
-				
-				<doob.sound.picker></doob.sound.picker>		
-				<button class="btn btn-small" ng-click="pattern.play(1)">
-					<icon class="icon-play"></icon>
-				</button>
-				<button class="btn btn-small" ng-click="pattern.stop()">
-					<icon class="icon-stop"></icon>
-				</button>
-				</td>
 
-			</th>
-		</thead>
+<div class="well" style="overflow:hidden; overflow-x:auto;">	
+		<table class="table table-hover">
 		<tbody>
-			<tr ng-repeat="patternSound in patternSounds" class="sound-pattern">
-				<td >{{patternSound}}</td>
-				<td class="btn-group" style="">
+			<tr ng-repeat="patternSound in pattern.tracks" class="sound-pattern">
+				<td class="sound-name-borders">
+					<button class="close pull-left" style="padding-right: 10px;"  
+					ng-click="removeTrack(patternSound)">&times;
+					</button>
+					{{patternSound.name}}&nbsp;&nbsp;&nbsp;
+
+					<doob.play.inline icon-position="pull-right" sound="patternSound.dummyName" context="instanceName" stop-event="click">
+					</doob.play.inline>
+				</td>
+				<td class="btn-group">
 					<span ng-repeat="beat in beats()">
 						<span ng-show="$index % 4 == 0 && $index != 0 && $index % 8 != 0 && $index % 12 != 0 && $index % 16 != 0" class="quarter-divider"></span>
 						<span ng-show="$index % 8 == 0 && $index != 0 && $index % 16 != 0 && $index % 12 != 0" class="half-divider"></span>
 						<span ng-show="$index % 12 == 0 && $index != 0" class="three-quarters-divider"></span>
-						<span ng-show="$index % 16 == 0 && $index != 0" class="one-divider"></span>
-						<doob.pattern.note index="$index + 1"></doob.pattern.note>
+						<span ng-show="$index % 16 == 0 && $index != 0" class="one-divider">
+						</span>
+						<button 
+						ng-class="{'btn btn-small btn-success': patternSound.pattern.indexOf($index + 1) != -1, 'btn btn-small': true }"
+						ng-click="toggleNote($index + 1, patternSound)" style="border-radius:0; height:18; width: 18; padding:0;margin:0;">
+						<icon ng-class="{'icon-music': patternSound.pattern.indexOf($index + 1) != -1}" style="margin:0;"></icon>
+						</button>
+
+						<!-- <doob.pattern.note>
+						</doob.pattern.note> -->
 
 					</span>
 				</td>

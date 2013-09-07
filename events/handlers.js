@@ -25,30 +25,55 @@ module.exports = function(io, socket, session, store, models) {
   // };
   
   var disconnect = function(){
-    console.log('disconnecting: %s', socket.id);
+    console.log('disconnecting: %s: %s, %s', socket.id, session.username, 
+      io.sockets.sockets[session.username]);
+ 
+    socket.broadcast.to(session.username).emit('user:broadcast:stop', {
+      broadcaster: session.username      
+    });
+
     delete io.sockets.sockets[session.username];
+
+    // remove the user from broadcasters list.
+    store.srem('broadcasters', session.username, function(error){
+      if (error) console.log(error)
+    });
   };
 
-  var userSubscribe = function(data){
+  var userSubscribe = function(data) {
 
-    store.smembers(data.username+':rooms', function(error, reply){
-      
-      // if the user already subscribed, there's no need to subscribe again!
-      if (reply.indexOf(data.to) != -1) return;
-      
-      // tell everyone that the user's now subscribing to the other user.
-      io.sockets.emit('user:activity', data.username + ' subscribed to '+data.to+'!');
+      store.smembers(data.username+':rooms', function(error, reply){
 
-      console.log('%s just subscribed to %s', data.username, data.to);
-      socket.join(data.to);
-      
-      // emit a notification to the user who is being subcribe to if she's online..
-      if (io.sockets.sockets[data.to])
-        io.sockets.sockets[io.sockets.sockets[data.to]].emit('user:notification', 
-          data.username + ' just subscribed to you!');
+        if (error) {
+          console.log('error:handlers:userSubscribe:store.smembers(data.username+`:rooms`'.error);
+          return;
+        }
 
-      // save the subscription to redis: key: data.username, field: 'rooms', value (room): data.to
-      store.sadd(data.username+':rooms', data.to);
+        
+        // if the data.username already subscribed to data.to, there's no need to subscribe 
+        // again!
+        if (reply.indexOf(data.to) != -1) return;
+        
+        // tell everyone that the user's now subscribing to the other user.
+        io.sockets.emit('user:activity', data.username + ' subscribed to '+data.to+'!');
+        // models.Users.activity({
+        //   type: 'user:subscription',
+        //   subscriber: data.username,
+        //   subscribed: data.to
+        // });
+
+        console.log('%s just subscribed to %s', data.username, data.to);
+        socket.join(data.to);
+        
+        // emit a notification to the user who is being subcribe to if she's online..
+        if (io.sockets.sockets[data.to])
+          io.sockets.sockets[io.sockets.sockets[data.to]].emit('user:notification', 
+            data.username + ' just subscribed to you!');
+
+        // save the subscription to redis: key: data.username, field: 'rooms', value (room): data.to
+        store.sadd(data.username+':rooms', data.to);
+      // }
+      
     });
     
   };
@@ -78,44 +103,69 @@ module.exports = function(io, socket, session, store, models) {
     });
   };
 
-  var u_b_e_s = function(data){
-    
+  var u_b_start = function(data){
+
     // tell everyone that the user's now broadcasting
-    io.sockets.emit('user:activity', data.username + ' is now broadcasting!');
+    io.sockets.emit('user:activity', data.broadcaster + ' is now broadcasting!');
+    // models.Users.activity({
+    //   type: 'user:broadcast:start',
+    //   broadcaster: data.broadcaster,
+    // });
     
     // send the production session's data to all subscribers.
-    io.sockets.in(data.username).emit('user:broadcast:entire:session', data);
+    // io.sockets.in(data.username).emit('user:broadcast:entire:session', data.doob);
+    socket.broadcast.to(data.broadcaster).emit(data.event, data);
 
-    console.log('user:broadcast:entire:session: %s just started to broadcast..', data.username);
+    console.log('%s: %s just started to broadcast..', data.broadcaster, data.broadcaster);
     // console.log(data);
+
+    store.sadd('broadcasters', data.broadcaster);
   }
 
-  var joinRoome = function(username){
+  var u_b_stop = function(data) {
+    
+    // tell everyone that the user's now broadcasting
+    io.sockets.emit('user:activity', data.broadcaster + ' is not broadcasting anymore!');
+    
+    // send the production session's data to all subscribers.
+    // io.sockets.in(data.username).emit('user:broadcast:entire:session', data.doob);
+    socket.broadcast.to(data.broadcaster).emit('user:broadcast:stop', data);
 
-    store.smembers(username+':rooms', function(error, reply){
-      
-      for (var i = 0; i < reply.length; ++i) {
+    console.log('%s stopped broadcasting...', data.broadcaster);
+    // console.log(data);
 
-        // tell everyone that the user's now subscribing to the other user.
-        io.sockets.emit('user:activity', username + ' subscribed to '+reply[i]+'!');
+    store.srem('broadcasters', data.broadcaster);
+  }
 
-        console.log('%s just subscribed to %s', username, reply[i]);
-        socket.join(reply[i]);
-        
-        // emit a notification to the user who is being subcribe to if she's online..
-        if (io.sockets.sockets[reply[i]]){
-          var message = username + ' just subscribed to you!';
-          io.sockets.sockets[io.sockets.sockets[reply[i]]].emit('user:notification', message);        
-        }
-      }
-    });
+  var syncReq = function(data) {
+
   };
 
+  var syncRes = function(data) {
+
+    console.log('sync subscriber requestor: %s, sync subscriber response: %s', 
+      data.subscriber, data.broadcaster);
+    io.sockets.sockets[io.sockets.sockets[data.subscriber]].emit('sync:response', data);
+
+  };
+
+  var forward = function (data) {
+    socket.broadcast.to(data.subscriber).emit(data.event, data);
+  };
+
+  
+
+
   return {
-    disconnect: disconnect,
-    userSubscribe: userSubscribe,
-    userUnsubscribe: userUnsubscribe,
-    u_b_e_s: u_b_e_s,
-    joinRoome: joinRoome
+    'disconnect': disconnect,
+    'user:broadcast:start': u_b_start,
+    'user:broadcast:stop': u_b_stop,
+    'user:subscribe': userSubscribe,
+    'user:unsubscribe': userUnsubscribe,
+    'sync:response': syncRes,
+    'new:aduio:Sound': forward,
+    'update:sequencer:SoundPattern:newTrack': forward,
+    'update:sequencer:SoundPattern:toggleNote': forward,
+    'update:sequencer:SoundPattern:removeTrack': forward
   };
 };

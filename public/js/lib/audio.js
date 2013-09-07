@@ -1,12 +1,49 @@
-define(['lib/io'], function (_io) {
+define([], function () {
 
-	return function(doob){
+	return function(doob, io){
 
-		var io = _io(doob);
-		return (function invocation(doob){
+		return (function invocation(doob, io){
+
 			var sourceQueue = {},
-				soundBank = {},
-				events = ['new-sound'];
+				// soundBank = {},
+				events = ['new:aduio:Sound'],
+				subscribers = {
+					all: []
+				};
+			var publish = function(ev, s, p) {
+		        var ev = ev || 'all';
+
+		        var args = arguments;
+
+		        // console.log(args)
+
+		        if (subscribers[ev]) {
+		            for (var i in subscribers[ev])
+		                subscribers[ev][i].apply(ev, args);
+		        }
+		        // console.log(ev)
+		        if (ev == 'all') return;
+		        for (var i in subscribers['all'])
+		                subscribers['all'][i].apply(ev, args);
+		    };
+
+		    var subscribe = function(ev, subscriber) {
+
+		        if (!ev || (subscriber && typeof subscriber != 'function')) return;
+		        if (typeof ev == 'function') {
+		            var subscriber = ev;
+		            ev = 'all';
+		        };
+		        if (!subscribers[ev]) subscribers[ev] = [];
+		        subscribers[ev].push(subscriber);
+		    };
+
+		    var unsubscribe = function(ev, subscriber) {
+		        var ev = ev || 'all';
+		        if (typeof ev != 'string' || typeof subscriber != 'function' ||
+		            !subscribers[ev]) return;
+		        subscribers[ev].splice(subscribers[ev].indexOf(subscriber), 1);
+		    };
 
 			var createSource = function(config) {
 				// console.log(sound)
@@ -23,9 +60,13 @@ define(['lib/io'], function (_io) {
 				time = time || 0;
 				var source = createSource({
 					buffer 		: sound.buffer, 
-					destination : sound.graph.source
+					destination : sound.graph ? sound.graph.source : sound.destination
 				});
-				source.start(doob.context.currentTime+time);
+				if (source.start)
+					source.start(doob.context.currentTime+time);
+				else if (source.noteOn)
+					source.noteOn(doob.context.currentTime+time);
+				else throw 'audio:playSound Bad Source!'
 				// return source;
 			};
 
@@ -39,23 +80,28 @@ define(['lib/io'], function (_io) {
 			};
 
 			var duplicateSound = function(sound, duplicateName){
-				// console.slog(sound)
 				var config = {};
 				for (var prop in doob.assets[sound])
 					if (doob.assets[sound].hasOwnProperty(prop))
 						config[prop] = doob.assets[sound][prop];
 
 				config.name = duplicateName;
+				config.isDummy = true;
 				
 				delete config['gain'];
 				delete config['graph'];
 
-				doob.dummyNodes[duplicateName] = new Sound(config);
+
+
+				doob.dummyNodes[duplicateName] = Sound(config);
+				
+				// remove the dummy name!
+				// doob.sounds.splice(doob.sounds.indexOf(duplicateName), 1);
 
 				return doob.dummyNodes[duplicateName];
 			}
 
-			var Sound = function (sound) {
+			var Sound = function (sound, pub) {
 
 				var self = this, buf, isL;
 				if (!sound || !sound.url)  {
@@ -76,11 +122,17 @@ define(['lib/io'], function (_io) {
 						enumerable: true, writable: true, configurable: false
 					}, isLoaded: {
 						value: false, enumerable: true, writable: true, configurable: false
+					}, isDummy: {
+						value: sound.isDummy || false, 
+						enumerable: true, writable: true, configurable: false
 					}, buffer: {
 						value: null, 
 						enumerable: true, writable: true, configurable: false
 					}, gain:{
-						value: sound.gain || new io.Gain({name: sound.name + '_gain'}),
+						value: sound.gain || new io.Gain({
+							name: sound.gainName || sound.name + '_gain',
+							belongsTo: sound.name
+						}),
 						enumerable: true, writable: true, configurable: false
 					}, graph: {
 						value: sound.graph || null,
@@ -104,34 +156,62 @@ define(['lib/io'], function (_io) {
 				}
 				
 				if (!sound.graph)
-					properties.graph.value = new io.Graph({
+					
+					var graphConfig = {
+						belongsTo: sound.name,
 						source: properties.gain.value,
 						connectable: properties.gain.value.connectable,
 						destination: sound.destination || doob.masterGain,
 						node: properties.name.value
-					});
+					};
+					
+					if (sound.graphName) 
+						graphConfig[name] = sound.graphName;
+
+					properties.graph.value = new io.Graph(graphConfig);
 							
 				// Invoked as a constructor.
 				if (this instanceof Sound) {
 					Object.defineProperties(this, properties);
-					this.constructor = 'Sound';
-					soundBank[this.name] = this;
-					sourceQueue[this.name] = [];
-					doob.assets[sound.name] = this;	
-					doob.assetsToJSON[this.name] = this.toJSON();
-					doob.sounds.push(this.name);
+					// this.constructor = 'Sound';
+					// this.subscribers = {
+					// 	'all': []
+					// };
 
+					// subscribe('new:aduio:Sound', doob.handlers['new:aduio:Sound']);
+
+					// publish('new:aduio:Sound', this);
+
+
+					// // soundBank[this.name] = this;
+					// sourceQueue[this.name] = [];
+					// doob.assets[sound.name] = this;	
+					// doob.assetsToJSON[this.name] = this.toJSON();
+					// doob.sounds.push(this.name);
+
+					
+
+					// this.load();
+
+					// soundBank[this.name] = o;
+					this.constructor = 'Sound';
+
+					publish('new:aduio:Sound', this, pub);
+
+					sourceQueue[this.name] = [];
+					
 					this.load();
 				}
 				// Invoked as a factory function.
 				else {
 					var o = Object.create(Sound.prototype, properties); 
-					soundBank[this.name] = o;
+					// soundBank[this.name] = o;
 					o.constructor = 'Sound';
+
+					publish('new:aduio:Sound', o, pub);
+
 					sourceQueue[this.name] = [];
-					doob.assets[sound.name] = o;
-					doob.assetsToJSON[o.name] = o.toJSON();
-					doob.sounds.push(o.name);
+					
 					o.load();
 					return o;
 				}
@@ -169,24 +249,59 @@ define(['lib/io'], function (_io) {
 			};
 			Sound.prototype.toJSON = function() {
 				return {
-					type: 'Sound', 
+					nodetype: 'Sound', 
 					name: this.name,
 					url: this.url,
 					graph: this.graph.toJSON(),
 					gain: this.gain.toJSON()
 				}
 			};
+
+			Sound.prototype.publish = function(ev, options) {
+		        var ev = ev || 'all';
+
+		        if (this.subscribers[ev]) {
+		            for (var i in this.subscribers[ev])
+		                this.subscribers[ev][i](ev, options, doob);
+		        }
+		        // console.log(ev)
+		        if (ev == 'all') return;
+		        for (var i in this.subscribers['all'])
+		                this.subscribers['all'][i](ev, options, doob);
+		    };
+
+		    Sound.prototype.subscribe = function(ev, subscriber) {
+		        if (!ev || (subscriber && typeof subscriber != 'function')) return;
+		        if (typeof ev == 'function') {
+		            var subscriber = ev;
+		            ev = 'all';
+		        };
+		        if (!this.subscribers[ev]) this.subscribers[ev] = [];
+		        this.subscribers[ev].push(subscriber);
+		    };
+
+		    Sound.prototype.unsubscribe = function(ev, subscriber) {
+		        var ev = ev || 'all';
+		        if (typeof ev != 'string' || typeof subscriber != 'function' ||
+		            !this.subscribers[ev]) return;
+		        this.subscribers[ev].splice(this.subscribers[ev].indexOf(subscriber), 1);
+		    };
+
 			// sessionManager.makePublisher([Sound]);
 			return {
 				Sound: Sound,
 				createSource: createSource,
 				playSound: playSound,
 				sourceQueue: sourceQueue,
-				soundBank: soundBank,
+				// soundBank: soundBank,
 				events: events,
-				duplicateSound: duplicateSound
+				duplicateSound: duplicateSound,
+				subscribers: subscribers,
+				subscribe: subscribe, 
+				publish: publish,
+				unsubscribe: unsubscribe
 			}
-		}(doob));
+		}(doob, io));
 
 	};
 });

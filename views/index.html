@@ -1,115 +1,138 @@
 <html lang="en">
 
 	<head>
+    <meta name="fragment" content="!" />
 		<link rel="stylesheet" type="text/css" href="/public/css/bootstrap.css">
-        <link rel="stylesheet" type="text/css" href="/public/css/style.css">
-        <script src="/socket.io/socket.io.js"></script>
-        <script data-main="/public/js/main" src="/public/js/lib/require.js"></script>
+    <link rel="stylesheet" type="text/css" href="/public/css/style.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script data-main="/public/js/main" src="/public/js/lib/require.js"></script>
 	</head>
 
 	<body ng-controller="home-ctrl">
 
-        <div  class="navbar navbar-fixed-top invisible" ng-class="navBarClass()">
-
-          <div class="navbar-inner">
-            <a class="brand" href="#" style="font-family:Verdana;letter-spacing:-2px">doob.io</a>
-
-            <ul class="nav ">
-              <!-- notifications drop down-->
+    <div class="navbar navbar-fixed-top" ng-class="navBar">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a href="#/home" class="brand">doob.io</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
               <li>
                 <a>
-                  <icon class="icon-bell"></icon>
+                  <i class="icon-bell"></i>
                 </a>
               </li>
-              <!-- messages drop down-->
               <li>
                 <a>
-                  <icon class="icon-envelope"></icon>
+                  <i class="icon-envelope" ></i>
                 </a>
               </li>
-              <!-- user drop down-->
-              <li class="dropdown" >
-                <a class="dropdown-toggle" data-toggle="dropdown" >
-                  <i class="icon-user" ></i>&nbsp; {{username}}
-                  
-                </a>
-                <ul class="dropdown-menu">
-                    <li>
-                      <a ng-mouseover="">Broadcast 
-                        <icon class="icon-globe pull-right">
-                        </icon>
-                      </a>
-                    </li>
-                    <li>
-                      <a ng-mouseover="">Settings 
-                        <icon class="icon-wrench pull-right">
-                        </icon>
-                      </a>
-                    </li>
-                    <li ng-show="subscriberCount > 0">
-                      <a ng-mouseover="">{{subscriberCount}} Subsribers 
-                        <icon class="icon-eye-open pull-right">
-                        </icon>
-                      </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li><a ng-click="logout()">Logout</a></li>
-                </ul>
-              </li>
-              <!-- projects drop down-->
-              <li class="dropdown" >
-                <a class="dropdown-toggle" data-toggle="dropdown">
-                  Project
-                  
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Projects 
+                  <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
                   <li>
-                      <a ng-mouseover="">
-                        <i class="icon-share-alt"></i>
-                        Open Seed
-                      </a>
-                    </li>
-                    <li>
-                      <a ng-mouseover="">
-                        <i class="icon-plus"></i> Create New Seed 
-                      </a>
-                    </li>
-                    <li>
-                      <a ng-mouseover="">
-                        <i class="icon-search"></i>
-                        Explore Seeds
-                      </a>
-                    </li>
-                    
+                    <a ng-mouseover="">
+                      <i class="icon-share-alt"></i>
+                      Open Seed
+                    </a>
+                  </li>
+                  <li>
+                    <a ng-mouseover="">
+                      <i class="icon-plus"></i> Create New Seed 
+                    </a>
+                  </li>
+                  <li>
+                    <a ng-mouseover="">
+                      <i class="icon-search"></i>
+                      Explore Seeds
+                    </a>
+                  </li>                    
                 </ul>
               </li>
+              <li>
+                <a href="#sound-patterns">Sound Patters</a>
+              </li>
+              <li>
+                <a ng-click="showDoobios()">Show All Instances</a>
+              </li>
+              <li>
+                <a ng-click="add()">Add sounds</a>
+              </li>
+              <li>
+                <a ng-click="kickHat()">Add kickHat</a>
+              </li>
+              <li>
+                <a ng-click="addEffect()">Add Effect to Clap</a>
+              </li>
+              <li>
+                <a ng-bind="now() | date: 'MMM d, h:mm a'"></a>
+              </li>
+            </ul>
+          </div><!--/.nav-collapse -->
 
-
-
-
-<li>
-
-
-
-
-
-
-
-
-
+          <div class="nav-collapse collapse">
+            <ul class="nav pull-right">
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown">
+                  <i class="icon-user"></i>&nbsp; <b ng-bind="username"></b>
+                  <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a ng-click="broadcast()">
+                      <span ng-show="isBroadcasting">Stop </span>
+                      <span>Broadcast</span> 
+                      <icon ng-show="isBroadcasting" class="icon-globe pull-right">
+                      </icon>
+                    </a>
+                  </li>
+                  <li class="divider"></li>
+                  <li>
+                    <a ng-mouseover="">Settings 
+                      <icon class="icon-wrench pull-right">
+                      </icon>
+                    </a>
+                  </li>
+                  <li ng-show="subscriberCount > 0">
+                    <a ng-mouseover="">{{subscriberCount}} Subsribers 
+                      <icon class="icon-eye-open pull-right">
+                      </icon>
+                    </a>
+                  </li>
+                  <li><a ng-click="logout()">Logout</a></li>
+                </ul>
+              </li>
+              <li ng-show="isBroadcasting">
+                <i class="icon-globe pull-right" style="margin-top: 14px; cursor: pointer" 
+                tooltip-placement="bottom" tooltip="You're now broadcasting. Click to stop."
+                ng-click="broadcast()"></i>
+              </li>
             </ul>
           </div>
         </div>
+      </div>
+    </div>
 
+		<div ng-view class="view"></div>
 
+    <div class="navbar navbar-fixed-bottom" ng-class="navBarClass()">
+      <div class="navbar-inner">
+        <div class="container">
+        <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        <a class="brand">doob.io</a>
+      </div>
+    </div>
 
-
-
-
-
-
-
-		<div ng-view></div>
 	</body>
 </html>
 

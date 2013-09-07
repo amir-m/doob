@@ -10,7 +10,8 @@ require.config({
 		doob: 'lib/doob',
 		io: 'lib/io',
 		effects: 'lib/effects',
-		audio: 'lib/audio'
+		audio: 'lib/audio',
+		sequencer: 'lib/sequencer'
 	},
 	shim: {
 		'angular': {
@@ -31,6 +32,8 @@ require([
 	'uiBootstrap',
 	'controllers/home-ctrl',
 	'controllers/login-ctrl',
+	'controllers/register-ctrl',
+	'controllers/sound-patterns-ctrl',
 	'services/auth',
 	'services/socket',
 	'services/io',
@@ -41,8 +44,7 @@ require([
 	'directives/sound-picker',
 	'directives/sound-pattern',
 	'directives/sound-patterns',
-	'directives/stop-event',
-	'directives/pattern-note',
+	'directives/stop-event'
 	], function(angular, app, domReady, $) {
 		
 		'use strict';
@@ -50,36 +52,65 @@ require([
 		app.config(['$routeProvider', '$httpProvider', 
 			function($routeProvider, $httpProvider) {
 		  $routeProvider.
-		      when('/login', {templateUrl: 'partials/login.html', controller: 'login-ctrl'})
-		      .when('/home', {templateUrl: 'partials/index.html', controller: 'home-ctrl', 
-		      	resolve: function(auth, $location, $rootScope, doobio){
-		      		auth.authenticate('/home');
-		      		// status.then(function(){
-		      		// 	// if user can be authenticated, create a doob instance for the
-		      		// 	// current logged in user. TODO: Fetch user's doob instances, activities, etc
-		      		// 	if (!doobio.get($rootScope.username)) doobio.create($rootScope.username);
-		      		// 	$rootScope.doob =doobio;
-		      		// }, function(){
-		      		// 	$location.path('/login');
-		      		// });
-		      	}
-		      })
-		      // when('/me', {templateUrl: 'partials/me.html', controller: HomeCtrl}).
-		      // when('/register', {templateUrl: 'views/register.html', controller: RegisterCtrl}).
-		      .otherwise({redirectTo: '/login'});
+		    when('/login', {templateUrl: 'partials/login.html', controller: 'login-ctrl',
+		    	resolve: function($rootScope, $location) {
+		    		$scope.navBarClass('invisible');
+		    		if ($rootScope.username) {
+		    			$location.path('/home');
+		    		}
+		    	}
+		  	})  
+		    .when('/register', {templateUrl: 'partials/register.html', controller: 'register-ctrl'})
+		    .when('/sound-patterns', {templateUrl: 'partials/sound-patterns.html', 
+		    controller: 'sound-patterns-ctrl'})
+		    .when('/home', {controller: 'home-ctrl', 
+		    	resolve: function(auth, $location, $rootScope, doobio) {
+			    	
+			    	var promise = auth.authenticate('/home');
+
+					function success(){
+						$location.path('/home');
+					}
+
+					function failure () {
+						$location.path('/login');
+					}
+
+					promise.then(success, failure);
+				}
+			})
+			// when('/me', {templateUrl: 'partials/me.html', controller: HomeCtrl}).
+			// when('/register', {templateUrl: 'views/register.html', controller: RegisterCtrl}).
+			.otherwise({redirectTo: '/login'});
 
 		 //    $httpProvider.defaults.useXDomain = true;
 			// delete $httpProvider.defaults.headers.common['X-Requested-With'];
 
 		}]);
 
-		app.run(['$window', 'auth', '$location', function($window, auth, $location){
+		app.run(['$window', 'auth', '$location', 'socket', 'doobio', '$rootScope',function($window, auth, 
+			$location, socket, doobio, $rootScope){
 
 			$window.addEventListener("beforeunload", function (e) {
+			  doobio.instances[$rootScope.username].isBroadcasting = false;
+			  socket.emit('user:broadcast:stop', {
+			  	broadcaster: $rootScope.username,
+			  	event: 'user:broadcast:stop'
+			  });
 			  auth.destroy();
 			});
 
-			// auth.authenticate('/home');
+			var promise = auth.authenticate('/home');
+
+			function success(){
+
+			}
+
+			function failure () {
+				$location.path('/login');
+			}
+
+			promise.then(success, failure);
 
 		}]);
 

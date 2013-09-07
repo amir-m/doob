@@ -1,10 +1,43 @@
-define(['lib/io'], function(_io){	
+define([], function(){	
 	
-	return function (doob) {
-		var io = _io(doob);
-		return (function (doob){
-			var events = ['new-reverb'];
+	return function (doob, io) {
+		
+		return (function invocation(){
 
+			var subscribers = {
+                    all: []
+                };
+
+            var publish = function(ev) {
+                var ev = ev || 'all';
+                var args = arguments;
+                if (subscribers[ev]) {
+                    for (var i in subscribers[ev])
+                        subscribers[ev][i].apply(ev, args);
+                }
+                if (ev == 'all') return;
+                for (var i in subscribers['all'])
+                        subscribers['all'][i].apply(ev, args);
+            };
+
+            var subscribe = function(ev, subscriber) {
+
+                if (!ev || (subscriber && typeof subscriber != 'function')) return;
+                if (typeof ev == 'function') {
+                    var subscriber = ev;
+                    ev = 'all';
+                };
+                if (!subscribers[ev]) subscribers[ev] = [];
+                subscribers[ev].push(subscriber);
+            };
+
+            var unsubscribe = function(ev, subscriber) {
+                var ev = ev || 'all';
+                if (typeof ev != 'string' || typeof subscriber != 'function' ||
+                    !subscribers[ev]) return;
+                subscribers[ev].splice(subscribers[ev].indexOf(subscriber), 1);
+            };
+			
 			var loadReverbImpulse = function(config) {
 				if (!config || !config.url)
 					return {'effects.loadReverbImpulse':'Invalid arguments.'};
@@ -14,16 +47,25 @@ define(['lib/io'], function(_io){
 				doob.loadBuffer({
 					url: config.url, 
 					load: function(buffer){
-						doob.reverbImpulses[config.name] = {
-							url: config.url,
-							buffer: buffer
-						};
-						doob.assetsToJSON[config.name] = {
-							type: 'reverbImpulse',
+						
+						publish('new:effects:impulse', {
 							name: config.name,
-							url: config.url
-						};
+							url: config.url,
+							nodetype: 'reverbImpulse',
+							buffer: buffer
+						});
+
+						// doob.reverbImpulses[config.name] = {
+						// 	url: config.url,
+						// 	buffer: buffer
+						// };
+						// doob.assetsToJSON[config.name] = {
+						// 	nodetype: 'reverbImpulse',
+						// 	name: config.name,
+						// 	url: config.url
+						// };
 						// doob.[config.url] = buffer;
+						
 						if (config.callback && typeof config.callback === 'function') 
 							config.callback(buffer);
 					}
@@ -31,16 +73,22 @@ define(['lib/io'], function(_io){
 			};
 
 			function Reverb(config){
+				
 				//if (!config || config.impulse || config.impulse.url || config.impulse.name)
 				var rev = doob.context.createConvolver(), id, impulse, asset;
 
 				if (config && config.buffer) {
 					rev.buffer = config.buffer;
-					impulse = config.impulse;
+					impulse = {
+						name: config.impulse,
+						url: doob.reverbImpulses[config.impulse].url
+					}
+
+					
 				}
 
 				// Reverb's impluse name is included with the config, and the impluse exists.
-				if (config && config.impulse && typeof config.impulse === 'string' 
+				else if (config && config.impulse && typeof config.impulse === 'string' 
 					&& doob.reverbImpulses[config.impulse]) {
 					rev.buffer = doob.reverbImpulses[config.impulse].buffer;
 					impulse = config.impulse;
@@ -49,7 +97,8 @@ define(['lib/io'], function(_io){
 				//// Reverb's impluse object is included with the config, the impluse object
 				//  	its URL and name exists.
 				else if (config && config.impulse && config.impulse.url && config.impulse.name
-					&& !doob.reverbImpulses[config.impulse.name]) {
+					) {
+					impulse = config.impulse;
 					doob.loadBuffer({
 						url: config.impulse.url,
 						name: config.impulse.name,
@@ -62,7 +111,7 @@ define(['lib/io'], function(_io){
 					});
 				}; 
 
-				impulse = impulse || config.impulse.name;
+				
 
 				asset = rev;
 
@@ -70,7 +119,7 @@ define(['lib/io'], function(_io){
 				if (!config || !config.name) 
 					id = doob.uniqueNames.Reverb;
 
-				else if (!doob.effectAssets['Reverb'][config.name]) 
+				else if (!doob.assets[config.name]) 
 					id = config.name;
 
 				else 
@@ -102,6 +151,7 @@ define(['lib/io'], function(_io){
 				// 	writable: false,
 				// 	value: id
 				// });
+				var _impulse = impulse;
 
 				var prop = {
 					name: {
@@ -118,35 +168,38 @@ define(['lib/io'], function(_io){
 					},
 					impulse: {
 						enumerable: true,
-						configurable: false,
-						writable: false,
-						value: impulse
+						configurable: true,
+						writable: true,
+						value: _impulse
 					}, 
 					graph: {
 						enumerable: true,
-						configurable: false,
-						writable: false,
+						configurable: true,
+						writable: true,
 						value: new io.Graph({
 							node: id,
 							source: asset,
 							connectable: asset,
-							destination: doob.masterGain
+							destination: doob.masterGain,
+							belongsTo: id,
+							name: config.graphName || null
 						})
 					}
 				};
 
-				
 				if (this instanceof Reverb) {
 					Object.defineProperties(this, prop);
-					this.graph.connect();
-					doob.assets[id] = this;
-					doob.assetsToJSON[this.name] = this.toJSON();
+					// this.graph.connect();
+
+					publish('new:effects:Reverb', this);
+					
 				}
 				else {
 					var o = Object.defineProperties(Reverb.prototype, prop);
-					o.graph.connect();
-					doob.assets[id] = o;
-					doob.assetsToJSON[o.name] = o.toJSON();
+					// o.graph.connect();
+					// doob.assets[o.name] = o;
+					// doob.assetsToJSON[o.name] = o.toJSON();
+					publish('new:effects:Reverb', o);
 					return o;
 				}
 
@@ -156,6 +209,7 @@ define(['lib/io'], function(_io){
 				// 	dispatcher: self.toJSON()
 				// });
 			};
+
 			Reverb.prototype.changeImpulse = function(impulse) {
 				if (!impulse) return {'Reverb.prototype.changeImpulse':'Invalid arguments.'};
 				if (typeof impulse === 'string' && reverbImpulses[impulse]) {
@@ -176,40 +230,50 @@ define(['lib/io'], function(_io){
 				}
 				return this;
 			};
+			
 			Reverb.prototype.insert = function() {
 				this.graph.insert(arguments);
 			};
+
 			Reverb.prototype.unInsert = function() {
 				this.graph.remove(arguments);
 			};
+
 			Reverb.prototype.send = function() {
 				this.graph.addSend(arguments);
 			};
+
 			Reverb.prototype.unSend = function() {
 				this.graph.unSend(arguments);
 			};
+
 			Reverb.prototype.toJSON = function() {
 				return {
-					type: 'Reverb',
+					nodetype: 'Reverb',
 					name: this.name,
 					graph: this.graph.toJSON(),
-					impulse: this.impulse
+					impulse: JSON.stringify(this.impulse)
 				};
 			};
+
 			Reverb.prototype.toString = function() {
 				return 'io.Reverb object ' + this.name + '.';
 			};
+
 			Reverb.prototype.isEqualTo = function(reverb) {
 				if (!reverb || !reverb instanceof Reverb || !reverb.name) return false;
 				if (this === reverb) return true;
 				if (this.name == reverb.name) return true;
 				return false;
 			};
+
 			// sessionManager.makePublisher([Reverb, Delay, Biquad]);
 			return {
 				Reverb: Reverb,
-				loadReverbImpulse: loadReverbImpulse
+				loadReverbImpulse: loadReverbImpulse,
+				subscribe: subscribe,
+				unsubscribe: unsubscribe
 			}
-		}(doob));
-	}
+		}());
+	};
 });

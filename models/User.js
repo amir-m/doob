@@ -23,9 +23,13 @@ module.exports = function(mongoose, async, logins) {
 
 		// Social
 		followers: [],
-		following: []
+		following: [],
 
 		// Instroments
+		projects : {
+			id: String,
+			name: String
+		}
 
 	});
 
@@ -57,12 +61,10 @@ module.exports = function(mongoose, async, logins) {
 			function(callback){
 				// check if the user exists
 				userExists(options.usernameLowerCase, function(yes) {
-					console.log('---inside async.1.userExist---'.info);
 					callback(null, yes);
 				});
 			},	
 			function(userExist, callback) {
-				console.log('---inside async.2---'.info);
 
 				// the user already exists, call the callback function with error code 400 
 				if (userExist) callback({error: 400});
@@ -70,9 +72,6 @@ module.exports = function(mongoose, async, logins) {
 				else callback(null);
 			}, 
 			function(callback) {
-				// set password.
-				console.log('---inside async.3---'.info);
-
 
 				// get salt from bcrypt
 				bcrypt.genSalt(10, function(err, salt) {
@@ -80,7 +79,6 @@ module.exports = function(mongoose, async, logins) {
 				});
 			}, 
 			function(salt, callback) {
-				console.log('---inside async.4---'.info);
 				// get password hash from salt
 				bcrypt.hash(options.password, salt, function(err, hash) {
 					options.password = hash;
@@ -298,6 +296,60 @@ module.exports = function(mongoose, async, logins) {
 		return new Buffer((new mongoose.Types.ObjectId).toString()).toString('base64');
 	};
 
+	var insertActivity = function(username, actv, broadcaster) {
+
+		User.findById(username, function(error, u){
+			if (error) callback(error);
+
+			if (!u) return console.log('invalid activity: couldn`t find the user with'+
+				'session.uid!');
+
+			if (broadcaster != u.username) 
+				return console.log('A user is broadcasting a message,'+
+					' while it`s name and id doesn`t match!'.error);
+
+			_saveActivity(u, function(){
+				var followers_id = [];
+
+				// save the activity to all followers of the broadcaster
+				for (var i in u.followers)
+					followers_id.push(u.followers[i]._id);
+
+				// find the followers of the user
+				User.find({"_id": {$in: followers_id}}, function(error, flwz){
+					for (var i in flwz)
+
+						// save the activity to all followers
+						_saveActivity(flwz[i]);
+				});
+			});
+
+			function _saveActivity(user, callback) {
+				user.activities.push({
+					id: actv._id,
+					text: actv.text,
+					vars: actv.vars,
+					timestamp: actv.timestamp
+				});
+
+				// keep the last 15 activities.
+				user.activities.splice(0, user.activities.length - 15);
+
+				user.markModified('activities');
+				user.save(function(error) {
+					if (error) {
+						console.log('error saving activity in User!'.error);
+						console.log(error);
+						return;
+					}
+					if (callback) callback();
+
+				});
+			};
+			
+		});
+	};
+
 	return {
 		User: User,
 		createUser: createUser,
@@ -306,6 +358,7 @@ module.exports = function(mongoose, async, logins) {
 		me: me,
 		follow: follow,
 		unFollow: unFollow,
-		getUser: getUser
+		getUser: getUser,
+		insertActivity: insertActivity
 	};
 };

@@ -16,8 +16,27 @@ define(['directives/directives'], function(directives){
 				scope.beats = function() {
 					return new Array(scope.pattern.bars * scope.pattern.steps);
 				}
+				scope.removeTrack = function(track) {
+
+					console.log(track);
+					
+					scope.pattern.removeTrack(track, true);
+					// console.log(sound)
+				}
+				scope.toggleNote = function(i, patternSound) {
+
+					console.log(patternSound);
+					
+					scope.pattern.toggleNote(i, patternSound, true);
+					// on = !on;
+					// scope.onOff = on ? onClass : offClass;
+					// scope.icon = on ? onIcon : offIcon;
+				};
+
+
+				// console.log(scope.instanceName)
 				
-				scope.patternSounds = scope.pattern.sounds;
+				// scope.patternSounds = scope.pattern.sounds;
 			}
 		}
 	});

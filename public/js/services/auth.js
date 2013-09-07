@@ -9,26 +9,30 @@ define(['services/services'], function(services){
 		        
 		        var delay = $q.defer();
 
-		        $http({
-		            cache: false,
-		            method: 'POST',
-		            headers: {
-		                'Content-Type': 'application/json'
-		            },
-		            url: '/me'
-		        }).success(function(data, status, headers){
-		            myInfo = data;
-		            
-		            if (data[param]) delay.resolve(data[param]);
-		            else delay.resolve(data);
-		            
+		        if ($cookies[param]) delay.resolve($cookies[param]);
 
-		        }).error(function(data, status, headers){
-		            myInfo = null;
-		            delay.reject();
-		        });
+			    else {
+			    	$http({
+			    		cache: false,
+			    		method: 'POST',
+			    		headers: {
+			    			'Content-Type': 'application/json'
+			    		},
+			    		url: '/me'
+			    	}).success(function(data, status, headers){
+			    		myInfo = data;
 
-		        return delay.promise;
+			    		if (data[param]) delay.resolve(data[param]);
+			    		else delay.resolve(data);
+
+
+			    	}).error(function(data, status, headers){
+			    		myInfo = null;
+			    		delay.reject();
+			    	});
+
+			    	return delay.promise;
+		       	}
 		    }
 
 		    var _login = function() {
@@ -37,17 +41,7 @@ define(['services/services'], function(services){
 
 		    	$http.post('/login').success(function(res, status) {
 
-		    		
-		    		var promise = _getMe('username');
-
-	   				promise.then(function(username){
-		    			delay.resolve(username);
-	   				}, function(){
-	   					console.log('error');
-	   					delay.reject();
-	   				});
-
-
+		    		delay.resolve(res.username);
 
 		    	}).error(function(error, status){
 		    		delay.reject();
@@ -58,6 +52,9 @@ define(['services/services'], function(services){
 
 		    var authenticate = function(path) {
 
+		    	var delay = $q.defer();
+		    	var path = path || '/home';
+
 		   		$http.get('/ping').success(function() {
 
 		   			socket.connect(true);
@@ -65,7 +62,8 @@ define(['services/services'], function(services){
 		   			// Scenario 1 - 2.b
 		   			if ($cookies.username) {
 		   				$rootScope.username = $cookies.username;
-		   				$location.path(path);
+		   				// $location.path(path);
+		   				delay.resolve();
 		   			}
 		   			// Scenario 1 - 2.a
 		   			else {
@@ -74,7 +72,8 @@ define(['services/services'], function(services){
 		   				promise.then(function(username){
 		   					$rootScope.username = username;
 		   					$cookies.username = username;
-		   					$location.path(path);
+		   					// $location.path(path);
+		   					delay.resolve();
 		   				});
 		   			}
 
@@ -84,35 +83,34 @@ define(['services/services'], function(services){
 			   			socket.disconnect(false);
 			   			$rootScope.username = null;
 			   			$cookies.username = null;
-			   			
-			   			// login(null, null, null, function(status){
-			   				
-			   			// 	if (status == 200) {
-			   			// 		var promise = _getMe('username');
 
-				   		// 		promise.then(function(username){
-				   		// 			$rootScope.username = username;
-				   		// 			$cookies.username = username;
-				   		// 			$location.path(path);
-				   		// 		});
-			   			// 	}
-			   			// 	else $location.path('/login');
-			   			// });
+		   				if ($cookies.s) {
+		   					
+			   				var promise = _login();
 
-		   				var promise = _login();
+			   				promise.then(function(username){
+			   					// success
+			   					socket.connect(true);
+			   					$rootScope.username = username;
+			   					$cookies.username = username;
+			   					// $location.path(path);
+			   					delay.resolve();
+			   				}, function(){
+			   					// error
+								// $location.path('/login');
+								delay.reject();
+			   				});
+		   				}
+		   				else {
+		   					// $location.path('/login');
+		   					delay.reject();
+		   				}
 
-		   				promise.then(function(username){
-		   					// success
-		   					socket.connect(true);
-		   					$rootScope.username = username;
-		   					$cookies.username = username;
-		   					$location.path(path);
-		   				}, function(){
-		   					// error
-							$location.path('/login');
-		   				});
+
 		   			}
 		   		});
+
+		   		return delay.promise;
 		    };
 
 		    var login = function(u, p, rememberMe, callback){
@@ -140,8 +138,8 @@ define(['services/services'], function(services){
 		    			'Content-Type': 'application/json'
 		    		},
 		    		url: '/login'
-		    	}).success(function(res, status) {
-		    		console.log('success')
+		    	}).success(function(res, status, headers) {
+		    		
 		    		socket.connect(true);
 		    		$rootScope.username = u;
 		    		$cookies.username = u;

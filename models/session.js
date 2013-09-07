@@ -37,12 +37,12 @@ module.exports = function(mongoose, async) {
 
 		var session = {
 			uid: user_id,
-			user_id: crypto.createHash('sha256').update(user_id).digest('hex'),
+			user_id: crypto.createHash('sha1').update(user_id).digest('hex'),
 			deactivated: null,
 			active: true,
 			series: {
-				id: crypto.createHash('sha256').update(_objectId()).digest('hex'),
-				token: crypto.createHash('sha256').update(_objectId()).digest('hex'),
+				id: crypto.createHash('sha1').update(_objectId()).digest('hex'),
+				token: crypto.createHash('sha1').update(_objectId()).digest('hex'),
 				ip: requestor.ip,
 				os: requestor.OS,
 				browser: requestor.browser,
@@ -103,7 +103,7 @@ module.exports = function(mongoose, async) {
 
 			// Scenario 2. 1.a.i.4.a 
 			session.series.updated = Date.now();
-			session.series.token = crypto.createHash('sha256').update(_objectId()).digest('hex');
+			session.series.token = crypto.createHash('sha1').update(_objectId()).digest('hex');
 			session.markModified('session.series.token');
 			session.markModified('session.series.updated');
 			session.save(function(error){

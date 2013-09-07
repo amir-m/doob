@@ -1,29 +1,18 @@
 <div style="padding-left: 25px;">
 	<form ng-submit="login()" name="loginForm" class="form-signin">
 		<h3 class="form-signin-heading">Sign in</h3>
-		<input type="text"  ng-model="lu" class="input-block-level" placeholder="Username" required>
+		<input type="text"  ng-model="lu" class="input-block-level" placeholder="email" required>
 		<input ng-model="lp" type="password" class="input-block-level" placeholder="Password" required>
 
 		<label class="checkbox">
-          <input ng-model="lrm" type="checkbox" value="remember-me"> Remember me
+          <input ng-model="lrm" type="checkbox" value="remember-me"> Keep me signed in.
         </label>
 		<button type="submit" class="btn btn-large btn-primary" ng-disabled="!loginForm.$valid">Sign in</button>
-		<a class="btn btn-large btn-success">Or Register</a>
+		<br><br>
+		<a href="#/register">I don't have an account.</a>
 	</form>
 
-	<form ng-submit="register()" name="registerForm" class="form-signup">
-		<h3>Or Sign-Up</h3>
-				<input type="text" ng-model="ru" class="input-block-level" placeholder="Username" required>
-			<input ng-model="rp" type="password"  placeholder="Password" class="input-block-level" required>
-			<input type="checkbox" ng-model="rrm"> Remember Me<br>
-			<button class="btn btn-default" ng-disabled="!registerForm.$valid">Sign Up</button>
-		<div class="form-group has-error">
-			<label ng-model="errmsg" class="control-label" for="inputError" style="display:none"></label>
-		</div>
-
-		<div class="form-group has-error">
-	  		<label class="control-label" for="inputError">{{err}}</label>
-		</div>
-
-	</form>
+	<div class="form-group has-error">
+		<label class="control-label" for="inputError">{{err}}</label>
+	</div>
 </div>

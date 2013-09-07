@@ -7,9 +7,17 @@ define(['controllers/controllers'], function(controllers){
 		$scope.lrm = true;
 		$scope.rrm = true;
 
+		$scope.$parent.navBar = 'invisible';
+		$scope.$parent.authenticate(function(err, username){
+			if (err) return;
+			$location.path('/home');
+			$scope.$parent.navBar = 'visible';
+		}) 
+
 		$scope.login = function(){
 			auth.login($scope.lu, $scope.lp, $scope.lrm, function(status){
 				if (status == 401) $scope.err = 'Invalid username or password';
+				else if (status == 200) $scope.$parent.navBar = 'visible';
 			});
 			return false;
 		};

@@ -5,38 +5,47 @@ define(['directives/directives'], function(directives){
 		return {
 	
 			templateUrl: 'partials/template/doob/general/pattern-note.html',
-			// require: '^soundPatterns',
+			// require: '^trackPatterns',
 			restrict: 'E',
 			replace: true,
-			scope: {},
+			// scope: {
+			// 	track: "=",
+			// 	pattern: "="
+			// },
 			link: function(scope, element, attrs) {
 
-				var onClass = "btn btn-pattern btn-success", offClass = "btn btn-pattern";
-				var onIcon = "music", offIcon = "";
-				var on = false, p;
 				
-				scope.onOff = offClass;
-				scope.icon = offIcon;
+				
+				scope.on = "btn btn-pattern btn-success";
+				scope.off = "btn btn-pattern";
+				// var onClass = "btn btn-pattern btn-success", offClass = "btn btn-pattern";
+				// var onIcon = "music", offIcon = "";
+				// var on = false, p;
+				
+				// scope.onOff = offClass;
+				// scope.icon = offIcon;
 
-				// console.log(scope.$parent.pattern)
-				p = scope.$parent.pattern.tracks[scope.$parent.patternSound].pattern;
+				
+				// p = scope.$parent.patternSound.pattern;
+				// p = scope.track.pattern;
+				
+				
+				
 
-				if (p.indexOf((scope.$parent.$index + 1) % scope.$parent.pattern.steps) != -1) {
-					on = true;
-					scope.onOff = onClass;
-					scope.icon = onIcon;
-				}
-				scope.toggleNote = function(i, elem) {
-					// console.log(element);
-					// console.log(scope.$parent.pattern)
-					// console.log(scope.$parent.$index + 1);
-					scope.$parent.pattern.toggleNote({
-						note: (scope.$parent.$index + 1) % scope.$parent.pattern.steps,
-						soundName: scope.$parent.patternSound
-					});
-					on = !on;
-					scope.onOff = on ? onClass : offClass;
-					scope.icon = on ? onIcon : offIcon;
+				// if (scope.patternSound.pattern.indexOf((scope.$index + 1)) != -1) {
+					// on = true;
+					// scope.onOff = onClass;
+					// scope.icon = onIcon;
+				// }
+				scope.toggleNote = function(i) {
+
+					console.log(scope.$index + 1);
+					
+					scope.pattern.toggleNote(scope.$parent.$index + 1, 
+						scope.patternSound, true);
+					// on = !on;
+					// scope.onOff = on ? onClass : offClass;
+					// scope.icon = on ? onIcon : offIcon;
 				};
 			}
 		}

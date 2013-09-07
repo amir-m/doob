@@ -21,6 +21,8 @@ module.exports = function(models, sessionMaxAge){
 
 	// Scenario 1.
 	var ping = function(req, res, next){
+
+		// console.log(req.session)
 		
 		// Scenario 1. 1
 		if (req.session && req.session.uid && req.session.username) {
@@ -50,12 +52,24 @@ module.exports = function(models, sessionMaxAge){
 		else return res.send(400);
 	};
 
+	var sounds = function(req, res, next){
+		
+		models.index.Sound.find({}, function(error, results){
+			
+			if (error) return res.send(500);
+
+			var r = ")]}',\n" + JSON.stringify(results);
+			res.send(r);
+		});
+	};
+
 	return {
 		index: index,
 		public: public,
 		template: template,
 		partials: partials,
 		ping: ping,
-		destroy: destroy
+		destroy: destroy,
+		sounds: sounds
 	}
 };

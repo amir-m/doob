@@ -1,6 +1,7 @@
 define(['directives/directives'], function(directives){
 
-	directives.directive('doob.play.inline', function(doobio, $rootScope){
+	directives.directive('doob.play.inline', ['doobio', '$rootScope', 
+		function(doobio, $rootScope) {
 	
 		return {
 	
@@ -9,14 +10,22 @@ define(['directives/directives'], function(directives){
 			replace: false,
 			scope: {
 				sound: '=',
-				context: '='
+				context: '=',
+				iconPosition: '='
 			},
 			link: function(scope, element, attrs) {
+				
+				scope.position = function() {
+					return scope.iconPosition;
+				}
 
 				scope.play = function() {
 					doobio.playInline(scope.context, scope.sound);
+					element.bind('click', function (e) {
+                    	e.stopPropagation();
+                	});
 				}
 			}
 		}
-	});
+	}]);
 });

@@ -17,8 +17,19 @@ define(['services/services'], function(services){
 	            url: '/ping'
 	        }).success(function(){
 	    		delay.resolve(true);
-	    	}).error(function(){
-	    		delay.reject(false);
+	    	}).error(function(data, status){
+	    		// maybe the session is timed out, try login
+	    		if (status == 401) {
+
+	    			$http.post('/login').success(function(res, status) {
+
+		    			delay.resolve();
+
+		    		}).error(function(error, status){
+		    			console.log("error connecting to the server: %s", error);
+		    			delay.reject();
+		    		});
+	    		}
 	    	});
 
 	    	return delay.promise;

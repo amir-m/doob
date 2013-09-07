@@ -11,7 +11,7 @@ var redis = require('redis');
 
 if (process.env.REDISTOGO_URL) {
 
-  var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+  var rtg = require("url").parse(process.env.REDISTOGO_URL);
   var redisClient = redis.createClient(rtg.port, rtg.hostname);
   var pub = redis.createClient(rtg.port, rtg.hostname);
   var sub = redis.createClient(rtg.port, rtg.hostname);
@@ -40,14 +40,18 @@ var SessionSockets = require('session.socket.io');
 var nodemailer = require('nodemailer');
 var async = require('async');
 var useragent = require('express-useragent');
-
 //                  m  * s  *  ms
 var sessionMaxAge = 20 * 60 * 1000;
 //                 m * d  * h  * m  * s  * ms    
 var cookieMaxAge = 1 * 30 * 24 * 60 * 60 * 1000;
 
+require('./config')(app, express, connect, path, cookieParser, useragent, 
+  sessionStore, sessionMaxAge, colors, redisClient, io, mongoose);
+
 
 // var host = 'https://localhost:8080';
+
+// var text = 'display: inline-block;*display: inline;*zoom: 1;padding: 4px 12px;margin-bottom: 0;font-size: 14px;line-height: 20px;text-align: center;vertical-align: middle;cursor: pointer;color: #333333;text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);background-color: #f5f5f5;background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);background-repeat: repeat-x;filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#ffffffff", endColorstr="#ffe6e6e6", GradientType=0);border-color: #e6e6e6 #e6e6e6 #bfbfbf;border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);*background-color: #e6e6e6;filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);border: 1px solid #cccccc;*border: 0;border-bottom-color: #b3b3b3;-webkit-border-radius: 4px;-moz-border-radius: 4px;border-radius: 4px;*margin-left: .3em;-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);'
 
 // var smtpTransport = nodemailer.createTransport("SMTP",{
 //    service: "Gmail",
@@ -60,7 +64,9 @@ var cookieMaxAge = 1 * 30 * 24 * 60 * 60 * 1000;
 //    from: "amir39648@gmail.com", // sender address
 //    to: "amir@doob.io", // list of receivers
 //    subject: "Test Email", // Subject line
-//    text: "You got right? Thanks :)" // plaintext body
+//    // text: "You got right? Thanks :)" // plaintext body
+//   html: '<link rel="stylesheet" type="text/css" href="localhost:8080/public/css/bootstrap.css">' +
+//         '<h1>Thanks man!<br><button style="'+text+'">Thanks!</button></h1>'
 // };
 // smtpTransport.sendMail(mailOptions, function(error, response){
 //    if(error){
@@ -72,89 +78,26 @@ var cookieMaxAge = 1 * 30 * 24 * 60 * 60 * 1000;
 
 
 
-// Express configurations.
-app.set('port', process.env.PORT || 8080);
-// app.set('SSLPort', 8000);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'jade');
-app.set('view options', {layout: false});
-app.use(express.static(path.join(__dirname, '/public')));
-app.use(express.favicon('./public/img/icon.png'));
-app.use(express.logger('dev'));
-app.use(connect.bodyParser());
-app.use(express.methodOverride());
-app.use(cookieParser);
-app.use(express.session({ 
-  store: sessionStore, 
-  key: 'sessionid',
-  secret: 'revolution!',
-  cookie: {
-    maxAge: sessionMaxAge,
-    httpOnly: true
-  } 
-}));
-app.use(useragent.express());
 
-// app.use(function(req, res, next){
-//   // redirect all non-https trafic to https..
-//   // if (req.protocol != 'https') return res.redirect(host + req.url);
-//   console.log(req.useragent);
-//   next();
-// });
-
-
-app.use(app.router);
-
-// Using color themes.
-colors.setTheme({
-  silly: 'rainbow',
-  input: 'grey',
-  verbose: 'cyan',
-  prompt: 'grey',
-  info: 'green',
-  data: 'grey',
-  help: 'cyan',
-  warn: 'yellow',
-  debug: 'blue',
-  error: 'red'
-});
 
 
 // Socket server config and setup.
 var sessionSockets = new SessionSockets(io, sessionStore, cookieParser, 'sessionid');
 
-io.configure(function(){
-    io.set('log level', 1);
-    io.set("transports", ["xhr-polling"]);
-});
 
 
-redisClient.on("error", function (err) {
-  console.log("Error ".error + err);
-});
-
-if (process.env.MONGOLAB_URI)
-  var mg = process.env.MONGOLAB_URI;//require("url").parse(process.env.MONGOLAB_URI);
-else
-  var mg = "mongodb://localhost/doob";
-
-mongoose.connect(mg, function(err){
-    if (err) throw err;
-    console.log('connected to mongoDB: %s', mg);
-});
-
-var loginModels = require('./models/logins')(mongoose)
 
 var models = {
-  User: require('./models/User')(mongoose, async, loginModels),
-  Session: require('./models/session')(mongoose, async)//,
-  // Logins: require('./models/logins')(mongoose)
+  Session: require('./models/session')(mongoose, async),
+  index: require('./models/index')(mongoose, async),
+  logins: require('./models/logins')(mongoose),
+  activityMessages: require('./models/activitymessages')
 };
 
-var routes = {
-  index: require('./routes/index')(models, sessionMaxAge),
-  user: require('./routes/user')(fs, redis, redisClient, models, io, sessionMaxAge, cookieMaxAge)
-};
+models.User = require('./models/User')(mongoose, async, models.logins);
+models.activities = require('./models/activities')(mongoose, models, async);
+
+
 
 
 // development only
@@ -162,34 +105,49 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/public/*', routes.index.public);
+var routes = {
+  index: require('./routes/index')(models, sessionMaxAge),
+  user: require('./routes/user')(fs, redis, redisClient, models, io, sessionMaxAge, cookieMaxAge),
+  project: require('./routes/project')(fs, models, sessionMaxAge)
+};
 
-app.get('/template/*', routes.index.template);
-
-app.get('/partials/*', routes.index.partials);
-
-app.get('/ping', routes.index.ping);
-
-app.post('/destroy', routes.index.destroy);
-
-app.post('/me', routes.user.me);
-
-app.post('/logout', routes.user.logout);
-
-app.get('/user/:name', routes.user.getUser);
-
-app.post('/login', routes.user.login);
-
-app.post('/register', routes.user.register);
-
-app.get('/', routes.index.index);
+require('./router')(routes, app);
 
 
-sub.subscribe('amir');
+
+var joinRoom = function(username, socket, store){
+
+    store.smembers(username+':rooms', function(error, reply){
+      
+      for (var i = 0; i < reply.length; ++i) {
+        console.log(username)
+        console.log(reply[i])
+        // console.log(io.sockets.sockets[username])
+        // console.log(io.sockets.sockets[reply[i]])
+
+        // emit a notification to the user who is being subcribe to if she's online..
+        socket.join(reply[i]);
+        if (io.sockets.sockets[reply[i]] && reply[i] != username){
+
+          // tell everyone that the user's now subscribing to the other user.
+          io.sockets.emit('user:activity', username + ' subscribed to '+reply[i]+'!');
+
+          console.log('%s just subscribed to %s', username, reply[i]);
+        
+          var message = username + ' just subscribed to you!';
+          io.sockets.sockets[io.sockets.sockets[reply[i]]].emit('user:notification', message);
+
+          // request the latest doob instance
+          io.sockets.sockets[io.sockets.sockets[reply[i]]].emit('sync:request', {
+            subscriber: username,
+            broadcaster: reply[i]
+          });        
+        }
+      }
+    });
+  };
 
 sessionSockets.on('connection', function(err, socket, session){
-
-  // console.log(session)
 
   if (err) throw err;
 
@@ -198,13 +156,15 @@ sessionSockets.on('connection', function(err, socket, session){
     return;
   }
   var events = require('./events/handlers')(io, socket, session, redisClient, models);
+  // var activities = require('./events/activities')(models);
 
   if (session.username) {
     // socket.set('username', user.username);
+    if (io.sockets.sockets[session.username]) delete io.sockets.sockets[session.username];
     io.sockets.sockets[session.username] = socket.id;
     console.log('connecting: %s to %s'.prompt, session.username, socket.id);
 
-    events.joinRoome(session.username);
+    joinRoom(session.username, socket, redisClient);
   }
 
   else
@@ -215,38 +175,26 @@ sessionSockets.on('connection', function(err, socket, session){
       session.username = user.username;
       session.save();
       
+      if (io.sockets.sockets[session.username]) delete io.sockets.sockets[session.username];
       io.sockets.sockets[session.username] = socket.id;
       console.log('connecting: %s to %s'.prompt, session.username, socket.id);
 
-      events.joinRoome(session.username);
+      joinRoom(session.username, socket, redisClient);
     });
 
-  // io.sockets.socket.get('username', function(){
-  //   if (err) console.log(err); 
-  // });
-  socket.on('test', function(user){
-    // pub.publish('test', user);
-    socket.broadcast.emit('test');
-  });
-
-  socket.on('user:broadcast:entire:session', events.u_b_e_s);
   
-  socket.on('user:subscribe', events.userSubscribe);
 
-  socket.on('user:unsubscribe', events.userUnsubscribe);
+  for (var i in events) {
+    socket.on(i, events[i]);
+  }
 
-  socket.on('user:new:pattern', function(data){
-    socket.get('username', function(name){
-      // if ()
+  for (var i in models.activities) {
+    socket.on(i, function(data){
+      // args = arguments;
+      // console.log(args)
+      models.activities[i](data, session)
     });
-  });
-
-  socket.on('disconnect', events.disconnect);
-
-  socket.on('doob:assets', function(data){
-    pub.publish()
-    console.log(data);
-  });
+  }
 
 });
 

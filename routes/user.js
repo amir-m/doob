@@ -1,9 +1,23 @@
 module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMaxAge){
 
 	var crypto = require('crypto'),
-		_uid = crypto.createHash('sha256').update('uid').digest('hex').toString(),
-		_sid = crypto.createHash('sha256').update('sid').digest('hex').toString(),
-		_token = crypto.createHash('sha256').update('token').digest('hex').toString();
+		// _uid = crypto.createHash('sha256').update('uid').digest('hex').toString(),
+		// _sid = crypto.createHash('sha256').update('sid').digest('hex').toString(),
+		// _token = crypto.createHash('sha256').update('token').digest('hex').toString();
+		// user id
+		_uid = 'e',
+		// series id
+		_sid = 'z',
+		// toden id
+		_token = 'd',
+
+		// this cookie is not an http only cookie and is set to inform the client that series and
+		// tokens are set, so the client can check whether the tokens exists and then request
+		// login with token
+		_cookieSet = 's',
+
+		_cookieSetValue = crypto.createHash('sha1').update('already').digest('hex').toString()
+
 
 	// Scenario 2.
 	var login = function(req, res, next) {
@@ -34,24 +48,25 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 
 			else {
-				
+
 				// Scenario 2. 1.a.i
 				models.Session.validate(uid, sid, token, requestor, function(error, result){
 
 					// Scenario 2. 1.a.i.3.d
 					if (error && error == 401) {
 
-						req.session.uid = req.session ? null : null;
-						req.session.username = req.session ? null : null;
+						req.session.uid = null;
+						req.session.username = null;
 
 						res.clearCookie(_uid);
 						res.clearCookie(_sid);
 						res.clearCookie(_token);
+						res.clearCookie(_cookieSet);
 
 						return res.send(401);
 					}
 
-					if (error) res.send(error);
+					if (error) return res.send(error);
 
 
 					// Scenario 2. 1.a.i.4.b
@@ -61,6 +76,9 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 						res.cookie(_uid, uid, { maxAge: cookieMaxAge, httpOnly: true });
 		            	res.cookie(_sid, sid, { maxAge: cookieMaxAge, httpOnly: true });
 		            	res.cookie(_token, result.token, { maxAge: cookieMaxAge, httpOnly: true });
+		            	res.cookie(_cookieSet, _cookieSetValue, { 
+		            		maxAge: cookieMaxAge, httpOnly: false 
+		            	});
 
 		            	// set session variables.
 		            	models.User.User.findById(result.uid, 'username', function(error, user){
@@ -72,9 +90,14 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		            		req.session.username = user.username;
 
 							req.session.cookie.expires = new Date(Date.now() + sessionMaxAge);
-							req.session.cookie.maxAge = sessionMaxAge;		            		
+							req.session.cookie.maxAge = sessionMaxAge;
 
-		            		return res.send(200);
+							console.log('POST /login Successfull Login: %s, %s'.info, 
+				            	req.session.uid, req.session.username);
+
+							res.set('Content-Type', 'application/json');
+
+		            		return res.send({'username': user.username});
 		            	});
 					}
 					
@@ -85,49 +108,169 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		}
 
 		// Scenario 2 .2
-		else
+		else {
+			var uid = req.cookies[_uid],
+				sid = req.cookies[_sid],
+				token = req.cookies[_token];
+			
+			// there's no active token for the user, go ahead and authenticate the user.
+			if (!uid || !sid || !token) {
 
-			// Scenario 2 .2.a
-			models.User.authenticateUser(req.body.username, req.body.password, requestor, 
-				function(error, result) {
-					
-					if (error && error.error && error.error.code == 401) return res.send(401);
 
-					if (error) {
-						console.log('POST /login Failed to fetch the user info!'.error);
-						res.status(500);
-						return res.send('Sorry! We had a problem logging you in. Please try '
-							+ 'again a bit later. Thanks!');
+				models.User.authenticateUser(req.body.username, req.body.password, requestor, 
+					function(error, result) {
+						
+						if (error && error.error && error.error.code == 401) return res.send(401);
+
+						if (error) {
+							console.log('POST /login Failed to fetch the user info!'.error);
+							res.status(500);
+							return res.send('Sorry! We had a problem logging you in. Please try '
+								+ 'again a bit later. Thanks!');
+						}
+
+						if (result && result.success) {
+						
+				            req.session.uid = result.id.toString();
+				            req.session.username = req.body.username;
+
+				            console.log('POST /login Successfull Login: %s, %s'.info, 
+				            	req.session.uid, result.username);
+
+				            if (req.body.rememberMe == '1') 
+				            	models.Session.create(result.id, requestor, function(error, u, s, t) {
+				            		if (error) return res.send(500);
+				            		// set cookies
+									res.cookie(_uid, u, { maxAge: cookieMaxAge, httpOnly: true });
+					            	res.cookie(_sid, s, { maxAge: cookieMaxAge, httpOnly: true });
+					            	res.cookie(_token, t, { maxAge: cookieMaxAge, httpOnly: true });
+					            	res.cookie(_cookieSet, _cookieSetValue, { 
+			            				maxAge: cookieMaxAge, httpOnly: false 
+			            			});
+
+					            	res.set('Content-Type', 'application/json');
+
+			            			return res.send({'username': result.username});
+									
+									// return res.send(200);
+				            	}); 
+							
+				            else return res.send(200);
+				        }
+						else return res.send(404);
+				});
+				
+			}
+
+			// a token was already issued to the user! it's wierd to get this point. Maybe
+			// and attack is going on. First authenticate the token, and if not authorized,
+			// check the username and password.
+			else {
+
+				models.Session.validate(uid, sid, token, requestor, function(error, result){
+						
+
+					// Scenario 2. 1.a.i.3.d
+					if (error && error == 401) {
+
+						req.session.uid = null;
+						req.session.username = null;
+
+						res.clearCookie(_uid);
+						res.clearCookie(_sid);
+						res.clearCookie(_token);
+						res.clearCookie(_cookieSet);
+
+						return res.send(401);
+						
 					}
 
-					if (result && result.success) {
+					else if (error) return res.send(error);
+
+
+					// Scenario 2. 1.a.i.4.b
+					if (result) {
+
+						// set cookies
+						res.cookie(_uid, uid, { maxAge: cookieMaxAge, httpOnly: true });
+		            	res.cookie(_sid, sid, { maxAge: cookieMaxAge, httpOnly: true });
+		            	res.cookie(_token, result.token, { maxAge: cookieMaxAge, httpOnly: true });
+		            	res.cookie(_cookieSet, _cookieSetValue, { 
+		            		maxAge: cookieMaxAge, httpOnly: false 
+		            	});
+
+		            	// set session variables.
+		            	models.User.User.findById(result.uid, 'username', function(error, user){
+		            		
+		            		if (error) return res.send(500);
+
+		            		// Scenario 2. 1.a.i.4.c		
+		            		req.session.uid = result.uid;
+		            		req.session.username = user.username;
+
+							req.session.cookie.expires = new Date(Date.now() + sessionMaxAge);
+							req.session.cookie.maxAge = sessionMaxAge;
+
+							res.set('Content-Type', 'application/json');
+
+		            		return res.send({'username': user.username});
+		            	});
+					}
 					
-			            req.session.uid = result.id.toString();
-			            req.session.username = req.body.username;
+					
+					else {
+						// Now check the user name and password
+						models.User.authenticateUser(req.body.username, req.body.password, requestor, 
+						function(error, auth_result) {
+							
+							if (error && error.error && error.error.code == 401) return res.send(401);
 
-			            console.log('POST /login Successfull Login: %s, %s'.info, 
-			            	req.session.uid, result.username);
+							if (error) {
+								console.log('POST /login Failed to fetch the user info!'.error);
+								res.status(500);
+								return res.send('Sorry! We had a problem logging you in. Please try '
+									+ 'again a bit later. Thanks!');
+							}
 
-			            if (req.body.rememberMe == '1') 
-			            	models.Session.create(result.id, requestor, function(error, u, s, t) {
-			            		if (error) return res.send(500);
-			            		// set cookies
-								res.cookie(_uid, u, { maxAge: cookieMaxAge, httpOnly: true });
-				            	res.cookie(_sid, s, { maxAge: cookieMaxAge, httpOnly: true });
-				            	res.cookie(_token, t, { maxAge: cookieMaxAge, httpOnly: true });
+							if (auth_result && auth_result.success) {
+							
+					            req.session.uid = auth_result.id.toString();
+					            req.session.username = req.body.username;
+
+					            console.log('POST /login Successfull Login: %s, %s'.info, 
+					            	req.session.uid, auth_result.username);
+
+					            if (req.body.rememberMe == '1') 
+					            	models.Session.create(auth_result.id, requestor, function(error, u, s, t) {
+					            		if (error) return res.send(500);
+					            		// set cookies
+										res.cookie(_uid, u, { maxAge: cookieMaxAge, httpOnly: true });
+						            	res.cookie(_sid, s, { maxAge: cookieMaxAge, httpOnly: true });
+						            	res.cookie(_token, t, { maxAge: cookieMaxAge, httpOnly: true });
+						            	res.cookie(_cookieSet, _cookieSetValue, { 
+				            				maxAge: cookieMaxAge, httpOnly: false 
+				            			});
+
+						            	res.set('Content-Type', 'application/json');
+
+				            			return res.send({'username': auth_result.username});
+										
+										// return res.send(200);
+					            	}); 
 								
-								return res.send(200);
-			            	}); 
-						
-			            else return res.send(200);
-			        }
-					else return res.send(404);
-			});
+					            else return res.send(200);
+					        }
+							else return res.send(404);
+						});
+					};
+				});
+			}
+
+		}
+
 	}; 
 
 	var logout = function(req, res, next) {
-
-		res.clearCookie('undefined');
 
 		if (!req.session || !req.session.uid) return res.send(404);
 
@@ -144,6 +287,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 				res.clearCookie(_uid);
 				res.clearCookie(_sid);
 				res.clearCookie(_token);
+				res.clearCookie(_cookieSet);
 				
 				return res.send(200);
 			});

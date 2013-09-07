@@ -1,13 +1,53 @@
 define([], function () {
 	return function(doob){
-        return (function invocation(doob){   
-            var events = ['new-graph'];
+        return (function invocation(){   
+            
+            var events = ['new:io:Graph', 'new:io:Gain'],
+                subscribers = {
+                    all: []
+                };
+
+            var publish = function(ev) {
+                var ev = ev || 'all';
+                var args = arguments;
+                if (subscribers[ev]) {
+                    for (var i in subscribers[ev])
+                        subscribers[ev][i].apply(ev, args);
+                }
+                // console.log(ev)
+                if (ev == 'all') return;
+                for (var i in subscribers['all'])
+                        subscribers['all'][i].apply(ev, args);
+            };
+
+            var subscribe = function(ev, subscriber) {
+
+                if (!ev || (subscriber && typeof subscriber != 'function')) return;
+                if (typeof ev == 'function') {
+                    var subscriber = ev;
+                    ev = 'all';
+                };
+                if (!subscribers[ev]) subscribers[ev] = [];
+                subscribers[ev].push(subscriber);
+            };
+
+            var unsubscribe = function(ev, subscriber) {
+                var ev = ev || 'all';
+                if (typeof ev != 'string' || typeof subscriber != 'function' ||
+                    !subscribers[ev]) return;
+                subscribers[ev].splice(subscribers[ev].indexOf(subscriber), 1);
+            };
+
             var Gain = function (config) {
-                var self = this, context = doob.context;
+                var self = this, context = doob.context, config = config || {};
                 properties = {
                     name: {
-                        value: (config && config.name 
-                            && !doob.assets[config.name]) ? config.name : doob.uniqueNames.Gain,
+                        value: (config.name && !doob.assets[config.name]) ? 
+                        config.name : doob.uniqueNames.Gain,
+                        enumerable: true, writable: true, configurable: false 
+                    },
+                    belongsTo: {
+                        value: config.belongsTo,
                         enumerable: true, writable: true, configurable: false 
                     },
                     asset: {
@@ -15,7 +55,7 @@ define([], function () {
                         enumerable: true, writable: false, configurable: false
                     },
                     destination: {
-                        value: (config && config.destination && config.destination.connectable) ? 
+                        value: (config.destination && config.destination.connectable) ? 
                         config.destination : doob.masterGain,
                         enumerable: true, writable: true, configurable: false
                     }, 
@@ -25,7 +65,7 @@ define([], function () {
                     }
                 };
                 
-                properties.asset.value.gain.value = properties.value;
+                // properties.asset.value.gain.value = properties.value;
                 properties.asset.value._node = properties.name.value;
                 properties.connectable.value = properties.asset.value;
 
@@ -37,8 +77,9 @@ define([], function () {
                 this.asset.connect(this.destination);
 
                 //doob.addAsset(this);
-                doob.assets[this.name] = this;
-                doob.assetsToJSON[this.name] = this.toJSON();
+                publish('new:io:Gain', this);
+                // doob.assets[this.name] = this;
+                // doob.assetsToJSON[this.name] = this.toJSON();
 
             };
             Gain.prototype.value = function(value, flag) {
@@ -60,8 +101,9 @@ define([], function () {
             
             Gain.prototype.toJSON = function() {
                 return {
-                    type: 'Gain',
+                    nodetype: 'Gain',
                     name: this.name,
+                    belongsTo: this.belongsTo,
                     destination: this.destination._node
                 };
             };
@@ -74,32 +116,8 @@ define([], function () {
 
                 config.source = config.source.asset || config.source;
 
-
-                // config.source = config.source.asset || config.source;
-
-                // if (!config.source.connect && config.source.asset) {
-                //  var nodes = {};
-                //  nodes['source'] = config.source;
-                //  config.source = config.source.asset;
-                // }
-
-
-
-                
-                // if (!config.source.connect && config.source.asset) {
-                //  var nodes = {};
-                //  nodes['source'] = config.source;
-                //  config.source = config.source.asset;
-                // } 
-
-
-                // if (config.destination && !config.destination.connect && config.destination.asset) {
-                //  var nodes = nodes || {};
-                //  nodes['destination'] = config.destination;
-                //  config.destination = config.destination.asset;
-                // }
-
                 var dest = config.destination || doob.masterGain, self = this;
+
                 var properties = {
                     source: {
                         value: config.source,
@@ -107,11 +125,14 @@ define([], function () {
                     }, destination: {
                         value: dest,
                         enumerable: true, writable: true, configurable: false
-                    }, send: {
-                        value : config.send,
+                    }, send: { 
+                        value : config.send || [],
+                        enumerable: true, writable: true, configurable: false
+                    }, sendingNodes: { 
+                        value : config.sendingNodes || [],
                         enumerable: true, writable: true, configurable: false
                     }, name: {
-                        value: (function(){
+                        value: config.name && !doob.graphs[config.name] || (function(){
                             var name = config.node.name && !doob.graphs[config.node.name + '_graph'] ? 
                             config.node.name + '_graph' : doob.uniqueNames.Graph;
                             return name;
@@ -122,43 +143,46 @@ define([], function () {
                         value: config.connectable,
                         enumerable: true, writable: false, configurable: false
                     }, 
+                    belongsTo: {
+                        value: config.belongsTo,
+                        enumerable: true, writable: true, configurable: false 
+                    },
                     node: {
                         value: config.node,
                         enumerable: true, writable: false, configurable: false
                     }
                 };
-                // if (nodes)
-                //  properties['nodes'] = {
-                //      value: nodes,
-                //      enumerable: true, writable: false, configurable: false
-                //  };
+                
                 // Invoked as a constructor.
                 if (this instanceof Graph) {
                     Object.defineProperties(this, properties);
                     this.constructor = 'Graph'
                     this.connect();
-                    if(!doob.graphs[this.name]) doob.graphs.push(this.name);
-                    doob.assets[this.name] = this;
-                    doob.assetsToJSON[this.name] = this.toJSON();
-                    doob.graphs[this.name] = this;
-                    // io.publish('new-graph', {name: 'new-graph',
-                    //     dispatcher: self.toJSON()
-                    // });
+
+                    publish('new:io:Graph', this);
+
+                    // if(!doob.graphs[this.name]) doob.graphs.push(this.name);
+
+                    // doob.assets[this.name] = this;
+                    // doob.assetsToJSON[this.name] = this.toJSON();
+                    // doob.graphs[this.name] = this;
                 }
                 // Invoked as a factory function.
                 else {
                     var o = Object.create(Graph.prototype, properties); 
                     o.constructor = 'Graph'
                     o.connect();
-                    if(!doob.graphs[o.name]) doob.graphs.push(o.name);
-                    doob.assets[o.name] = o;
-                    doob.assetsToJSON[o.name] = o.toJSON();
-                    // io.publish('new-graph', {name: 'new-graph',
-                    //     dispatcher: o.toJSON()
-                    // });
+
+                    publish('new:io:Graph', o);
+                    
+                    // if(!doob.graphs[o.name]) doob.graphs.push(o.name);
+                    // doob.assets[o.name] = o;
+                    // doob.assetsToJSON[o.name] = o.toJSON();
+                    
                     return o;
                 }           
             };
+
             Graph.prototype.connect = function(node) {
                 // connect to the destination
                 this.source.connect(this.destination);
@@ -209,6 +233,7 @@ define([], function () {
                 // this.source.connect(this.destination);
                 // return this;
             };
+
             Graph.prototype.disconnect = function() {
                 var j = 0;
                 if (this.send && Object.prototype.toString.call(this.send) !== '[object Array]') {
@@ -222,27 +247,24 @@ define([], function () {
                 this.source.disconnect(this.destination);   
                 return this;
             };
+
             Graph.prototype.addSend = function(node) {
 
                 // bad argument, argument has no graph, argument has no connectable resource
                 if (!node || !node.graph || !node.graph.connectable) return this;
 
-                // there's no send attached 
-                if (!this.send) 
-                    this.send = [];
-                else if (Object.prototype.toString.call(this.send) != '[object Array]') 
-                    this.send = [this.send];
-
                 // argument has already been added
-                else if (this.send.indexOf(node.graph.name) != -1) return this;
+                if (this.send.indexOf(node.graph.name) != -1) return this;
                 
                 // connect this graph to the argument
                 this.source.connect(node.graph.connectable);
 
                 // push this argument to send list of this graph
                 this.send.push(node.graph.name);
+                this.sendingNodes.push(node.name)
 
-                console.log(this)
+                publish('update:io:Graph:addSend', this);
+
                 return this;
                 
             };
@@ -264,7 +286,8 @@ define([], function () {
 
                 return this;
 
-            }
+            };
+
             Graph.prototype.insert = function(node) {
                 var self = this;
                 // Nothing to insert.
@@ -386,6 +409,7 @@ define([], function () {
                         delete self.insertNode;
                     };
             };
+
             Graph.prototype.remove = function(node){
                 if (!this.insertNode) return this;
                 if (!node || !this.insertNode.node instanceof Chain ||
@@ -401,27 +425,33 @@ define([], function () {
                     return this;
                 }
             };
+
             Graph.prototype.toString = function() {
                 return 'io.Graph object ' + this.name + '.';
             };
+
             Graph.prototype.isEqualTo = function(graph) {
                 if (!graph || !graph instanceof Graph || !graph.name) return false;
                 if (this === graph) return true;
                 if (this.name == graph.name) return true;
                 return false;
             };
+
             Graph.prototype.toJSON = function(){
                 var dest = this.destination._node || 
                     (this.destination.connectable ? this.destination.connectable._node : 
                         doob.masterGain._node);
                 return {
-                    type: 'Graph',
+                    nodetype: 'Graph',
                     name: this.name,
+                    belongsTo: this.belongsTo,
                     connectable: this.connectable ? this.connectable._node : null,
                     source: this.source._node,
-                    destination: dest
+                    destination: dest,
+                    send: this.send
                 };
             };
+
             var Chain = function(config) {
                 var config = config || {};
                 if (config.name) {
@@ -462,6 +492,7 @@ define([], function () {
                     return o;               
                 }
             };
+
             Chain.prototype.connect = function() {
 
                 console.log(this)
@@ -479,6 +510,7 @@ define([], function () {
                 return this;
 
             };
+
             Chain.prototype.disconnect = function(){
                 var source = this.nodes[0].asset;
                 for (var i = 0; i < this.nodes.length; ++i) {
@@ -487,6 +519,7 @@ define([], function () {
                 };
                 return this;
             };
+
             Chain.prototype.remove = function(node){
                 if (!node) return this;
                 if (!node.asset) node = _findConnectable(node);
@@ -510,15 +543,18 @@ define([], function () {
                 }
                 return this;
             };
+
             Chain.prototype.toString = function() {
                 return 'io.Chain object ' + this.name + '.';
             };
+
             Chain.prototype.isEqualTo = function(chain) {
                 if (!chain || !chain instanceof Chain || !chain.name) return false;
                 if (this === chain) return true;
                 if (this.name == chain.name) return true;
                 return false;
             };
+
             var _connect = function(self, node, nodeType){
                 var nodeType = nodeType || node instanceof Graph ? 1: (node instanceof Chain?
                     2: (Object.prototype.toString.call(node) != '[object Array]'? 3 : 4));
@@ -654,7 +690,10 @@ define([], function () {
                 Chain: Chain,
                 Gain: Gain,
                 find: find,
-                events: events
+                events: events,
+                subscribe: subscribe,
+                publish: publish,
+                unsubscribe: unsubscribe 
             };
         }(doob));
     };
