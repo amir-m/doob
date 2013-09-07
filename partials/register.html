@@ -1,0 +1,19 @@
+<div style="padding-left: 25px;">
+	<form ng-submit="register()" name="registerForm" class="form-signin">
+		<h3 class="form-signin-heading">Request Invite</h3>
+		<!-- <input type="email" ng-model="ru" class="input-block-level" placeholder="email" required> -->
+		<input type="text" ng-model="ru" class="input-block-level" placeholder="Username" required>
+		<input ng-model="rp" type="password" class="input-block-level"  placeholder="Password"  required>
+		<label class="checkbox">
+			<input type="checkbox" ng-model="rrm"> Remember Me<br>
+		</label>
+		<button class="btn btn-default" ng-disabled="!registerForm.$valid">Register</button>
+		<div class="form-group has-error">
+			<label ng-model="errmsg" class="control-label" for="inputError" style="display:none"></label>
+		</div>
+	</form>
+
+	<div class="form-group has-error">
+		<label class="control-label" for="inputError">{{err}}</label>
+	</div>
+</div>

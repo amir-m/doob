@@ -1,0 +1,106 @@
+<div class="container-fluid">
+	<!-- style="background-color: gray" -->
+	<div class="row-fluid" >
+		<div class="span3" >
+			<div class="well sidebar-nav">
+				<ul class="nav nav-list">
+					<li class="nav-header title">Sound Patterns</li>
+					<ul class="nav" ng-repeat="instanceName in doob.instanceNames">
+						<li>
+							<a href="/#users/{{instanceName}}">
+								<i class="icon-user"></i>
+								<b>{{instanceName}}</b>
+								<i class="icon-globe pull-right" 
+								ng-show="doob.instances[instanceName].isBroadcasting"></i>
+							</a>
+						</li>
+						<li ng-repeat="soundPattern in doob.get(instanceName).soundPatterns">
+							<a ng-click="viewEdit(soundPattern, instanceName)">
+								{{soundPattern.name}}
+								<span class="close" ng-click="viewEdit(soundPattern, instanceName)" tooltip="View/Edit">
+									<i class="icon-arrow-right"></i>
+								</span>
+							</a> 
+						</li>
+					</ul>
+				</ul>
+			</div>
+			<div class="well sidebar-nav">
+				<ul class="nav nav-list">
+					<li class="nav-header">Sounds</li>
+					<ul class="nav" ng-repeat="instanceName in doob.instanceNames">
+						<li class="divider"></li>
+						<li>
+							<a style="cursor:default">
+								<i class="icon-user"></i>
+								<b style="cursor:pointer">{{instanceName}}</b>
+								<span class="pull-right" stop-event="click">
+									<doob.sound.picker></doob.sound.picker>
+								</span>
+							</a>
+						</li>
+						<li ng-repeat="sound in doob.get(instanceName).sounds">
+							{{sound}}
+							<span class="close pull-right" ng-show="showPattern()" 
+							ng-click="" tooltip="Add to the pattern">
+								<i class="icon-arrow-right" 
+								ng-click="addSoundToPattern(sound, instanceName)"></i>
+							</span>
+
+							<doob.play.inline icon-position="pull-right" sound="sound" context="instanceName" stop-event="click">
+							</doob.play.inline>
+							<!-- <input type="range" name="points" min="1" max="100"> -->
+						</li>
+						<li class="divider"></li>
+
+						<!-- <li><doob.sound.picker></doob.sound.picker></li> -->
+					</ul>
+				</ul>
+			</div>
+		</div>
+		<div class="span9" ng-show="showPattern()">
+			<button class="close pull-left" style="padding-left: 2px;" ng-click="closePattern()">&times;
+			</button>
+			<div class="pattern-container">
+				<div class="navbar navbar-fixed-top" style="left: inherit;right: inherit;top: inherit;margin: 0;padding: 0;position: relative;z-index: 0;">
+					<div class="navbar-inner" style="border-radius: 20px; box-shadow: 0 0 0 0">
+						<div class="container">
+							<ul class="nav">
+								<li>
+									<a><b><i class="icon-user" style="margin-top:6"></i>
+										{{instanceName}}
+									</b></a> 
+								</li>
+								<li>
+									<a><b>{{pattern.name}}</b></a> 
+								</li>
+								<!-- <li>
+									<doob.sound.picker></doob.sound.picker>	
+								</li> -->
+								<li class="btn-toolbar" style="margin-top: 5px;">
+								  <div class="btn-group">
+									<button class="btn btn-small" ng-click="pattern.play()">
+										<icon class="icon-play"></icon>
+									</button>
+									<button class="btn btn-small" ng-click="pattern.stop()">
+										<icon class="icon-stop"></icon>
+									</button>
+									<button tooltip="Loop!" class="btn btn-small" ng-click="pattern.play(1)">
+										<icon class="icon-play-circle"></icon>
+									</button>
+								  </div>
+								</li>
+								<li style="margin-top: 5px;">
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<doob.sound.pattern instance-name="instanceName" pattern="pattern">
+				</doob.sound.pattern>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- <doob.sound.patterns></doob.sound.patterns> -->
+
