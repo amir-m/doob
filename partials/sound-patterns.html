@@ -6,16 +6,23 @@
 				<ul class="nav nav-list">
 					<li class="nav-header title">Sound Patterns</li>
 					<ul class="nav" ng-repeat="instanceName in doob.instanceNames">
-						<li>
-							<a href="/#users/{{instanceName}}">
+						<li style="margin-bottom:5">
+							<span>
 								<i class="icon-user"></i>
-								<b>{{instanceName}}</b>
+								<a href="/#users/{{instanceName}}"><b>{{instanceName}}</b></a>
 								<i class="icon-globe pull-right" 
 								ng-show="doob.instances[instanceName].isBroadcasting"></i>
-							</a>
+								<span class="pull-right">
+									<new-sound-pattern tooltip-placement="top" tooltip="New Sound Pattern">
+								</new-sound-pattern>
+								</span>
+							</span>
 						</li>
 						<li ng-repeat="soundPattern in doob.get(instanceName).soundPatterns">
-							<a ng-click="viewEdit(soundPattern, instanceName)">
+							<a ng-click="viewEdit(soundPattern, instanceName)" style="cursor: default">
+								<i class="icon-remove" style="cursor: pointer" tooltip="Delete!"
+								stop-event="click" ng-click="remove(soundPattern, instanceName)">
+								</i>
 								{{soundPattern.name}}
 								<span class="close" ng-click="viewEdit(soundPattern, instanceName)" tooltip="View/Edit">
 									<i class="icon-arrow-right"></i>
@@ -35,7 +42,7 @@
 								<i class="icon-user"></i>
 								<b style="cursor:pointer">{{instanceName}}</b>
 								<span class="pull-right" stop-event="click">
-									<doob.sound.picker></doob.sound.picker>
+									<doob.sound.picker tooltip-placement="top" tooltip="Add Sound"></doob.sound.picker>
 								</span>
 							</a>
 						</li>
@@ -90,7 +97,8 @@
 									</button>
 								  </div>
 								</li>
-								<li style="margin-top: 5px;">
+								<li >
+									<a class="pull-right" ng-click="">Save</a>
 								</li>
 							</ul>
 						</div>
@@ -98,6 +106,8 @@
 				</div>
 				<doob.sound.pattern instance-name="instanceName" pattern="pattern">
 				</doob.sound.pattern>
+				
+				<!-- <a ng-bind="now() | date: 'MMM d, h:mm a'"> -->
 			</div>
 		</div>
 	</div>

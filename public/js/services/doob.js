@@ -51,6 +51,60 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 			regenerate(message);
 
 		});	
+		
+		// a new sound has been added, and is being broadcasted 'new:sequencer:SoundPattern'
+		socket.on('set:sequencer:SoundPattern:id', function(message){
+
+			if (message.broadcaster == $rootScope.username || 
+				!instances[message.subscriber]) return;
+
+			var sp = message.message;
+
+			// the instance is already removed. just inform the server that the instance is gone.
+			if (!instances[message.subscriber].env.assets[sp.pattern])
+				return emit('remove:sequencer:SoundPattern', {
+					event: 'remove:sequencer:SoundPattern',
+					timestamp: new Date().getTime(),
+					broadcaster: $rootScope.username,
+					subscriber: message.subscriber,
+					message: sp
+				});
+
+			var flag = message.broadcaster == 'sys' ? true : false;
+
+			instances[message.subscriber].env.assets[sp.pattern].setId(sp.id, flag);
+
+			// create all the sounds in this sound pattern
+			for (var sound in sp.tracks)
+				new instances[message.broadcaster].audio.sound({
+					name: sound.name, url: sound.url
+				});	
+			
+
+		});
+
+		// a new sound has been added, and is being broadcasted 'new:sequencer:SoundPattern'
+		socket.on('new:sequencer:SoundPattern', function(message){
+
+			// TODO: LOGGING...
+			// if the broadcaster is the same as this user, or if the broadcaster's instance 
+			// has not yet been created, it's probably a wrong message.
+
+			if (message.broadcaster == $rootScope.username || 
+				!instances[message.broadcaster]) return;
+
+			var sp = message.message;
+
+
+			// create all the sounds in this sound pattern
+			for (var sound in sp.tracks)
+				new instances[message.broadcaster].audio.sound({
+					name: sound.name, url: sound.url
+				});	
+			
+			new instances[message.broadcaster].sequencer.SoundPattern(message.message);
+
+		});
 
 		socket.on('update:sequencer:SoundPattern:toggleNote', function(message){
 
@@ -94,8 +148,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 		// a new sound has been added, and is being broadcasted
 		socket.on('new:aduio:Sound', function(message){
 
-			// TODO LOGGING...
-			console.log(message)
+			// TODO: LOGGING...
 			// if the broadcaster is the same as this user, or if the broadcaster's instance 
 			// has not yet been created, it's probably a wrong message.
 			if (message.broadcaster == $rootScope.username || 
@@ -147,6 +200,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 		};
 
 		var regenerate = function(message) {
+
 			if (!message.doob || !message.broadcaster) return;
 			var d = message.doob;
 			var re_d = instances[message.broadcaster] || new doob(message.broadcaster);
@@ -249,17 +303,11 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 					}).error(function(){
 						console.log('/project ERROR!');
 					});
-				}, 
-				'new:aduio:Sound': function(ev, exportable, name) {
-					// console.log('handler.doob.new:aduio:Sound');
-					
 				}
 			},
 			audio: {
 				'new:aduio:Sound': function(ev, exportable, name) {
-					// console.log('handler.audio.new:aduio:Sound');
-					// if (instances[name].isBroadcasting) {
-						console.log('new:aduio:Sound')
+						
 						emit(ev, {
 							event: ev,
 							broadcaster: $rootScope.username,
@@ -290,50 +338,73 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 				}
 			},
 			sequencer: {
-                'new:sequencer:SoundPattern': function(ev, pattern, name) {
-					console.log('handler.effects.new:sequencer:SoundPattern');
-                	console.log(pattern);
-                	console.log(name);
+                'new:sequencer:SoundPattern': function(ev, message, name) {
+					
+					// if (instances[name].isBroadcasting) {
+						emit(ev, {
+							event: ev,
+							broadcaster: $rootScope.username,
+							subscriber: name,
+							message: message
+						});
+					// }
 
                 }, 
                 'update:sequencer:SoundPattern:toggleNote': function(ev, message, name) {
 
-					if (instances[name].isBroadcasting) {
+					// if (instances[name].isBroadcasting) {
 						emit(ev, {
 							event: ev,
 							broadcaster: $rootScope.username,
 							subscriber: name,
 							message: message
 						});
-					}
+					// }
 
                 },
                 'update:sequencer:SoundPattern:newTrack': function(ev, message, name) {
 
-					if (instances[name].isBroadcasting) {
+					// if (instances[name].isBroadcasting) {
 						emit(ev, {
 							event: ev,
 							broadcaster: $rootScope.username,
 							subscriber: name,
 							message: message
 						});
-					}
-
+					// }
                 },
                 'update:sequencer:SoundPattern:removeTrack': function(ev, message, name) {
 
-                	
-
-					if (instances[name].isBroadcasting) {
+					// if (instances[name].isBroadcasting) {
 						emit(ev, {
 							event: ev,
 							broadcaster: $rootScope.username,
 							subscriber: name,
 							message: message
 						});
-					}
+					// }
 
-                }
+                }, 
+                'set:sequencer:SoundPattern:id': function(ev, message, name) {
+
+					// if (instances[name].isBroadcasting) {
+						emit(ev, {
+							event: ev,
+							broadcaster: $rootScope.username,
+							subscriber: name,
+							message: message
+						});
+					// }
+
+                }, 
+				"remove:sequencer:SoundPattern": function(ev, message, name) {
+					emit(ev, {
+						event: ev,
+						broadcaster: $rootScope.username,
+						subscriber: name,
+						message: message
+					});
+				}
             }
 		}
 		

@@ -2,6 +2,7 @@ define(['services/services'], function(services){
 	
 	services.factory('socket', function ($rootScope, $http, $q) {
 
+
 		var flag = false;
 
 	    var socket = io.connect('/', {reconnect: false, 'try multiple transports': false});
@@ -42,13 +43,29 @@ define(['services/services'], function(services){
 	    	if (!flag) return;
 	        console.log('disconnected from socket server...');
 	        interval = setInterval(_reconnect, 5000);
+	        
+	        // safe apply
+	        if ($rootScope.$$phase == '$apply' || $rootScope.$$phase == '$digest') {
+	        	$rootScope.isConnected = false;
+	        } 
+	        else {
+	        	$rootScope.$apply(function(){
+	        		$rootScope.isConnected = false;
+	        	});
+	        }
 	    });
 
-	    socket.on('connection', function () {
+	    socket.on('connect', function () {
 	        console.log('connected to the socket server.');
-
-	        // register my name to the socket server
-	        socket.emit('user:connected');
+	        
+	        if ($rootScope.$$phase == '$apply' || $rootScope.$$phase == '$digest') {
+	        	$rootScope.isConnected = true;
+	        } 
+	        else {
+	        	$rootScope.$apply(function(){
+	        		$rootScope.isConnected = true;
+	        	});
+	        }
 	    });
 
 
@@ -64,7 +81,6 @@ define(['services/services'], function(services){
 
 	        promise.then(function(){
 	            socket.socket.reconnect();
-	            console.log("reconnected to the socket server");
 	            clearInterval(interval);
 	        }, function(){
 	            console.log("connection failed! try to reconnect in 5 seconds...");
@@ -92,7 +108,8 @@ define(['services/services'], function(services){
 	        },
 	        connect: function(f){
 	        	flag = f;
-	            if (socket.socket && !socket.socket.connected) socket.socket.reconnect();
+	            if (socket.socket && !socket.socket.connected) 
+	            	socket.socket.reconnect();
 	        }, 
 	        disconnect: function(f) {
 	        	flag = f;

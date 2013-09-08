@@ -11,9 +11,75 @@ function(controllers){
 
 		$scope.navBar = 'invisible';
 		$scope.isBroadcasting = false;
+		$scope.invitationEmail = ''
+
 
 		$scope.loadedSoundCategoryList = null;
 		$scope.categoryListBindToSound = [];
+
+		var f = {
+			username: 1,
+			activities: 1,
+			followers: 1,
+			following: 1,
+			projects: 1,
+			password: 1,
+			soundPatterns: 1
+		}
+
+		var me = auth.me(f);
+
+		me.then(function(data){
+			$rootScope.username = data.username;
+			if (!doobio.get($rootScope.username) && $rootScope.username) {
+				doobio.create($rootScope.username);
+			}
+			$scope.me = data;
+			console.log($scope.me)
+			$scope.me._patterns = {};
+			$scope.me._followers = $scope.me.followers;
+			if ($scope.me._followers.length == 0)
+				$scope.me._followers.push('You have no followers!');
+
+			// for (var i in $scope.me.soundPatterns)
+			// 	$scope.me._patterns[$scope.me.soundPatterns[i].id] = $scope.me.soundPatterns[i];
+
+			$scope.loadDoobInstance(function(error, doob){
+				if (error) return console.log(error);
+
+				var promise = auth.getSoundPatterns();
+
+				promise.then(function(soundPatterns){
+
+					// console.log(soundPatterns)
+					
+					for (var i in soundPatterns) {
+
+						$scope.me._patterns[soundPatterns[i]._id] = soundPatterns[i];
+
+						for (var j in soundPatterns[i].content.tracks)
+
+							new doobio.instances[$rootScope.username].audio.Sound({
+								name: soundPatterns[i].content.tracks[j].name,
+								url: soundPatterns[i].content.tracks[j].url
+							});
+
+						new doobio.instances[$rootScope.username].sequencer.SoundPattern({
+							name: soundPatterns[i].name,
+							id: soundPatterns[i]._id, 
+							tracks: soundPatterns[i].content.tracks,
+							effects: soundPatterns[i].content.effects
+						});
+					}
+				}, function(error){
+
+				});
+
+			});
+
+		}, function(er){
+			console.log(er)
+		})
 
 		$scope.authenticate = function(callback) {
 
@@ -24,9 +90,7 @@ function(controllers){
 				promise.then(function(){
 					if (callback) callback(null, $rootScope.username);
 					$scope.navBar = 'visible';
-					// if (!doobio.get($rootScope.username) && $rootScope.username) {
-					// 	doobio.create($rootScope.username);
-					// }
+					
 					// $scope.doob = doobio;
 					// $cookies.doob = $cookies.doob || {};
 					// $cookies.doob[$rootScope.username] = doobio.get($rootScope.username).assetsToJSON;
@@ -36,7 +100,7 @@ function(controllers){
 
 				});	
 			}
-			else callback(null, $rootScope.username);
+			else if (callback) callback(null, $rootScope.username);
 		};
 
 		$scope.authenticate();
@@ -70,7 +134,14 @@ function(controllers){
 		$scope.broadcast = function() {
 			$scope.isBroadcasting = !$scope.isBroadcasting;
 			doobio.toggleBroadcast($rootScope.username);
+		};
+
+		$scope.sendInvite = function(ev) {
+			console.log('$scope.invitationEmail')
+			console.log($scope.invitationEmail)	
+			// if (ev.which == 13) console.log($scope.invitationEmail)
 		}
+
 		
 		// Check if the user's logged in
 		// var promise = auth.authenticate();
@@ -93,7 +164,8 @@ function(controllers){
 			// 	username: $rootScope.username,
 			// 	to: 'poi'
 			// });
-			console.log(doobio)
+			console.log(doobio.instances[$rootScope.username].env)
+			
 		}
 
 		$scope.now = function() {
@@ -185,17 +257,20 @@ function(controllers){
 		    			'Kick': {
 		    				name: 'Kick',
 		    				dummyName: '___kick',
-		    				pattern: [1,5,9,13]
+		    				pattern: [1,5,9,13],
+		    				url: doobio.instances[$rootScope.username].env.assets['Kick'].url
 		    			},
 		    			'Hat': {
 		    				name: 'Hat',
 		    				dummyName: '___hat',
-		    				pattern: [2,3,7,11,12,16]
+		    				pattern: [2,3,7,11,12,16],
+		    				url: doobio.instances[$rootScope.username].env.assets['Hat'].url
 		    			},
 		    			'Clap': {
 		    				name: 'Clap',
 		    				dummyName: '___clap',
-		    				pattern: [7, 15]
+		    				pattern: [7, 15],
+		    				url: doobio.instances[$rootScope.username].env.assets['Hat'].url
 		    			}
 		    		}, tempo: 120, steps: 32//, route: {destination: doob.g}
 		    	}, true);

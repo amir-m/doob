@@ -3,36 +3,32 @@ define(['services/services'], function(services){
 	services.factory('auth',  ['$rootScope', '$http', '$location', '$q', 'socket', '$cookies',
 			function ($rootScope, $http, $location, $q, socket, $cookies){
 			// socket.disconnect(false);
-		    var myInfo = {};
 
 		    function _getMe (param) {
-		        
+
 		        var delay = $q.defer();
+		        var param = param || {};
 
-		        if ($cookies[param]) delay.resolve($cookies[param]);
+		        // for (var i in param)
+		        // 	if ($cookies[param[i]]) delay.resolve($cookies[param[i]]);
+			    
+		    	$http({
+		    		cache: false,
+		    		method: 'GET',
+		    		params: param,
+		    		headers: {
+		    			'Content-Type': 'application/json'
+		    		},
+		    		url: '/me'
+		    	}).success(function(data, status, headers){
 
-			    else {
-			    	$http({
-			    		cache: false,
-			    		method: 'POST',
-			    		headers: {
-			    			'Content-Type': 'application/json'
-			    		},
-			    		url: '/me'
-			    	}).success(function(data, status, headers){
-			    		myInfo = data;
+		    		delay.resolve(data);
 
-			    		if (data[param]) delay.resolve(data[param]);
-			    		else delay.resolve(data);
-
-
-			    	}).error(function(data, status, headers){
-			    		myInfo = null;
-			    		delay.reject();
-			    	});
-
-			    	return delay.promise;
-		       	}
+		    	}).error(function(data, status, headers){
+		    		delay.reject();
+		    	});
+	       	
+		       	return delay.promise;
 		    }
 
 		    var _login = function() {
@@ -67,11 +63,11 @@ define(['services/services'], function(services){
 		   			}
 		   			// Scenario 1 - 2.a
 		   			else {
-		   				var promise = _getMe('username');
+		   				var promise = _getMe({'username': 1});
 
-		   				promise.then(function(username){
-		   					$rootScope.username = username;
-		   					$cookies.username = username;
+		   				promise.then(function(data){
+		   					$rootScope.username = data.username;
+		   					$cookies.username = data.username;
 		   					// $location.path(path);
 		   					delay.resolve();
 		   				});
@@ -143,8 +139,6 @@ define(['services/services'], function(services){
 		    		socket.connect(true);
 		    		$rootScope.username = u;
 		    		$cookies.username = u;
-		    		// myInfo.username = u;
-		    		// myInfo.rememberMe = rememberMe;
 		    		$location.path('/home');
 
 		    		if (callback) return callback(status);
@@ -156,7 +150,6 @@ define(['services/services'], function(services){
 		    };
 
 		    var register = function(u, p, rememberMe, callback){
-		    	if (myInfo) myInfo = {};
 		    	$http({
 		    		method: 'POST',
 		    		data: {
@@ -171,8 +164,6 @@ define(['services/services'], function(services){
 		    	}).success(function(res) {
 		    		socket.connect(true);
 		    		$rootScope.username = u;
-		    		myInfo.username = u;
-		    		myInfo.rememberMe = rememberMe;
 		    		$location.path('/home');
 		    		if (callback) return callback(res);
 		    	}).error(function(error, status){
@@ -184,20 +175,17 @@ define(['services/services'], function(services){
 		    var logout = function(scope){
 	            // $location.path('/login');
 
-
 	            $http.post('/logout').success(function(res) {
 	            console.log(scope.$$phase)
 
 	            	$cookies.username = null;
 	            	$rootScope.username = null;
-	            	myInfo = {};
 	            	$location.path('/login');
 
 	            }).error(function(){
 	            	console.log('logout: error');
 	            	$cookies.username = null;
 	            	$rootScope.username = null;
-	            	myInfo = {};
 	            	$location.path('/login');
 	            });
 	            
@@ -208,17 +196,42 @@ define(['services/services'], function(services){
 	        	$cookies.username = null;
 	        	$http({
 		            cache: false,
-		            method: 'POST',
+		            method: 'GET',
 		            url: '/destroy'
 		        });
 	        }
+
+	    var getSoundPatterns = function(){
+	    	var delay = $q.defer();
+
+	    	socket.emit('fetch:SoundPatterns:request', 
+	    	{
+	    		event: 'fetch:SoundPatterns:request',
+	    		broadcaster: $rootScope.username,
+	    		subscriber: $rootScope.username,
+	    		timestamp: new Date().getTime()
+	    	});
+
+	    	socket.on('fetch:SoundPatterns:response', function(data){
+
+	    		if (data.subscriber != $rootScope.username || data.broadcaster != 'sys') 
+	    			delay.reject('Socket problem');
+
+	    		delay.resolve(data.message['SoundPatterns']);
+
+	    	});
+
+	    	return delay.promise;
+	    }
 
 	    return {
 	    	authenticate: authenticate,
 	    	login: login,
 	    	logout: logout,
 	    	register: register,
-	    	destroy: destroy
+	    	destroy: destroy,
+	    	me: _getMe, 
+	    	getSoundPatterns: getSoundPatterns
 	    }
 	}]);
 });

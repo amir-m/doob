@@ -41,24 +41,28 @@ define([], function(){
 
 			var SoundPattern = function (config, pub) {
 
-				if (!pub) console.log(config)
-
 				config = config || {};
 				config.name = config.name && !doob.assets[config.name] ? config.name : 
 					doob.uniqueNames.SoundPattern;	
+
+				config.tempo = config.tempo || doob.tempo;
 
 				var thisPatternGraph;			
 				var properties = {
 					name: {
 						value: config.name,
 						enumerable: true, writable: false, configurable: false
+					},
+					id: {
+						value: config.id || null,
+						enumerable: true, writable: true, configurable: false
 					}, 
 					playStartTime: {
 						value: config.playStartTime || doob.context.currentTime,
 						enumerable: true, writable: true, configurable: false					
 					}, 
 					tempo: { 
-						value: config.tempo || doob.tempo,
+						value: config.tempo || tempo,
 						enumerable: true, writable: true, configurable: false					
 					}, 
 					sixteenthNoteTime: { 
@@ -106,17 +110,17 @@ define([], function(){
 						enumerable: true, writable: true, configurable: false					
 					}, 
 					bars: { 
-						value: config.bars || 1,
+						value: config.bars || 2,
 						enumerable: true, writable: true, configurable: false					
 					}, 
 					steps: { 
-						value: config.steps || 16,
+						value: config.steps || 32,
 						enumerable: true, writable: true, configurable: false					
 					}, 
 					barTime: {
 						value: config.barTime || (function(){
-							fourth = config.fourthNoteTime || (60 / (config.tempo || tempo) / 4);
-							steps = config.steps || 16;
+							fourth = config.fourthNoteTime || (60 / (config.tempo || doob.tempo) / 4);
+							steps = config.steps || 32;
 							return fourth * steps;
 						}()),
 						enumerable: true, writable: true, configurable: false					
@@ -150,7 +154,7 @@ define([], function(){
 					// track names.
 					tracks: {
 						value: config.tracks || {}, 
-						enumerable: false, writable: true, configurable: false	
+						enumerable: true, writable: true, configurable: true	
 					}, 
 					intvl: {
 						value: null, 
@@ -194,6 +198,16 @@ define([], function(){
 				else
 					this.enQ();
 			};
+
+			SoundPattern.prototype.setId = function(id, pub) {
+
+				if (!id || typeof id != 'string') return;
+
+				this.id = id;
+
+				publish('set:sequencer:SoundPattern:id', this, pub);
+			};
+
 			SoundPattern.prototype.toggleNote = function(note, track, pub) {
 				
 				if (!note) return;
@@ -262,14 +276,16 @@ define([], function(){
 					this.tracks[doob.uniqueNames.Sound] = {
 						name: s,
 						dummyName: sound.name,
-						pattern: []
+						pattern: [],
+						url: sound.url
 					};
 				}
 				else
 					this.tracks[s] = {
 						name: s,
 						dummyName: sound.name,
-						pattern: []
+						pattern: [],
+						url: sound.url
 					};
 
 				publish('update:sequencer:SoundPattern:newTrack', this, s, pub);
@@ -287,7 +303,7 @@ define([], function(){
 				schedule(loop ? 1 : this.bars);
 				
 				function schedule(bars) {
-					for (var i = 0; i < 1; ++i) {
+					for (var i = 0; i < bars; ++i) {
 
 						for (var sound in self.tracks) {
 
@@ -301,7 +317,7 @@ define([], function(){
 									destination: doob.assets[name].graph.connectable, 
 									buffer: doob.assets[name].buffer
 								});
-							
+								
 								var t = (i * self.barTime) + 
 								(self.tracks[sound].pattern[j] * self.fourthNoteTime + (doob.context.currentTime));
 								source.start ? source.start(t) : source.noteOn(t);
@@ -347,7 +363,7 @@ define([], function(){
 			};
 			
 			SoundPattern.prototype.toJSON = function() {
-				var obj = {
+				return {
 					nodetype: 'SoundPattern',
 					name: this.name,
 					tracks: this.tracks,
@@ -359,10 +375,17 @@ define([], function(){
 					steps: this.steps,
 					sounds: this.sounds,
 				};
-
-				// for (var i in this.)
-
-				return obj;
+			};
+			SoundPattern.prototype.exportable = function() {
+		   		return {
+			   		nodetype: 'sequencer.SoundPattern',
+                    name: this.name,
+                    tracks: this.tracks,
+                    tempo: this.tempo,
+                    steps: this.steps,
+                    bars: this.bars,
+                    id: this.id
+                };
 			};	
 			return {
 				SoundPattern: SoundPattern,

@@ -24,14 +24,14 @@ define(['directives/directives'], function(directives){
 					// console.log(sound)
 				}
 				scope.toggleNote = function(i, patternSound) {
-
-					console.log(patternSound);
 					
 					scope.pattern.toggleNote(i, patternSound, true);
 					// on = !on;
 					// scope.onOff = on ? onClass : offClass;
 					// scope.icon = on ? onIcon : offIcon;
 				};
+
+				
 
 
 				// console.log(scope.instanceName)

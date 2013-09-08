@@ -96,6 +96,7 @@ var models = {
 
 models.User = require('./models/User')(mongoose, async, models.logins);
 models.activities = require('./models/activities')(mongoose, models, async);
+models.projects = require('./models/projects')(mongoose, models, async);
 
 
 

@@ -1,0 +1,17 @@
+<span class="dropdown" stop-event="click" style="margin-buttom: 10" >
+	
+	<button ng-click="focus()"
+	class="btn btn-small dropdown-toggle">
+		<icon class="icon-plus"></icon>
+	</button>
+
+	<ul class="dropdown-menu" style="max-height: 200px;" id="spnamedropdown">
+		<li>
+			<input id="spname" stop-event="click" placeholder="Pattern Name" ng-model="name"
+			sp-name-input>
+		</li>	
+		<li ng-show="msg.length > 0">
+			<br><p class="text-error">{{msg}}</p>
+		</li>
+	</ul>
+</span>

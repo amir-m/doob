@@ -28,7 +28,7 @@ module.exports = function(mongoose, models, async) {
 			userId: session.uid,
 			text: models.activityMessages[data.event].text,
 			vars: models.activityMessages[data.event].vars(data.broadcaster),
-			timestamp: data.timestamp 
+			timestamp: data.timestamp ? data.timestamp : new Date().getTime()
 		});
 
 		a.save(function(error) {
@@ -42,10 +42,11 @@ module.exports = function(mongoose, models, async) {
 	return {
 		'user:broadcast:start': handleActivity,
 		'user:broadcast:stop': handleActivity,
-		'user:subscribe': handleActivity,
-		'user:unsubscribe': handleActivity, // Maybe NOT!
-		'new:aduio:Sound': handleActivity, 
-		'update:sequencer:SoundPattern:newTrack': handleActivity,
-		'update:sequencer:SoundPattern:removeTrack': handleActivity
+		'new:sequencer:SoundPattern': handleActivity
+		// 'user:subscribe': handleActivity,
+		// 'user:unsubscribe': handleActivity, // Maybe NOT!
+		// 'new:aduio:Sound': handleActivity, 
+		// 'update:sequencer:SoundPattern:newTrack': handleActivity,
+		// 'update:sequencer:SoundPattern:removeTrack': handleActivity,
 	};
 };

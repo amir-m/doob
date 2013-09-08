@@ -105,61 +105,84 @@ define([''], function(){
                     self.assets[pattern.name] = pattern;
                     self.assetsToJSON[pattern.name] = pattern.toJSON();
 
-                    pattern = pattern.toJSON();
+                    self.exportables.independents.sequencers.soundPatterns[pattern.name] = pattern.exportable();
 
-                    self.exportables.independents.sequencers.soundPatterns[pattern.name] = {
-                        nodetype: 'sequencer.SoundPattern',
-                        name: pattern.name,
-                        tracks: pattern.tracks,
-                        tempo: pattern.tempo,
-                        steps: pattern.steps,
-                        bars: pattern.bars
-                    }
                     
-                    if (pub) self.publish(ev, 
-                    self.exportables.independents.sequencers.soundPatterns[pattern.name], 
-                    self.name);
+                    // if (pub) self.publish(ev, 
+                    // self.exportables.independents.sequencers.soundPatterns[pattern.name], 
+                    // self.name);
+
+                    if (pub) self.publish(ev, {
+                        pattern: pattern.exportable()
+                    }, self.name);
                 }, 
                 'update:sequencer:SoundPattern:removeTrack' : function(ev, pattern, track, pub) {
                     
-                    pattern = pattern.toJSON();
-
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].tracks =
                         pattern.tracks;
                     
                     delete self.dummyNodes[track];
 
-                    // console.log(self.exportables.independents.sequencers.soundPatterns[pattern.name]);
-                    // console.log(self.dummyNodes)
+                    for (var i in pattern.tracks) 
+                        for (var j in pattern.tracks[i])
+                            if (j.indexOf("$") != -1)
+                                delete pattern.tracks[i][j];
+
+
                     if (pub) self.publish(ev, {
                         pattern: pattern.name,
-                        track: track
+                        id: pattern.id,
+                        track: track,
+                        tracks: pattern.tracks
                     }, self.name);
                 },
                 'update:sequencer:SoundPattern:newTrack' : function(ev, pattern, track, pub) {
                     
-                    pattern = pattern.toJSON();
-
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].tracks =
                         pattern.tracks;
 
+                    for (var i in pattern.tracks) 
+                        for (var j in pattern.tracks[i])
+                            if (j.indexOf("$") != -1)
+                                delete pattern.tracks[i][j];
+
                     if (pub) self.publish(ev, {
                         pattern: pattern.name,
-                        track: track
+                        id: pattern.id,
+                        track: track,
+                        tracks: pattern.tracks
                     }, self.name);
                 },
                 'update:sequencer:SoundPattern:toggleNote' : function(ev, pattern, track, note, pub) {
                     
-                    pattern = pattern.toJSON();
-
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].tracks =
                         pattern.tracks;
+
+                    for (var i in pattern.tracks) 
+                        for (var j in pattern.tracks[i])
+                            if (j.indexOf("$") != -1)
+                                delete pattern.tracks[i][j];                                    
+                            
 
                     if (pub) self.publish(ev, {
                         pattern: pattern.name,
                         track: track,
-                        note: note
+                        id: pattern.id,
+                        note: note,
+                        tracks: pattern.tracks
                     }, self.name);
+                }, 
+                'set:sequencer:SoundPattern:id': function(ev, pattern, pub) {
+                    self.exportables.independents.sequencers.soundPatterns[pattern.name].id =
+                       pattern.id;
+
+                    if (pub) self.publish(ev, {
+                        pattern: pattern.name,
+                        id: pattern.id
+                    }, self.name);
+                },
+                'remove:sequencer:SoundPattern': function(){
+                    
                 }
             }
         };
@@ -408,5 +431,13 @@ define([''], function(){
         this.contains = _contains();
 
         this.handlers = _handlers(this);
+
+        this.removeAsset = function(name, id) {
+            delete this.assets[name];
+            this.publish("remove:sequencer:SoundPattern", {
+                id: id
+            }, this.name);
+            console.log(id)
+        }
     };
 });

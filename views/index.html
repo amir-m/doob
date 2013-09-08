@@ -31,7 +31,7 @@
                   <i class="icon-envelope" ></i>
                 </a>
               </li>
-              <li class="dropdown">
+              <!-- <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Projects 
                   <b class="caret"></b>
                 </a>
@@ -54,7 +54,7 @@
                     </a>
                   </li>                    
                 </ul>
-              </li>
+              </li> -->
               <li>
                 <a href="#sound-patterns">Sound Patters</a>
               </li>
@@ -73,10 +73,11 @@
               <li>
                 <a ng-bind="now() | date: 'MMM d, h:mm a'"></a>
               </li>
-            </ul>
-          </div><!--/.nav-collapse -->
-
-          <div class="nav-collapse collapse">
+            
+          
+          </ul>
+          </div>
+          <div class="nav-collapse collapse pull-right">
             <ul class="nav pull-right">
               <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown">
@@ -109,9 +110,20 @@
                 </ul>
               </li>
               <li ng-show="isBroadcasting">
-                <i class="icon-globe pull-right" style="margin-top: 14px; cursor: pointer" 
+                <i class="icon-globe pull-right" style="margin-top: 14px; padding-right:10px; cursor: pointer" 
                 tooltip-placement="bottom" tooltip="You're now broadcasting. Click to stop."
-                ng-click="broadcast()"></i>
+                ng-click="broadcast()">
+                </i>
+              </li>
+              <!-- <li ng-show="isConnected">
+                <i class="icon-ok pull-right" style="margin-top: 14px;" 
+                tooltip="Connected!" tooltip-placement="left">
+                </i>
+              </li> -->
+              <li ng-show="!isConnected">
+                <i class="icon-warning-sign pull-right" style="margin-top: 14px;" 
+                tooltip="Connection error!" tooltip-placement="left">
+                </i>
               </li>
             </ul>
           </div>

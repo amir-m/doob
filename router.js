@@ -11,10 +11,10 @@ module.exports = function(routes, app){
 	app.get('/sounds', routes.index.sounds);
 
 	app.get('/user/:name', routes.user.getUser);
+	
+	app.get('/me', routes.user.me);
 
-	app.post('/destroy', routes.index.destroy);
-
-	app.post('/me', routes.user.me);
+	app.get('/destroy', routes.index.destroy);
 
 	app.post('/logout', routes.user.logout);
 

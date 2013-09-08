@@ -16,7 +16,6 @@ module.exports = function(mongoose, async, logins) {
 		// Request Trackers
 		logins: [],
 		logouts: [],
-		getMe: [],
 
 		// Activities
 		activities: [],
@@ -29,7 +28,8 @@ module.exports = function(mongoose, async, logins) {
 		projects : {
 			id: String,
 			name: String
-		}
+		},
+		soundPatterns: Number
 
 	});
 
@@ -189,29 +189,23 @@ module.exports = function(mongoose, async, logins) {
 		});
 	};
 
-	var me = function(id, requestor, callback) {
+	var me = function(id, requestor, fields, callback) {
 
 		if (!callback) return;
 
-		User.findOne({_id: id}, function(err, doc){
-			
-			if (err) return callback({error: 500});
-			
-			if (!doc) return callback({error: 404});
+		fields['_id'] = 0;
 
-			var res = {
-				username: doc.username,
-				activities: doc.activities
-			};
+		User.findById({_id: id}, fields, function(err, user){
 
-			if (doc.logins.length > 0) res.lastLogIn = doc.logins[doc.logins.length - 1]['date'];
+			if (err) {
+				console.log(err)
+				return callback({error: 500});
+			}
 
-			// Callback the user info
-			callback(res);
+			if (!user) return callback(401);
 
-			doc.getMe.push(requestor);
-			doc.save();
 
+			callback(null, user);
 		});
 	};
 
@@ -350,6 +344,27 @@ module.exports = function(mongoose, async, logins) {
 		});
 	};
 
+	var saveSoundPattern = function(sp, callbackFn) {
+		User.findById(sp.userid, function(error, user){
+			if (error) return callbackFn ? callbackFn(error) : '';
+			if (!user) return callbackFn ? callbackFn('User Not Found!') : '';
+
+			user.soundPatterns.push({
+				id: sp._id,
+				name: sp.name,
+				sounds: sp.sounds,
+				created: sp.created,
+				updated: sp.updated
+			});
+
+			user.markModified('soundPatterns');
+			user.save(function(error){
+
+				if (callbackFn) return callbackFn(error, user.username);
+			});
+		})
+	};
+
 	return {
 		User: User,
 		createUser: createUser,
@@ -359,6 +374,7 @@ module.exports = function(mongoose, async, logins) {
 		follow: follow,
 		unFollow: unFollow,
 		getUser: getUser,
-		insertActivity: insertActivity
+		insertActivity: insertActivity,
+		saveSoundPattern: saveSoundPattern
 	};
 };

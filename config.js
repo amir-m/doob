@@ -10,7 +10,7 @@ module.exports = function(app, express, connect, path, cookieParser, useragent,
   app.set('view options', {layout: false});
   app.use(express.static(path.join(__dirname, '/public')));
   app.use(express.favicon('./public/img/icon.png'));
-  // app.use(express.logger('dev'));
+  app.use(express.logger('dev'));
   app.use(connect.bodyParser());
   app.use(express.methodOverride());
   app.use(cookieParser);
@@ -51,7 +51,7 @@ module.exports = function(app, express, connect, path, cookieParser, useragent,
 
   io.configure(function(){
     io.set('log level', 1);
-    io.set("transports", ["websocket"]);//, "xhr-polling"]);
+    io.set("transports", ["xhr-polling"]);// "websocket"
   });
 
 

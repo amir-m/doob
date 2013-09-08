@@ -74,6 +74,10 @@ function(controllers){
 			
 			$scope.instanceName = instanceName;
 		}
+		$scope.remove = function(p, i) {
+			doobio.instances[i].env.removeAsset(p.name, p.id);
+			delete $scope.doob.get(i).soundPatterns[p.name];
+		}
 		
 	}]);
 });

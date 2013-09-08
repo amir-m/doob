@@ -1,7 +1,7 @@
 define(['directives/directives'], function(directives){
 
     directives.directive('stopEvent', [function () {
-        
+
         return {
             restrict: 'A',
             // scope: {

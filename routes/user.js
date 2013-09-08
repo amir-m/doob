@@ -85,6 +85,8 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		            		
 		            		if (error) return res.send(500);
 
+		            		if (!user || !user.username) res.send(401);
+
 		            		// Scenario 2. 1.a.i.4.c		
 		            		req.session.uid = result.uid;
 		            		req.session.username = user.username;
@@ -351,25 +353,41 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 			timestamp: (new Date()).getTime(),
 			host: req.host,
 			path: req.path,
+			params: req.params,
 			OS: req.useragent.OS,
 			browser: req.useragent.Browser,
 			browserVersion: req.useragent.Version,
 			platform: req.useragent.Platform
 		};
 
-
-		if (!req.session || !req.session.uid) return res.send(404);
+		if (!req.session || !req.session.uid || !req.session.username) return res.send(401);
 
 		res.set('Content-Type', 'application/json');
 
-		if (req.session && req.session.username) {
+		var c = 0, f = {};
 
-			return res.send({username: req.session.username});
+		for (var i in req.query) {
+			++c;
+			// if (c > 0) break;
+			if (i != 'password' && i != '_id') f[i] = req.query[i];
+		}
+				
+		// no parameter: the user only need username
+		if (c == 0) {
+			// send the username
+			return res.send(")]}',\n" + JSON.stringify({username: req.session.username}));
 		}
 
-		models.User.me(req.session.uid, requestor, function(_me){
-			req.session.username = _me.username;
-			res.send(_me);
+
+
+		models.User.me(req.session.uid, requestor, f, function(error, _me){
+
+			if (error) return res.send(error);
+
+			req.session.cookie.expires = new Date(Date.now() + sessionMaxAge);
+			req.session.cookie.maxAge = sessionMaxAge;
+
+			res.send(")]}',\n" + JSON.stringify(_me));
 		});
 	};
 

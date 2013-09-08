@@ -1,0 +1,51 @@
+<div class="container-fluid">
+	<!-- style="background-color: gray" -->
+	<div class="row-fluid" >
+		<div class="span3" >
+			<div class="well sidebar-nav">
+				<ul class="nav nav-list">
+					<li class="nav-header title">Your followers!</li>
+					<li ng-repeat="follower in me._followers">
+						<span href="#/people/{{me.followers[$index].username}}">{{follower}}
+						</span>
+					</li>
+					<li><br></li>
+					<li>
+					<!-- <accordion close-others="oneAtATime">
+						<accordion-group heading="Invitations">
+							<span class="input-prepend">
+							  <form>
+							  	<span class="add-on">@</span>
+							  	<input ng-keydown="sendInvite($event)" tabindex="0" class="span" 
+							  	ng-model="invitationEmail" id="prependedInput" type="email" placeholder="Invite Someone!" style="width: 158;">
+							  </form>
+							</span>
+						</accordion-group>
+			
+						<accordion-group heading="Dynamic Body Content">
+							<p>The body of the accordion group grows to fit the contents</p>
+								<button class="btn btn-small" ng-click="addItem()">Add Item</button>
+							<div ng-repeat="item in items">{{item}}</div>
+						</accordion-group>
+						<accordion-group>
+							<accordion-heading>
+							I can have markup, too! <i class="icon-check"></i>
+							</accordion-heading>
+					        This is just some content to illustrate fancy headings.
+						</accordion-group>
+					</accordion> -->
+					</li>
+				</ul>
+			</div>
+			<div class="well sidebar-nav">
+				<ul class="nav nav-list">
+					<li class="nav-header title">People You follow!</li>
+				</ul>
+			</div>
+		</div>
+		<div class="span9" ng-show="showPattern()">
+		</div>
+	</div>
+</div>
+<!-- <doob.sound.patterns></doob.sound.patterns> -->
+

@@ -151,9 +151,64 @@ module.exports = function(io, socket, session, store, models) {
 
   var forward = function (data) {
     socket.broadcast.to(data.subscriber).emit(data.event, data);
+    if (data.event != 'new:aduio:Sound') 
+      models.projects.update(data, session);
   };
 
-  
+  var saveSP = function(data) {
+
+    models.projects.newSoundPattern(data, session, function(error, sp){
+
+      // the user is still connected.
+      if (io.sockets.sockets[data.broadcaster])
+          io.sockets.sockets[io.sockets.sockets[data.broadcaster]].
+          emit('set:sequencer:SoundPattern:id', {
+            event: 'set:sequencer:SoundPattern:id',
+            broadcaster: 'sys',
+            subscriber: data.subscriber,
+            timestamp: new Date().getTime(),
+            message: {
+              id: sp._id,
+              pattern: data.message.pattern.name//id
+            }
+          });
+
+
+    });
+  };
+
+  var fetchSoundPatterns = function(data) {
+
+    models.projects.fetchSoundPatterns(session.uid, function(error, sps){
+      if (error) return console.log(error);
+
+      if (io.sockets.sockets[data.broadcaster])
+          io.sockets.sockets[io.sockets.sockets[data.broadcaster]].
+          emit('fetch:SoundPatterns:response', {
+            event: 'fetch:SoundPatterns:response',
+            broadcaster: 'sys',
+            subscriber: data.subscriber,
+            timestamp: new Date().getTime(),
+            message: {
+              SoundPatterns: sps
+            }
+          });
+
+    });
+
+  };
+
+  var removeSoundPattern = function(data) {
+    console.log(data)
+    models.projects.SoundPattern.update({_id: data.message.id}, {$set: {
+      updated: new Date().getTime(),
+      active: false
+    }}, function(error){
+      if (error) console.log(error)
+    });
+  };
+
+  models.User.User.update({_id: session.uid}, {$inc: {soundPatterns: -1}});
 
 
   return {
@@ -166,6 +221,9 @@ module.exports = function(io, socket, session, store, models) {
     'new:aduio:Sound': forward,
     'update:sequencer:SoundPattern:newTrack': forward,
     'update:sequencer:SoundPattern:toggleNote': forward,
-    'update:sequencer:SoundPattern:removeTrack': forward
+    'update:sequencer:SoundPattern:removeTrack': forward,
+    'new:sequencer:SoundPattern': saveSP,
+    'fetch:SoundPatterns:request': fetchSoundPatterns,
+    'remove:sequencer:SoundPattern': removeSoundPattern
   };
 };

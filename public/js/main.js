@@ -4,7 +4,7 @@ require.config({
 		angular: 'lib/angular',
 		angularResource: 'lib/angular-resource',
 		angularCookies: 'lib/angular-cookies',
-		// jquery: 'lib/jquery',
+		jquery: 'lib/jquery',
 		domready: 'lib/domready',
 		uiBootstrap: 'lib/ui-bootstrap-tpls-0.5.0',
 		doob: 'lib/doob',
@@ -15,7 +15,7 @@ require.config({
 	},
 	shim: {
 		'angular': {
-			// deps: ['jquery'],
+			deps: ['jquery'],
 			exports: 'angular'
 		},
 		'angularResource': { deps: ['angular'] },
@@ -25,10 +25,10 @@ require.config({
 });
 
 require([
+	'jquery',
 	'angular',
 	'app', 
 	'domready',
-	// 'jquery',
 	'uiBootstrap',
 	'controllers/home-ctrl',
 	'controllers/login-ctrl',
@@ -44,10 +44,14 @@ require([
 	'directives/sound-picker',
 	'directives/sound-pattern',
 	'directives/sound-patterns',
-	'directives/stop-event'
-	], function(angular, app, domReady, $) {
+	'directives/stop-event',
+	'directives/new-sound-pattern',
+	'directives/sp-name-input'
+	], function($, angular, app, domReady) {
 		
 		'use strict';
+
+
 
 		app.config(['$routeProvider', '$httpProvider', 
 			function($routeProvider, $httpProvider) {
@@ -63,7 +67,7 @@ require([
 		    .when('/register', {templateUrl: 'partials/register.html', controller: 'register-ctrl'})
 		    .when('/sound-patterns', {templateUrl: 'partials/sound-patterns.html', 
 		    controller: 'sound-patterns-ctrl'})
-		    .when('/home', {controller: 'home-ctrl', 
+		    .when('/home', {controller: 'home-ctrl', templateUrl: 'partials/me.html',
 		    	resolve: function(auth, $location, $rootScope, doobio) {
 			    	
 			    	var promise = auth.authenticate('/home');
@@ -91,12 +95,17 @@ require([
 		app.run(['$window', 'auth', '$location', 'socket', 'doobio', '$rootScope',function($window, auth, 
 			$location, socket, doobio, $rootScope){
 
+			// $rootScope.isConnected = false;
+			// $rootScope.isDisconnected = true;
+
 			$window.addEventListener("beforeunload", function (e) {
-			  doobio.instances[$rootScope.username].isBroadcasting = false;
-			  socket.emit('user:broadcast:stop', {
-			  	broadcaster: $rootScope.username,
-			  	event: 'user:broadcast:stop'
-			  });
+			  if (doobio.instances[$rootScope.username].isBroadcasting) {
+				socket.emit('user:broadcast:stop', {
+					broadcaster: $rootScope.username,
+					event: 'user:broadcast:stop'
+				});
+				doobio.instances[$rootScope.username].isBroadcasting = false;
+			  }
 			  auth.destroy();
 			});
 
