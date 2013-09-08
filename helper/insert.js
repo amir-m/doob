@@ -5,7 +5,7 @@ if (process.env.MONGOLAB_URI)
 else
   var mg = "mongodb://localhost/doob";
 
-var models = require('/apps/hm/models/index')(mongoose);
+var models = require('./models/index')(mongoose);
 
 mongoose.connect(mg, function(err){
     if (err) throw err;
@@ -30,7 +30,7 @@ mongoose.connect(mg, function(err){
     	// })
     // });
 
-	fs.readFile('/apps/hm/helper/sounds.js', 'utf8', function (err, data) {
+	fs.readFile('./helper/sounds.js', 'utf8', function (err, data) {
 		if (err) throw err;
 		models.Sound.create(JSON.parse(data), function(err) {
 			if (err) throw err;
