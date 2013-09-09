@@ -160,3 +160,33 @@ body {
   background-repeat: no-repeat;
   margin-top: 1px;
 }
+.search-results {
+  border-radius: 20;
+  box-shadow: rgba(82, 168, 236, 0.6) 0px 0px 8px 0px;
+  min-height: 10px;
+  max-height: 398;
+  overflow: hidden;
+  overflow-y: auto;
+  position: fixed;
+  width: 280;
+  padding: 10;
+  margin-top: 0;
+  background-color: white;
+  color: white;
+  display: none;
+  border: 1px solid rgba(82, 168, 236, 0.6);
+}
+
+.search-results a {
+  color: #4F074F;
+}
+
+.search-query-nav {
+  width:300;
+}
+
+.date {
+  font-size: 12;
+  font-style: oblique;
+  color: gray;
+}

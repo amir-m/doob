@@ -201,6 +201,7 @@ define([], function(){
 
 			SoundPattern.prototype.setId = function(id, pub) {
 
+
 				if (!id || typeof id != 'string') return;
 
 				this.id = id;
@@ -240,7 +241,6 @@ define([], function(){
 					// this.tracks[note.soundName].pattern.push(note.note);	
 					track.pattern.push(note);
 				}
-
 				publish('update:sequencer:SoundPattern:toggleNote', this, track.dummyName, note, pub);
 				
 			};
@@ -303,7 +303,7 @@ define([], function(){
 				schedule(loop ? 1 : this.bars);
 				
 				function schedule(bars) {
-					for (var i = 0; i < bars; ++i) {
+					for (var i = 0; i < 1; ++i) {
 
 						for (var sound in self.tracks) {
 
@@ -342,7 +342,7 @@ define([], function(){
 						setTimeout(function() {
 							self.stop();
 							self.cleanPlayedSources();
-						}, self.barTime * 1000);
+						}, (self.barTime) * 2000);
 				};
 				return this;
 			};

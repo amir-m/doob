@@ -8,10 +8,10 @@
 					<ul class="nav" ng-repeat="instanceName in doob.instanceNames">
 						<li style="margin-bottom:5">
 							<span>
+								<i class="icon-globe" 
+								ng-show="doob.instances[instanceName].isBroadcasting"></i>
 								<i class="icon-user"></i>
 								<a href="/#users/{{instanceName}}"><b>{{instanceName}}</b></a>
-								<i class="icon-globe pull-right" 
-								ng-show="doob.instances[instanceName].isBroadcasting"></i>
 								<span class="pull-right">
 									<new-sound-pattern tooltip-placement="top" tooltip="New Sound Pattern">
 								</new-sound-pattern>
@@ -23,7 +23,7 @@
 								<i class="icon-remove" style="cursor: pointer" tooltip="Delete!"
 								stop-event="click" ng-click="remove(soundPattern, instanceName)">
 								</i>
-								{{soundPattern.name}}
+								<span>{{soundPattern.name}}</span>
 								<span class="close" ng-click="viewEdit(soundPattern, instanceName)" tooltip="View/Edit">
 									<i class="icon-arrow-right"></i>
 								</span>
@@ -66,6 +66,7 @@
 			</div>
 		</div>
 		<div class="span9" ng-show="showPattern()">
+
 			<button class="close pull-left" style="padding-left: 2px;" ng-click="closePattern()">&times;
 			</button>
 			<div class="pattern-container">

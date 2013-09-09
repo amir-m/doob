@@ -172,8 +172,6 @@ module.exports = function(io, socket, session, store, models) {
               pattern: data.message.pattern.name//id
             }
           });
-
-
     });
   };
 

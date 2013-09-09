@@ -1,4 +1,4 @@
-module.exports = function(models, sessionMaxAge){
+module.exports = function(models, sessionMaxAge, async){
 
 	var index = function(req, res, next){
 		res.set({
@@ -63,6 +63,56 @@ module.exports = function(models, sessionMaxAge){
 		});
 	};
 
+	var search = function(req, res, next) {
+		if (!req.session || !req.session.uid || !req.session.username) return res.send(401);
+		var q = req.query.q;
+		q += '*';
+		async.parallel([
+			function(callback) { 
+				models.User.User.find({usernameLowerCase: { $regex: q, $options: 'i' }, 
+					usernameLowerCase: {$ne: req.session.username.toLowerCase()} }, 
+					{username: 1}, function(error, r) {
+						callback(error, r);
+					});
+			},
+			function(callback) {
+				models.projects.SoundPattern.find({active: true,
+					name: { $regex: q, $options: 'i' }}, 
+					{name: 1, _id: 1, username: 1}, function(error, r) {
+						callback(error, r);
+					});
+			}
+		], function(error, results){
+			if (error) return res.send(500);
+			var r = ")]}',\n" + JSON.stringify(results);
+			return res.send(r);
+		});
+
+		// models
+		// setTimeout(function(){
+		// 	return res.send([]);
+		// 	return res.send(")]}',\n" + JSON.stringify([
+		// 		[
+		// 			{
+		// 			username: 'KooKoo'
+		// 				},{
+		// 				username: 'popoooo'
+		// 				}
+		// 		],
+		// 		[
+		// 			{
+		// 				name: 'dicsooo',
+		// 				id: 'sjsjbsbd'
+		// 				}, {
+		// 				name: 'shabaaash',
+		// 				id: 'smnkjsjsdjss'
+		// 			}
+		// 		]
+		// 	]));
+			
+		// }, 5000);
+	};
+
 	return {
 		index: index,
 		public: public,
@@ -70,6 +120,7 @@ module.exports = function(models, sessionMaxAge){
 		partials: partials,
 		ping: ping,
 		destroy: destroy,
-		sounds: sounds
+		sounds: sounds,
+		search: search
 	}
 };

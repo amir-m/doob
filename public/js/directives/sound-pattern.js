@@ -14,11 +14,9 @@ define(['directives/directives'], function(directives){
 			},
 			link: function(scope, element, attrs) {
 				scope.beats = function() {
-					return new Array(scope.pattern.bars * scope.pattern.steps);
+					return new Array(scope.pattern.steps);
 				}
 				scope.removeTrack = function(track) {
-
-					console.log(track);
 					
 					scope.pattern.removeTrack(track, true);
 					// console.log(sound)

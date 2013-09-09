@@ -94,7 +94,7 @@ var models = {
   activityMessages: require('./models/activitymessages')
 };
 
-models.User = require('./models/User')(mongoose, async, models.logins);
+models.User = require('./models/User')(mongoose, async, models.logins, models);
 models.activities = require('./models/activities')(mongoose, models, async);
 models.projects = require('./models/projects')(mongoose, models, async);
 
@@ -107,7 +107,7 @@ if ('development' == app.get('env')) {
 }
 
 var routes = {
-  index: require('./routes/index')(models, sessionMaxAge),
+  index: require('./routes/index')(models, sessionMaxAge, async),
   user: require('./routes/user')(fs, redis, redisClient, models, io, sessionMaxAge, cookieMaxAge),
   project: require('./routes/project')(fs, models, sessionMaxAge)
 };

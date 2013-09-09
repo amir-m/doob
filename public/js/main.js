@@ -34,19 +34,24 @@ require([
 	'controllers/login-ctrl',
 	'controllers/register-ctrl',
 	'controllers/sound-patterns-ctrl',
+	'controllers/sound-pattern-ctrl',
+	'controllers/user-ctrl',
 	'services/auth',
 	'services/socket',
 	'services/io',
 	'services/audio',
 	'services/sequencer',
 	'services/effects',
+	'services/userloader',
+	'services/patternsloader',
 	'directives/play-inline',
 	'directives/sound-picker',
 	'directives/sound-pattern',
 	'directives/sound-patterns',
 	'directives/stop-event',
 	'directives/new-sound-pattern',
-	'directives/sp-name-input'
+	'directives/sp-name-input',
+	'directives/search'
 	], function($, angular, app, domReady) {
 		
 		'use strict';
@@ -56,7 +61,9 @@ require([
 		app.config(['$routeProvider', '$httpProvider', 
 			function($routeProvider, $httpProvider) {
 		  $routeProvider.
-		    when('/login', {templateUrl: 'partials/login.html', controller: 'login-ctrl',
+		    when('/login', {
+		    	templateUrl: 'partials/login.html', 
+		    	controller: 'login-ctrl',
 		    	resolve: function($rootScope, $location) {
 		    		$scope.navBarClass('invisible');
 		    		if ($rootScope.username) {
@@ -64,10 +71,31 @@ require([
 		    		}
 		    	}
 		  	})  
-		    .when('/register', {templateUrl: 'partials/register.html', controller: 'register-ctrl'})
-		    .when('/sound-patterns', {templateUrl: 'partials/sound-patterns.html', 
-		    controller: 'sound-patterns-ctrl'})
-		    .when('/home', {controller: 'home-ctrl', templateUrl: 'partials/me.html',
+		    .when('/register', {
+		    	templateUrl: 'partials/register.html', 
+		    	controller: 'register-ctrl'
+		    })
+		    .when('/sound-patterns/:user', {
+		    	templateUrl: 'partials/sound-patterns.html', 
+		    	controller: 'sound-patterns-ctrl',
+		    	resolve: {
+		    		patterns: ['PatternsLoader', function(PatternsLoader){
+		    			return PatternsLoader();
+		    		}]
+		    	}
+		    })
+		    .when('/sound-patterns/:user/:id', {
+		    	templateUrl: 'partials/sound-patterns.html', 
+		    	controller: 'sound-patterns-ctrl',
+		    	resolve: {
+		    		patterns: ['PatternsLoader', function(PatternsLoader){
+		    			return PatternsLoader();
+		    		}]
+		    	}
+		    })
+		    .when('/home', {
+		    	controller: 'home-ctrl', 
+		    	templateUrl: 'partials/me.html',
 		    	resolve: function(auth, $location, $rootScope, doobio) {
 			    	
 			    	var promise = auth.authenticate('/home');
@@ -83,7 +111,15 @@ require([
 					promise.then(success, failure);
 				}
 			})
-			// when('/me', {templateUrl: 'partials/me.html', controller: HomeCtrl}).
+			.when('/users/:user', {
+				templateUrl: 'partials/user.html', 
+				controller: 'user-ctrl', 
+				resolve: {
+					user: ['UserLoader', function(UserLoader) {
+						return UserLoader();
+					}]
+				}
+			})
 			// when('/register', {templateUrl: 'views/register.html', controller: RegisterCtrl}).
 			.otherwise({redirectTo: '/login'});
 

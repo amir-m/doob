@@ -1,4 +1,4 @@
-module.exports = function(mongoose, async, logins) {
+module.exports = function(mongoose, async, logins, models) {
 
 	var bcrypt = require('bcrypt');
 	// var logins = require('../models/logins')(mongoose);
@@ -10,6 +10,7 @@ module.exports = function(mongoose, async, logins) {
 
 		// Profile
 		username: {type: String, required: true, unique: true},
+		email: {type: String, required: true, unique: true},
 		usernameLowerCase: {type: String, required: true, unique: true},
 		password: {type: String, required: true},
 
@@ -46,7 +47,7 @@ module.exports = function(mongoose, async, logins) {
 
 	var createUser = function(options, callbackFn){
 
-		if (!options || !options.username || !options.password) 
+		if (!options || !options.username || !options.password || !options.email) 
 			if (callbackFn) return callbackFn({error: 400});
 			else return;
 
@@ -280,9 +281,19 @@ module.exports = function(mongoose, async, logins) {
 	};
 
 	var getUser = function(name, callback) {
-		User.findOne({usernameLowerCase: name.toLowerCase()}, ['username', 'followers', 'following']
+		User.findOne({usernameLowerCase: name.toLowerCase()}, 
+			{username: 1, followers: 1, following: 1, soundPatterns: 1, _id: 1
+			}
 		, function(error, user) {
-			callback(user);
+			if (error) {
+				console.log(error);
+				return callback(error);
+			}
+			models.activities.Activity.find({userId: user._id}, function(e, a){
+				if (e) console.log(e)
+				user.activities = a;
+				callback(user);
+			});
 		});
 	};
 
@@ -290,56 +301,100 @@ module.exports = function(mongoose, async, logins) {
 		return new Buffer((new mongoose.Types.ObjectId).toString()).toString('base64');
 	};
 
-	var insertActivity = function(username, actv, broadcaster) {
+	var insertActivity = function(id, actv, broadcaster) {
+		// console.log('followers_idfollowers_idfollowers_idfollowers_idfollowers_id')
+		// console.log(id)
+		User.findById({_id: id}, {followers: 1}, function(error, user){
 
-		User.findById(username, function(error, u){
-			if (error) callback(error);
+			var t = [];
 
-			if (!u) return console.log('invalid activity: couldn`t find the user with'+
-				'session.uid!');
+			for (i in user.followers) //t.push(followers.followers[i]._id);
+				if (user.followers[i]._id)// && user.followers[i]._id != id)
+				t.push(user.followers[i]._id)
 
-			if (broadcaster != u.username) 
-				return console.log('A user is broadcasting a message,'+
-					' while it`s name and id doesn`t match!'.error);
+			// User.find({_id: {$in: t}}, {username:1}, function(e, r){
+			// 	console.log('sdsdfsdsdfsfsdfsdasdadasdasdasdsadadadas')
+			// 	console.log(r)
+			// })
 
-			_saveActivity(u, function(){
-				var followers_id = [];
-
-				// save the activity to all followers of the broadcaster
-				for (var i in u.followers)
-					followers_id.push(u.followers[i]._id);
-
-				// find the followers of the user
-				User.find({"_id": {$in: followers_id}}, function(error, flwz){
-					for (var i in flwz)
-
-						// save the activity to all followers
-						_saveActivity(flwz[i]);
-				});
+			// console.log(t)
+			User.update({_id: {$in: t}}, { $push: { activities: {
+				id: actv._id,
+				text: actv.text,
+				vars: actv.vars,
+				username: actv.username,
+				timestamp: actv.timestamp
+			} } }, {multi: true}, function(error, result){
+				console.log(result)
 			});
 
-			function _saveActivity(user, callback) {
-				user.activities.push({
-					id: actv._id,
-					text: actv.text,
-					vars: actv.vars,
-					timestamp: actv.timestamp
-				});
+			// if (error) callback(error);
 
-				// keep the last 15 activities.
-				user.activities.splice(0, user.activities.length - 15);
+			// if (!u) return console.log('invalid activity: couldn`t find the user with'+
+			// 	'session.uid!');
 
-				user.markModified('activities');
-				user.save(function(error) {
-					if (error) {
-						console.log('error saving activity in User!'.error);
-						console.log(error);
-						return;
-					}
-					if (callback) callback();
+			// if (broadcaster != u.username) 
+			// 	return console.log('A user is broadcasting a message,'+
+			// 		' while it`s name and id doesn`t match!'.error);
 
-				});
-			};
+			// var followers_id = [];
+
+			// // save the activity to all followers of the broadcaster
+			// console.log('followers_idfollowers_idfollowers_idfollowers_idfollowers_id')
+			// for (var i in u.followers) {
+
+			// 	console.log(u.followers[i])
+			// 	followers_id.push(u.followers[i]._id);
+			// }
+			// 			console.log('followers_idfollowers_idfollowers_idfollowers_idfollowers_id')
+
+
+			// // _saveActivity(u, function(){
+			// // 	var followers_id = [];
+
+			// // 	// save the activity to all followers of the broadcaster
+			// // 	for (var i in u.followers)
+			// // 		followers_id.push(u.followers[i]._id);
+
+			// // 							console.log('followers_id')
+			// // 							console.log(followers_id)
+
+			// // 	// find the followers of the user
+			// // 	User.find({_id: {$in: followers_id}}, function(error, flwz){
+			// // 		for (var i in flwz)
+
+			// // 			console.log('flwz')
+			// // 			console.log(flwz)
+
+			// // 			// save the activity to all followers
+			// // 			// _saveActivity(flwz[i]);
+			// // 	});
+			// // });
+
+			// function _saveActivity(user, callback) {
+			// 	user.activities.push({
+			// 		id: actv._id,
+			// 		text: actv.text,
+			// 		vars: actv.vars,
+			// 		timestamp: actv.timestamp
+			// 	});
+
+			// 	// keep the last 15 activities.
+			// 	user.activities.splice(0, user.activities.length - 15);
+
+			// 	user.markModified('activities');
+			// 	user.save(function(error) {
+			// 		if (error) {
+			// 			console.log('error saving activity in User!'.error);
+			// 			console.log(error);
+			// 			return;
+			// 		}
+			// 		if (callback) callback();
+
+			// 	});
+			// };
+
+			
 			
 		});
 	};

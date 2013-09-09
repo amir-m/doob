@@ -1,49 +1,84 @@
 <div class="container-fluid">
 	<!-- style="background-color: gray" -->
-	<div class="row-fluid" >
-		<div class="span3" >
+	<div class="row-fluid">
+		<div class="span3" style="position: fixed">
 			<div class="well sidebar-nav">
-				<ul class="nav nav-list">
+				<ul class="nav nav-list" style="overflow-y:auto;max-height:150;">
 					<li class="nav-header title">Your followers!</li>
+					<li ng-show="me.followers.length == 0">You have no follower! Invite someone to follow you.</li>
 					<li ng-repeat="follower in me._followers">
-						<span href="#/people/{{me.followers[$index].username}}">{{follower}}
-						</span>
-					</li>
-					<li><br></li>
-					<li>
-					<!-- <accordion close-others="oneAtATime">
-						<accordion-group heading="Invitations">
-							<span class="input-prepend">
-							  <form>
-							  	<span class="add-on">@</span>
-							  	<input ng-keydown="sendInvite($event)" tabindex="0" class="span" 
-							  	ng-model="invitationEmail" id="prependedInput" type="email" placeholder="Invite Someone!" style="width: 158;">
-							  </form>
-							</span>
-						</accordion-group>
-			
-						<accordion-group heading="Dynamic Body Content">
-							<p>The body of the accordion group grows to fit the contents</p>
-								<button class="btn btn-small" ng-click="addItem()">Add Item</button>
-							<div ng-repeat="item in items">{{item}}</div>
-						</accordion-group>
-						<accordion-group>
-							<accordion-heading>
-							I can have markup, too! <i class="icon-check"></i>
-							</accordion-heading>
-					        This is just some content to illustrate fancy headings.
-						</accordion-group>
-					</accordion> -->
+						<table>
+							<tr>
+								<td>
+									<i class="icon-user" style="margin-top:2"></i>
+								</td>
+								<td style="width:80%">
+									<b>
+										<a ng-click="gotoUser(follower.username)">
+											{{follower.username}}
+										</a>
+									</b>
+								</td>
+								<!-- <td>
+									<button class="pull-right btn btn-success" style="margin:0; width:110; padding-right:0;padding-left:0;" 
+									ng-click="unFollowUser(follower)" tooltip="click to unfollow!">
+									<i class="icon-ok"></i> 
+									Following
+									</button>
+								</td> -->
+							</tr>
+						</table>
 					</li>
 				</ul>
 			</div>
 			<div class="well sidebar-nav">
-				<ul class="nav nav-list">
+				<ul class="nav nav-list" style="overflow-y:auto;max-height:150;">
 					<li class="nav-header title">People You follow!</li>
+					<li ng-show="me._following.length == 0">You follow no one! Follow someone.</li>
+					<li ng-repeat="following in me._following">
+						<table>
+							<tr>
+								<td>
+									<i class="icon-user" style="margin-top:2"></i>
+								</td>
+								<td style="width:80%">
+									<b>
+										<a href="#/users/{{following.username}}">
+											{{following.username}}
+										</a>
+									</b>
+								</td>
+								<td>
+									<button class="pull-right btn btn-success" style="margin:0; width:110; padding-right:0;padding-left:0;" 
+									ng-click="unFollowUser(following)" tooltip="click to unfollow!">
+									<i class="icon-ok"></i> 
+									Following
+									</button>
+								</td>
+							</tr>
+						</table>
+					</li>
 				</ul>
 			</div>
 		</div>
-		<div class="span9" ng-show="showPattern()">
+		<div class=" well span6" style="position:fixed;left:300;">
+			<ul class="nav nav-list">
+				<li class="nav-header title">What's goin on?!<br></li>
+				<li ng-repeat="act in me.activities">
+					<div class="container" style="padding-bottom: 15">
+						<div style="position: absolute; width:30%;">
+							<a href="#/users/{{act.username}}"><i class="icon-user"></i><b>{{act.username}}</b></a>
+						</div>
+						<div style="position: absolute; left:30%;">
+							{{act.text}}
+						</div>
+						<div>
+							<br>
+							<span ng-bind="act.timestamp | date: 'MMM d, h:mm a'" class="date"></span>
+						</div>
+					</div>
+				</li>
+			</ul>
 		</div>
 	</div>
 </div>

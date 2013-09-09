@@ -11,11 +11,13 @@ function(controllers){
 
 		$scope.navBar = 'invisible';
 		$scope.isBroadcasting = false;
-		$scope.invitationEmail = ''
-
+		$scope.invitationEmail = '';
+		// $scope.searchUsers = [];
+		// $scope.searchSP = [];
 
 		$scope.loadedSoundCategoryList = null;
 		$scope.categoryListBindToSound = [];
+		$scope.me = null;
 
 		var f = {
 			username: 1,
@@ -25,61 +27,88 @@ function(controllers){
 			projects: 1,
 			password: 1,
 			soundPatterns: 1
-		}
+		};
+		
+		$scope.promiseTofullyLoad = function() {
+			
+			var fullyLoad = $q.defer();
 
-		var me = auth.me(f);
+			if ($scope.me) fullyLoad.resolve($scope.me);
 
-		me.then(function(data){
-			$rootScope.username = data.username;
-			if (!doobio.get($rootScope.username) && $rootScope.username) {
-				doobio.create($rootScope.username);
-			}
-			$scope.me = data;
-			console.log($scope.me)
-			$scope.me._patterns = {};
-			$scope.me._followers = $scope.me.followers;
-			if ($scope.me._followers.length == 0)
-				$scope.me._followers.push('You have no followers!');
+			var me = auth.me(f);
 
-			// for (var i in $scope.me.soundPatterns)
-			// 	$scope.me._patterns[$scope.me.soundPatterns[i].id] = $scope.me.soundPatterns[i];
+			me.then(function(data){
+				$rootScope.username = data.username;
+				if (!doobio.get($rootScope.username) && $rootScope.username) {
+					doobio.create($rootScope.username);
+				}
+				$scope.me = data;
+				$scope.me._patterns = {};
+				$scope.me._followers = {};
+				$scope.me._following = {};
 
-			$scope.loadDoobInstance(function(error, doob){
-				if (error) return console.log(error);
+				console.log($scope.me.activities)
 
-				var promise = auth.getSoundPatterns();
+				for (var i in $scope.me.followers)
+					$scope.me._followers[$scope.me.followers[i].username] = $scope.me.followers[i];
 
-				promise.then(function(soundPatterns){
+				for (var i in $scope.me.following)
+					$scope.me._following[$scope.me.following[i].username] = $scope.me.following[i];
 
-					// console.log(soundPatterns)
-					
-					for (var i in soundPatterns) {
+				// for (var i in $scope.me.soundPatterns)
+				// 	$scope.me._patterns[$scope.me.soundPatterns[i].id] = $scope.me.soundPatterns[i];
 
-						$scope.me._patterns[soundPatterns[i]._id] = soundPatterns[i];
+				$scope.loadDoobInstance(function(error, doob){
+					if (error) return console.log(error);
 
-						for (var j in soundPatterns[i].content.tracks)
+					var promise = auth.getSoundPatterns();
 
-							new doobio.instances[$rootScope.username].audio.Sound({
-								name: soundPatterns[i].content.tracks[j].name,
-								url: soundPatterns[i].content.tracks[j].url
+					promise.then(function(soundPatterns){
+
+						// console.log(soundPatterns)
+						if (!doobio.instances[$rootScope.username])
+							doobio.create($rootScope.username);
+						
+						for (var i in soundPatterns) {
+
+							$scope.me._patterns[soundPatterns[i]._id] = soundPatterns[i];
+
+							for (var j in soundPatterns[i].content.tracks)
+
+								new doobio.instances[$rootScope.username].audio.Sound({
+									name: soundPatterns[i].content.tracks[j].name,
+									url: soundPatterns[i].content.tracks[j].url
+								});
+
+							new doobio.instances[$rootScope.username].sequencer.SoundPattern({
+								name: soundPatterns[i].name,
+								id: soundPatterns[i]._id, 
+								tracks: soundPatterns[i].content.tracks,
+								effects: soundPatterns[i].content.effects
 							});
+						}
 
-						new doobio.instances[$rootScope.username].sequencer.SoundPattern({
-							name: soundPatterns[i].name,
-							id: soundPatterns[i]._id, 
-							tracks: soundPatterns[i].content.tracks,
-							effects: soundPatterns[i].content.effects
-						});
-					}
-				}, function(error){
+						fullyLoad.resolve();
+
+					}, function(error){
+						fullyLoad.reject();
+					});
 
 				});
 
+			}, function(er){
+				console.log(er);
+				fullyLoad.reject();
 			});
 
-		}, function(er){
-			console.log(er)
-		})
+			return fullyLoad.promise;
+		}; 
+
+		var load = $scope.promiseTofullyLoad();
+		load.then(function(){
+			console.log('loaded...')
+			
+		}, function(){});
 
 		$scope.authenticate = function(callback) {
 
@@ -131,6 +160,21 @@ function(controllers){
 
 		$scope.loadDoobInstance();
 
+		$scope.followUser = function(user) {
+			if (user in $scope.me._following) return;
+
+			$http.put('/user/follow', {
+				_id: user._id,
+				username: user.username
+			}).success(function(){
+				$scope.me._following[user.username] = user;
+				$scope.me.following.push(user.username);
+			}).error(function(data, status){
+				console.log(data)
+				console.log(status)
+			});
+		};
+
 		$scope.broadcast = function() {
 			$scope.isBroadcasting = !$scope.isBroadcasting;
 			doobio.toggleBroadcast($rootScope.username);
@@ -142,6 +186,13 @@ function(controllers){
 			// if (ev.which == 13) console.log($scope.invitationEmail)
 		}
 
+		$scope.gotoUser = function(name) {
+			$location.path('/users/'+name);
+		};href="#/sound-patterns/{{sp.username}}/{{sp._id}}"
+
+		$scope.gotoSP = function(name, id) {
+			$location.path('/sound-patterns/'+name+'/'+id);
+		};
 		
 		// Check if the user's logged in
 		// var promise = auth.authenticate();
@@ -340,15 +391,6 @@ function(controllers){
 						// kickHat.io.graphs[2].addSend(rev);
 					}
 				});
-		}
-
-		$scope.me = function() {
-			console.log(hat)
-			// hat.play()
-			// console.log(kickHat);
-			// kickHat.io.graphs[2].addSend(rev);
-			// socket.emit('test')
-			kickHat.play();
 		}
 
 		$scope.remove = function(){

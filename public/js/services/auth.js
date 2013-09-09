@@ -1,7 +1,7 @@
 define(['services/services'], function(services){
 
-	services.factory('auth',  ['$rootScope', '$http', '$location', '$q', 'socket', '$cookies',
-			function ($rootScope, $http, $location, $q, socket, $cookies){
+	services.factory('auth',  ['$rootScope', '$http', '$location', '$q', 'socket', '$cookies', 'doobio',
+			function ($rootScope, $http, $location, $q, socket, $cookies, doobio){
 			// socket.disconnect(false);
 
 		    function _getMe (param) {
@@ -149,13 +149,14 @@ define(['services/services'], function(services){
 		    	});		   
 		    };
 
-		    var register = function(u, p, rememberMe, callback){
+		    var register = function(u, p, e, rememberMe, callback){
 		    	$http({
 		    		method: 'POST',
 		    		data: {
 		    			'username': u,
 		    			'password': p,
-		    			'rememberMe': rememberMe
+		    			'email': e,
+		    			'rememberMe': rememberMe ? '1' : null
 		    		},
 		    		headers: {
 		    			'Content-Type': 'application/json'
@@ -176,10 +177,11 @@ define(['services/services'], function(services){
 	            // $location.path('/login');
 
 	            $http.post('/logout').success(function(res) {
-	            console.log(scope.$$phase)
 
 	            	$cookies.username = null;
 	            	$rootScope.username = null;
+	            	doobio.instances = [];
+	            	doobio.instanceNames = [];
 	            	$location.path('/login');
 
 	            }).error(function(){

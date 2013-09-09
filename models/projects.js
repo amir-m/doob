@@ -73,9 +73,14 @@ module.exports = function(mongoose, models, async) {
 				// models.User.saveSoundPattern(sp, function(error, username) {
 				// 	callback(error, sp);
 				// });
-				models.User.User.update({_id: session.uid}, {$inc: {soundPatterns: 1}})
+				models.User.User.update({_id: session.uid}, {$inc: {soundPatterns: 1}},
+					function(error){
+						callback(error, sp);
+					});
+
 			}
 		], function(error, sp) {
+			// console.log(sp)
 			if (callbackFn) callbackFn(error, sp);
 		});
 	};
@@ -83,14 +88,14 @@ module.exports = function(mongoose, models, async) {
 	var update = function(data, session) {
 		var pattern = data.message;
 		// for (var i in pattern.tracks)
-
+		// console.log(pattern)
 		SoundPattern.update(
 			{ _id: pattern.id }, { $set: { 
 				'content.tracks': pattern.tracks,
 				updated: new Date().getTime() 
 			} }, 
 			function(error, res) {
-				if (error) console.log(error)
+				if (error) return console.log(error)
 			});
 
 		// SoundPattern.findById(pattern.id, function(error, sp){

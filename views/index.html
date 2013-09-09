@@ -23,12 +23,12 @@
             <ul class="nav">
               <li>
                 <a>
-                  <i class="icon-bell"></i>
+                  <i class="icon-bell" style="margin-top:2"></i>
                 </a>
               </li>
               <li>
                 <a>
-                  <i class="icon-envelope" ></i>
+                  <i class="icon-envelope" style="margin-top:2"></i>
                 </a>
               </li>
               <!-- <li class="dropdown">
@@ -55,10 +55,62 @@
                   </li>                    
                 </ul>
               </li> -->
+
+              
+
               <li>
-                <a href="#sound-patterns">Sound Patters</a>
+                <form class="navbar-search pull-left dropdown-toggle" data-toggle="dropdown">
+                  <input type="text" class="search-query search-query-nav" placeholder="Search" 
+                  search style="height:30px" id="q">
+                  <div class="search-results" id="srchrslt">
+                    <span style="margin-right:20">
+
+                      <li ng-repeat="user in searchUsers">
+                        <table>
+                          <tr>
+                            <td>
+                              <i class="icon-user" style="margin-top:2"></i>
+                            </td>
+                            <td style="width:80%">
+                              <b>
+                                <a ng-click="gotoUser(user.username)">
+                                  {{user.username}}
+                                </a>
+                              </b>
+                            </td>
+                            <td>
+                              <button class="pull-right btn" style="margin:0; width:110; padding-right:0;padding-left:0;" ng-class="{'btn-success':iFollow(user.username),' btn-warning':!iFollow(user.username)}" 
+                              ng-click="followUser(user)">
+                                <i ng-class='{"icon-ok": iFollow(user.username), "icon-user": !iFollow(user.username)}'></i> 
+                                {{buttonText(user.username)}}
+                              </button>
+                            </td>
+                          </tr>
+                        </table>
+                      </li>
+                    
+                      <li style="font-size:12px" ng-show="searchUsers.length == 0 && searchSP.length == 0">No results found!</li>
+                      <li ng-repeat="sp in searchSP">
+                        <i class="icon-music" style="margin-top:2"></i>
+                        <b>
+                          <a ng-click="gotoSP(sp.username, sp._id)">{{sp.name}}
+                          </a></b>
+                      </li>
+                      <li style="padding-left:77; display:none;" id="barloader">
+                        <img src="/public/img/loader.gif">
+                      </li>
+                      <li id="noresults">
+                        No results found!
+                      </li>
+                    </span>
+                  </div>
+                </form>
               </li>
-              <li>
+              <li class="pull-right">
+                <a href="#/sound-patterns/{{username}}">Sound Patterns</a>
+              </li>
+              <!-- </li> -->
+              <!-- <li>
                 <a ng-click="showDoobios()">Show All Instances</a>
               </li>
               <li>
@@ -68,11 +120,8 @@
                 <a ng-click="kickHat()">Add kickHat</a>
               </li>
               <li>
-                <a ng-click="addEffect()">Add Effect to Clap</a>
-              </li>
-              <li>
                 <a ng-bind="now() | date: 'MMM d, h:mm a'"></a>
-              </li>
+              </li> -->
             
           
           </ul>

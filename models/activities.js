@@ -3,9 +3,8 @@ module.exports = function(mongoose, models, async) {
 	var ActivitySchema = new mongoose.Schema({
 		_id: {type: String, required: true, unique: true},
 		userId: String,
-		email: String,
+		username: String,
 		text: String,
-		vars: {},
 		timestamp: {type: Number, default: new Date().getTime()},
 		visibility: {type: String, default: 'public'}
 	});
@@ -26,8 +25,8 @@ module.exports = function(mongoose, models, async) {
 		var a = new Activity({
 			_id: _objectId(),
 			userId: session.uid,
-			text: models.activityMessages[data.event].text,
-			vars: models.activityMessages[data.event].vars(data.broadcaster),
+			username: session.username,
+			text: models.activityMessages[data.event](data),
 			timestamp: data.timestamp ? data.timestamp : new Date().getTime()
 		});
 
@@ -40,9 +39,11 @@ module.exports = function(mongoose, models, async) {
 	}
 
 	return {
+		Activity: Activity,
 		'user:broadcast:start': handleActivity,
 		'user:broadcast:stop': handleActivity,
-		'new:sequencer:SoundPattern': handleActivity
+		'new:sequencer:SoundPattern': handleActivity,
+		'update:sequencer:SoundPattern:newTrack': handleActivity,
 		// 'user:subscribe': handleActivity,
 		// 'user:unsubscribe': handleActivity, // Maybe NOT!
 		// 'new:aduio:Sound': handleActivity, 

@@ -55,6 +55,8 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 		// a new sound has been added, and is being broadcasted 'new:sequencer:SoundPattern'
 		socket.on('set:sequencer:SoundPattern:id', function(message){
 
+			console.log(message)
+
 			if (message.broadcaster == $rootScope.username || 
 				!instances[message.subscriber]) return;
 
@@ -195,6 +197,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 		var emit = function(event, message) {
 			// if (message.broadcaster && message.subscriber 
 			// 	&& message.broadcaster == message.subscriber) return;
+			console.log(message)
 			if (!message.timestamp) message.timestamp = new Date().getTime();
 			socket.emit(event, message);
 		};

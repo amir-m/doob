@@ -133,37 +133,49 @@ module.exports = function(mongoose, async) {
 
 	var delete_session = function(user_id, series_id, token, callbackFn) {
 
-		if (!user_id || !series_id || !callbackFn) return;
+		if (!user_id || !series_id) return;
 
-		Session.findOne({
+		// Session.findOne({
+		// 	user_id: user_id, 
+		// 	'series.id': series_id, 
+		// 	'series.token': token,
+		// 	active: true
+		// }, 
+
+		Session.update({
 			user_id: user_id, 
 			'series.id': series_id, 
 			'series.token': token,
 			active: true
-		}, 
-		function(error, session) {
-			
-			// internal server error.
-			if (error) return callbackFn({error: 500, obj: error});
-			
-			// session doesn't exist. return 200.
-			if (!session) return callbackFn(null, 200);
-			
-			// there should be only one session, deactivate it.
-			session.active = false;
-			session.deactivated = Date.now();
-			session.markModified('active');
-			session.markModified('deactivated');
-
-			session.save(function(error){
-				
-				if (error) return callbackFn(500);
-				
-				// successfully deactivate session
-				return callbackFn(null, 200);
-			});
-
+		}, {$set: {'session.active': false, 'session.deactivated': Date.now()}}, 
+		function(error) {
+			if (error) if (callbackFn) return callbackFn(error);
+			if (callbackFn) return callbackFn(null, 200);
 		});
+
+		// function(error, session) {
+			
+		// 	// internal server error.
+		// 	if (error) if (callbackFn) return callbackFn({error: 500, obj: error});
+			
+		// 	// session doesn't exist. return 200.
+		// 	if (!session) if (callbackFn) return callbackFn(null, 200);
+			
+		// 	// there should be only one session, deactivate it.
+		// 	session.active = false;
+		// 	session.deactivated = Date.now();
+		// 	session.markModified('active');
+		// 	session.markModified('deactivated');
+
+		// 	session.save(function(error){
+				
+		// 		if (error) if (callbackFn) return callbackFn(500);
+				
+		// 		// successfully deactivate session
+		// 		if (callbackFn) return callbackFn(null, 200);
+		// 	});
+
+		// });
 	};
 
 	var _objectId = function() {

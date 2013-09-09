@@ -310,18 +310,31 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 			platform: req.useragent.Platform
 		};
 
+		models.Session.delete_session(req.cookies[_uid], req.cookies[_sid], 
+			req.cookies[_token]);
+
+
 		if (req.session && req.session.uid) req.session.uid = null;
 		if (req.session && req.session.username) req.session.username = null;
 
 		if (!req.body.username || req.body.username.length < 1 || 
-			!req.body.password || req.body.password.length < 1 ) {
+			!req.body.password || req.body.password.length < 1 || 
+			!req.body.email || req.body.email.length < 1) {
 			console.log('POST /register: Bad Registration Request.'.error);
 			return res.send(400);
 		};
 
+		// models.User.User.create({
+ 	// 		username: req.body.username,
+ 	// 		password: req.body.password,
+ 	// 		email: req.body.email,
+ 	// 		requestor: requestor
+ 	// 	});
+
  		models.User.createUser({
  			username: req.body.username,
  			password: req.body.password,
+ 			email: req.body.email,
  			requestor: requestor
  		}, function(error, result){
 
@@ -340,7 +353,28 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 			req.session.uid = result.id;
 			req.session.username = req.body.username;
 			console.log('Successfully registered: %s %s', req.body.username, req.session.uid);
-			return res.redirect('/');
+			
+			
+			if (req.body.rememberMe == '1') 
+            	models.Session.create(result.id, requestor, function(error, u, s, t) {
+            		if (error) return res.send(500);
+            		// set cookies
+					res.cookie(_uid, u, { maxAge: cookieMaxAge, httpOnly: true });
+	            	res.cookie(_sid, s, { maxAge: cookieMaxAge, httpOnly: true });
+	            	res.cookie(_token, t, { maxAge: cookieMaxAge, httpOnly: true });
+	            	res.cookie(_cookieSet, _cookieSetValue, { 
+        				maxAge: cookieMaxAge, httpOnly: false 
+        			});
+
+	            	res.set('Content-Type', 'application/json');
+
+        			return res.redirect('/')
+					
+					// return res.send(200);
+            	}); 
+			
+            else return res.redirect('/');
+			
 		
 		});
 	};
@@ -392,11 +426,78 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 	};
 
 	var getUser = function(req, res, next) {
-		if (!req.param('name')) return res(400);
+		
+		if (!req.param('name') || !req.session || !req.session.uid || !req.session.username) 
+			return res(401);
 
 		models.User.getUser(req.param('name'), function(user){
 			if (!user) return res.send(400);
 			res.send(user)
+		});
+	};
+
+	var patterns = function(req, res, next) {
+
+		if (!req.param('user')) return res(400);
+
+		models.projects.SoundPattern.find({
+			username: req.param('user')}, function(error, p){
+
+			if (error) return res.send(500);
+			if (!p) return res.send(400);
+
+			var r = ")]}',\n" + JSON.stringify(p);
+
+			res.send(r);
+		});
+	};
+
+	var pattern = function(req, res, next) {
+
+		if (!req.param('id') || !req.session || !req.session.uid || !
+			req.session.username) return res(401);
+
+		models.projects.SoundPattern.findById({
+			_id: req.param('id')}, function(error, p){
+
+			if (error) return res.send(500);
+			if (!p) return res.send(400);
+
+			var r = ")]}',\n" + JSON.stringify(p);
+
+			res.send(r);
+		});
+	};
+
+	var follow = function(req, res, next) {
+
+		if (!req.body._id || !req.session || !req.session.uid || !
+			req.session.username || !req.body.username) return res(401);
+
+		
+
+		models.User.User.findById({_id: req.body._id} , {username: 1, followers: 1}, function(error, user){
+			if (error) return res.send(500);
+			if (!user) return res.send(404);
+			if (req.body.username != user.username) return res.send(403);
+			
+			user.followers.push({
+				_id: req.session.uid, 
+				username: req.session.username
+			});
+			user.markModified('followers');
+			user.save();
+
+			models.User.User.update({_id: req.session.uid, username: req.session.username},
+				{$push: {following: {
+					_id: req.body._id,
+					username: req.body.username
+				}}}, 
+			function(error) {
+				if (error) return res.send(500);
+				return res.send(200);
+			});
+
 		});
 	};
 
@@ -405,6 +506,9 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		logout: logout,
 		register: register,
 		me: me,
-		getUser: getUser
+		getUser: getUser,
+		patterns: patterns,
+		pattern: pattern,
+		follow: follow
 	}
 };
