@@ -1,0 +1,44 @@
+<button class="close pull-left" style="padding-left: 2px;" ng-click="closePattern()">&times;
+			</button>
+			<div class="pattern-container">
+				<div class="navbar navbar-fixed-top" style="left: inherit;right: inherit;top: inherit;margin: 0;padding: 0;position: relative;z-index: 0;">
+					<div class="navbar-inner" style="border-radius: 20px; box-shadow: 0 0 0 0">
+						<div class="container">
+							<ul class="nav">
+								<li>
+									<a><b><i class="icon-user" style="margin-top:6"></i>
+										{{instanceName}}
+									</b></a> 
+								</li>
+								<li>
+									<a><b>{{pattern.name}}</b></a> 
+								</li>
+								<!-- <li>
+									<doob.sound.picker></doob.sound.picker>	
+								</li> -->
+								<li class="btn-toolbar" style="margin-top: 5px;">
+								  <div class="btn-group">
+									<button class="btn btn-small" ng-click="pattern.play()">
+										<icon class="icon-play"></icon>
+									</button>
+									<button class="btn btn-small" ng-click="pattern.stop()">
+										<icon class="icon-stop"></icon>
+									</button>
+									<button tooltip="Loop!" class="btn btn-small" ng-click="pattern.play(1)">
+										<icon class="icon-play-circle"></icon>
+									</button>
+								  </div>
+								</li>
+								<li >
+									<a class="pull-right" ng-click="">Save</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<doob.sound.pattern instance-name="instanceName" pattern="pattern">
+				</doob.sound.pattern>
+				<!-- <span class="created-info"><i class="icon-arrow-right"></i> Created at {{me._patterns[pattern.id].created | date: 'MMM d, h:mm a'}}</span>
+				<span class="created-info"> <i class="icon-ok"></i>  Last updated at {{me._patterns[pattern.id].updated | date: 'MMM d, h:mm a'}}</span> -->
+				<!-- <a ng-bind="now() | date: 'MMM d, h:mm a'"> -->
+			</div>

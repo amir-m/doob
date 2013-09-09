@@ -1,0 +1,71 @@
+<div class="container-fluid">
+	<!-- style="background-color: gray" -->
+	<div class="row-fluid" >
+		<div class="span3" style="position:fixed">
+			<div class="well sidebar-nav">
+				<ul class="nav nav-list" style="overflow-y:auto;max-height:150;">
+					<li class="nav-header title"><b>{{user.username}}</b> followers!</li>
+					<li ng-show="user.followers.length == 0" >{{user.username}} has no follower!</li>
+					<li ng-repeat="follower in user.followers">
+						<a href="#/users/{{follower.username}}">
+							<i class="icon-user"></i><b> {{follower.username}}</b>
+						</a>
+					</li>
+				</ul>
+			</div>
+			<div class="well sidebar-nav">
+				<ul class="nav nav-list" style="overflow-y:auto;max-height:150;">
+					<li class="nav-header title">{{user.username}} follows!</li>
+					<li ng-show="user.following.length == 0" >{{user.username}} follow no one!</li>
+					<li ng-repeat="following in user.following">
+						<a href="#/users/{{following.username}}">
+							<i class="icon-user"></i> <b>{{following.username}}</b>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="well span6" style="position: absolute;left: 300">
+			<ul class="nav nav-list">
+				<li class="nav-header title">{{user.username}} activities.</li>
+				<li ng-repeat="act in user.activities">
+					<div class="container" style="padding-bottom: 15">
+						<div style="position: absolute; width:30%;">
+							<a href="#/users/{{act.username}}"><i class="icon-user"></i><b>{{act.username}}</b></a>
+						</div>
+						<div style="position: absolute; left:30%;">
+							{{act.text}}
+						</div>
+						<div>
+							<br>
+							<span ng-bind="act.timestamp | date: 'MMM d, h:mm a'" class="date"></span>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div class="well span3" style="position:fixed; left: 940">
+			<ul class="nav nav-list">
+				<li>
+					<!-- <button class="btn btn-block"></button> -->
+
+					<button class="btn btn-block" style="margin:0;padding-right:0;padding-left:0;" ng-class="{'btn-success':iFollow(user.username),' btn-warning':!iFollow(user.username)}" 
+                          ng-click="followUser(user)">
+                            <i ng-class='{"icon-ok": iFollow(user.username), "icon-user": !iFollow(user.username)}'></i> 
+                            {{buttonText(user.username)}}
+                          </button>
+
+				</li>
+				<li class="nav-header title">{{user.username}} sound patterns!</li>
+				<li style="font-size:12px"> 
+					 <a href="#/sound-patterns/{{user.username}}">{{user.username}} has {{user.soundPatterns}} sound patterns.</a>
+				</li>
+			</ul>
+		</div>
+		
+			
+		</div>
+	</div>
+</div>
+<!-- <doob.sound.patterns></doob.sound.patterns> -->
+
