@@ -41,6 +41,8 @@ module.exports = function(mongoose, models, async) {
 	return {
 		Activity: Activity,
 		'user:broadcast:start': handleActivity,
+		'user:follow': handleActivity,
+		'user:subscribe': handleActivity,
 		'user:broadcast:stop': handleActivity,
 		'new:sequencer:SoundPattern': handleActivity,
 		'update:sequencer:SoundPattern:newTrack': handleActivity,

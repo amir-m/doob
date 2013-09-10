@@ -40,6 +40,25 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 			});
 		});	
 
+		// socket.on('sync:request', function(message){
+		// 	console.log('sync request received from %s to %s', 
+		// 		message.subscriber, message.broadcaster);
+
+		// 	// this is a bad sync request.
+		// 	if (message.subscriber == $rootScope.username || 
+		// 		message.broadcaster != $rootScope.username)
+		// 		return;
+
+		// 	if (!instances[message.broadcaster].isBroadcasting) return;
+
+		// 	emit("sync:response", {
+		// 		event: 'sync:response',
+		// 		broadcaster: message.broadcaster,
+		// 		subscriber: message.subscriber,
+		// 		doob: instances[message.broadcaster].env.exportables
+		// 	});
+		// });	
+
 		socket.on('sync:response', function(message){
 			console.log('sync response received: from %s to %s', 
 				message.subscriber, message.broadcaster);

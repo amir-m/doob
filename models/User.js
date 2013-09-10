@@ -25,12 +25,17 @@ module.exports = function(mongoose, async, logins, models) {
 		followers: [],
 		following: [],
 
+		subscribers: [],
+		subscribedTo: [],
+
 		// Instroments
 		projects : {
 			id: String,
 			name: String
 		},
-		soundPatterns: Number
+		soundPatterns: Number,
+
+		invitations: Number
 
 	});
 
@@ -44,6 +49,13 @@ module.exports = function(mongoose, async, logins, models) {
 	// models
 	var User = mongoose.model('User', UserSchema);
 
+	InviteSchema = new mongoose.Schema({
+		username: String,
+		name: String,
+		email: String,
+	});
+
+	var Invite = mongoose.model('Invite', InviteSchema);
 
 	var createUser = function(options, callbackFn){
 
@@ -194,7 +206,7 @@ module.exports = function(mongoose, async, logins, models) {
 
 		if (!callback) return;
 
-		fields['_id'] = 0;
+		fields['password'] = 0;
 
 		User.findById({_id: id}, fields, function(err, user){
 
@@ -422,6 +434,7 @@ module.exports = function(mongoose, async, logins, models) {
 
 	return {
 		User: User,
+		Invite: Invite,
 		createUser: createUser,
 		authenticateUser: authenticateUser,
 		logout: logout,

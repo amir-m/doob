@@ -37,7 +37,7 @@ var io = require('socket.io').listen(server);
 var cookieParser = express.cookieParser('revolution!');
 var SessionSockets = require('session.socket.io');
 // var broadcaster = redis.createClient(), subscriber = redis.createClient();
-var nodemailer = require('nodemailer');
+// var nodemailer = require('nodemailer');
 var async = require('async');
 var useragent = require('express-useragent');
 //                  m  * s  *  ms
@@ -47,39 +47,6 @@ var cookieMaxAge = 1 * 30 * 24 * 60 * 60 * 1000;
 
 require('./config')(app, express, connect, path, cookieParser, useragent, 
   sessionStore, sessionMaxAge, colors, redisClient, io, mongoose);
-
-
-// var host = 'https://localhost:8080';
-
-// var text = 'display: inline-block;*display: inline;*zoom: 1;padding: 4px 12px;margin-bottom: 0;font-size: 14px;line-height: 20px;text-align: center;vertical-align: middle;cursor: pointer;color: #333333;text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);background-color: #f5f5f5;background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);background-repeat: repeat-x;filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#ffffffff", endColorstr="#ffe6e6e6", GradientType=0);border-color: #e6e6e6 #e6e6e6 #bfbfbf;border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);*background-color: #e6e6e6;filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);border: 1px solid #cccccc;*border: 0;border-bottom-color: #b3b3b3;-webkit-border-radius: 4px;-moz-border-radius: 4px;border-radius: 4px;*margin-left: .3em;-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);'
-
-// var smtpTransport = nodemailer.createTransport("SMTP",{
-//    service: "Gmail",
-//    auth: {
-//        user: "amir39648@gmail.com",
-//        pass: "Carex615"
-//    }
-// });
-// var mailOptions = {
-//    from: "amir39648@gmail.com", // sender address
-//    to: "amir@doob.io", // list of receivers
-//    subject: "Test Email", // Subject line
-//    // text: "You got right? Thanks :)" // plaintext body
-//   html: '<link rel="stylesheet" type="text/css" href="localhost:8080/public/css/bootstrap.css">' +
-//         '<h1>Thanks man!<br><button style="'+text+'">Thanks!</button></h1>'
-// };
-// smtpTransport.sendMail(mailOptions, function(error, response){
-//    if(error){
-//        console.log(error);
-//    }else{
-//        console.log("Message sent: " + response.message);
-//    }
-// });
-
-
-
-
-
 
 // Socket server config and setup.
 var sessionSockets = new SessionSockets(io, sessionStore, cookieParser, 'sessionid');
@@ -98,6 +65,10 @@ models.User = require('./models/User')(mongoose, async, models.logins, models);
 models.activities = require('./models/activities')(mongoose, models, async);
 models.projects = require('./models/projects')(mongoose, models, async);
 
+var emails = {
+  invites: require('./emails/invites')(app)
+}
+
 
 
 
@@ -108,7 +79,7 @@ if ('development' == app.get('env')) {
 
 var routes = {
   index: require('./routes/index')(models, sessionMaxAge, async),
-  user: require('./routes/user')(fs, redis, redisClient, models, io, sessionMaxAge, cookieMaxAge),
+  user: require('./routes/user')(fs, redis, redisClient, models, io, sessionMaxAge, cookieMaxAge, emails),
   project: require('./routes/project')(fs, models, sessionMaxAge)
 };
 

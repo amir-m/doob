@@ -24,6 +24,8 @@ module.exports = function(routes, app){
 
 	app.post('/logout', routes.user.logout);
 
+	app.post('/invite', routes.user.invite);
+
 	app.post('/login', routes.user.login);
 
 	app.post('/register', routes.user.register);

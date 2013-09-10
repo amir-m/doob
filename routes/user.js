@@ -1,4 +1,4 @@
-module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMaxAge){
+module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMaxAge, emails){
 
 	var crypto = require('crypto'),
 		// _uid = crypto.createHash('sha256').update('uid').digest('hex').toString(),
@@ -407,10 +407,10 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		}
 				
 		// no parameter: the user only need username
-		if (c == 0) {
-			// send the username
-			return res.send(")]}',\n" + JSON.stringify({username: req.session.username}));
-		}
+		// if (c == 0) {
+		// 	// send the username
+		// 	return res.send(")]}',\n" + JSON.stringify({username: req.session.username}));
+		// }
 
 
 
@@ -438,7 +438,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 	var patterns = function(req, res, next) {
 
-		if (!req.param('user')) return res(400);
+		if (!req.param('user')) return res.send(400);
 
 		models.projects.SoundPattern.find({
 			username: req.param('user'), active: true}, function(error, p){
@@ -455,7 +455,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 	var pattern = function(req, res, next) {
 
 		if (!req.param('id') || !req.session || !req.session.uid || !
-			req.session.username) return res(401);
+			req.session.username) return res.send(401);
 
 		models.projects.SoundPattern.find({
 			_id: req.param('id'), active: true}, function(error, p){
@@ -469,12 +469,13 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		});
 	};
 
+
 	var follow = function(req, res, next) {
 
 		if (!req.body._id || !req.session || !req.session.uid || !
-			req.session.username || !req.body.username) return res(401);
+			req.session.username || !req.body.username) return res.send(401);
 
-		
+		// models.activities['user:follow']
 
 		models.User.User.findById({_id: req.body._id} , {username: 1, followers: 1}, function(error, user){
 			if (error) return res.send(500);
@@ -501,6 +502,27 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		});
 	};
 
+	var invite = function(req, res, next) {
+		if (!req.body.email || !req.body.name || !req.session || !req.session.uid ||
+			!req.session.username) return res.send(401);
+
+		models.User.Invite.create({
+			username: req.session.username,
+			email: req.body.email,
+			name: req.body.name,
+			timestamp: req.body.timestamp ? req.body.timestamp : new Date().getTime()
+		}, function(error, result){
+			models.User.User.update({_id: req.session.uid}, {$inc: {invitations: -1}},
+				function(er, r){
+					if (er) console.log(er);
+				});
+			emails.invites.send(req.session.username, req.body.name, req.body.email);
+			if (error) return res.send(500);
+			return res.send(200);
+		});
+
+	};
+
 	return {
 		login: login,
 		logout: logout,
@@ -509,6 +531,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		getUser: getUser,
 		patterns: patterns,
 		pattern: pattern,
-		follow: follow
+		follow: follow,
+		invite: invite
 	}
 };

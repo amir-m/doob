@@ -25,7 +25,7 @@ define(['services/services'], function(services){
 		    		delay.resolve(data);
 
 		    	}).error(function(data, status, headers){
-		    		delay.reject();
+		    		delay.reject(data, status);
 		    	});
 	       	
 		       	return delay.promise;
@@ -53,23 +53,24 @@ define(['services/services'], function(services){
 		   		$http.get('/ping').success(function() {
 
 		   			socket.connect(true);
-		   			
+		 
 		   			// Scenario 1 - 2.b
-		   			if ($cookies.username) {
-		   				$rootScope.username = $cookies.username;
-		   				// $location.path(path);
-		   				delay.resolve();
-		   			}
-		   			// Scenario 1 - 2.a
-		   			else {
-		   				var promise = _getMe({'username': 1});
-
-		   				promise.then(function(data){
-		   					$rootScope.username = data.username;
-		   					$cookies.username = data.username;
-		   					// $location.path(path);
+		   			if (!$rootScope.username) {
+		   				if ($cookies.username) {
+		   					$rootScope.username = $cookies.username;
 		   					delay.resolve();
-		   				});
+		   				}
+			   			// Scenario 1 - 2.a
+			   			else {
+			   				var promise = _getMe({'username': 1});
+
+			   				promise.then(function(data){
+			   					$rootScope.username = data.username;
+			   					$cookies.username = data.username;
+			   					// $location.path(path);
+			   					delay.resolve();
+			   				});
+			   			}
 		   			}
 
 		   		}).error(function(data, status) {
@@ -100,8 +101,6 @@ define(['services/services'], function(services){
 		   					// $location.path('/login');
 		   					delay.reject();
 		   				}
-
-
 		   			}
 		   		});
 

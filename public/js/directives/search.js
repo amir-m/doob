@@ -23,7 +23,7 @@ define(['directives/directives'], function(directives){
                     $('#noresults').hide();
 
                     scope.searchUsers = [];
-                scope.searchSP = [];
+                    scope.searchSP = [];
                     
                 });
 
@@ -32,14 +32,6 @@ define(['directives/directives'], function(directives){
                 function fullyLoaded() {
 
                     $('#barloader').hide();
-
-                    scope.iFollow = function(user) {
-                        return (user in scope.me._following);
-                    }
-
-                    scope.buttonText = function(user) {
-                        return (user in scope.me._following) ? 'Following' : 'Follow';
-                    }
 
                     element.bind('keyup', function (e) {
                         scope.searchUsers = [];

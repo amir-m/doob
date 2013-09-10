@@ -5,6 +5,8 @@ module.exports = function(models, sessionMaxAge, async){
 			'Content-type': 'text/html; charset=utf-8'
 		});
 		res.sendfile('views/index.html');
+
+		// res.render('sendinvite', {from: 'Amir', to: 'Ghasem'});
 	};
 
 	var public = function(req, res, next){

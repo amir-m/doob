@@ -5,11 +5,18 @@ module.exports = {
 	'user:broadcast:stop': function(data) {
 		return data.broadcaster + ' stoped broadcasting!'; 
 	}, 
+	'user:follow': function(data) {
+		
+		return '`'+data.broadcaster + '` is following `'+ data.following +'`!'
+	},
+	'user:subscribe': function(data) {
+		
+		return '`'+data.broadcaster + '` subscribed to `'+ data.to +'`!'
+	},
 	'new:sequencer:SoundPattern': function(data) {
 		return data.broadcaster + ' created '+ data.message.pattern.name+', a new Sound Pattern!'; 
 	},
 	'update:sequencer:SoundPattern:newTrack': function(data) {
-		
 		return data.broadcaster + ' added another track called `'+ data.message.track +
 		 '` to the `'+data.message.pattern+'` Sound Pattern!'; 
 	}

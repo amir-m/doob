@@ -51,7 +51,8 @@ require([
 	'directives/stop-event',
 	'directives/new-sound-pattern',
 	'directives/sp-name-input',
-	'directives/search'
+	'directives/search',
+	'directives/pinger'
 	], function($, angular, app, domReady) {
 		
 		'use strict';
@@ -71,10 +72,10 @@ require([
 		    		}
 		    	}
 		  	})  
-		    .when('/register', {
-		    	templateUrl: 'partials/register.html', 
-		    	controller: 'register-ctrl'
-		    })
+		    // .when('/register', {
+		    // 	templateUrl: 'partials/register.html', 
+		    // 	controller: 'register-ctrl'
+		    // })
 		    .when('/sound-patterns/:user', {
 		    	templateUrl: 'partials/sound-patterns.html', 
 		    	controller: 'sound-patterns-ctrl',
@@ -148,7 +149,7 @@ require([
 			var promise = auth.authenticate();
 
 			function success(){
-				
+
 
 				// if (!doobio.get($rootScope.username)) {
 				// 	doobio.create($rootScope.username);

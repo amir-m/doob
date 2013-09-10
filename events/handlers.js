@@ -42,36 +42,44 @@ module.exports = function(io, socket, session, store, models) {
 
   var userSubscribe = function(data) {
 
-      store.smembers(data.username+':rooms', function(error, reply){
+      store.smembers(data.broadcaster+':rooms', function(error, reply){
 
         if (error) {
-          console.log('error:handlers:userSubscribe:store.smembers(data.username+`:rooms`'.error);
+          console.log('error:handlers:userSubscribe:store.smembers(data.broadcaster+`:rooms`'.error);
           return;
         }
 
         
-        // if the data.username already subscribed to data.to, there's no need to subscribe 
+        // if the data.broadcaster already subscribed to data.to, there's no need to subscribe 
         // again!
         if (reply.indexOf(data.to) != -1) return;
         
         // tell everyone that the user's now subscribing to the other user.
-        io.sockets.emit('user:activity', data.username + ' subscribed to '+data.to+'!');
-        // models.Users.activity({
-        //   type: 'user:subscription',
-        //   subscriber: data.username,
-        //   subscribed: data.to
-        // });
+        // io.sockets.emit('user:activity', data.broadcaster + ' subscribed to '+data.to+'!');
+        
 
-        console.log('%s just subscribed to %s', data.username, data.to);
+        console.log('%s just subscribed to %s', data.broadcaster, data.to);
+        
         socket.join(data.to);
         
         // emit a notification to the user who is being subcribe to if she's online..
         if (io.sockets.sockets[data.to])
           io.sockets.sockets[io.sockets.sockets[data.to]].emit('user:notification', 
-            data.username + ' just subscribed to you!');
+            data.broadcaster + ' just subscribed to you!');
 
-        // save the subscription to redis: key: data.username, field: 'rooms', value (room): data.to
-        store.sadd(data.username+':rooms', data.to);
+        models.User.User.update({username: data.broadcaster}, 
+          {$push: {subscribedTo: data.to}}, function(error, result){
+            if (error) console.log(error)
+            else console.log(error)
+          });
+        models.User.User.update({username: data.to}, 
+          {$push: {subscribers: data.broadcaster}}, function(error, result){
+            if (error) console.log(error)
+            else console.log(error)
+          });
+
+        // save the subscription to redis: key: data.broadcaster, field: 'rooms', value (room): data.to
+        store.sadd(data.broadcaster+':rooms', data.to);
       // }
       
     });
@@ -81,8 +89,6 @@ module.exports = function(io, socket, session, store, models) {
   var userUnsubscribe = function(data){
 
     store.smembers(data.username+':rooms', function(error, reply){
-
-      console.log(reply.indexOf(data.from));
       
       // if the user already unsubscribed, there's no need to unsubscribe again!
       if (reply.indexOf(data.from) == -1) return;
@@ -206,7 +212,7 @@ module.exports = function(io, socket, session, store, models) {
     });
 
     models.User.User.update({username: {$in: [data.broadcaster, data.subscriber] }},
-      {$inc: {soundPatterns: -1}}, function(error){
+      {$inc: {soundPatterns: -1}}, {multi:true}, function(error){
       if (error) console.log(error);
     });
   };

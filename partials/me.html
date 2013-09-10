@@ -5,7 +5,7 @@
 			<div class="well sidebar-nav">
 				<ul class="nav nav-list" style="overflow-y:auto;max-height:150;">
 					<li class="nav-header title">Your followers!</li>
-					<li ng-show="me.followers.length == 0">You have no follower! Invite someone to follow you.</li>
+					<li ng-show="me.followers.length == 0">Nobody follows you! Invite someone to follow you.</li>
 					<li ng-repeat="follower in me._followers">
 						<table>
 							<tr>
@@ -14,18 +14,11 @@
 								</td>
 								<td style="width:80%">
 									<b>
-										<a ng-click="gotoUser(follower.username)">
+										<a href="/users/{{follower.username}}">
 											{{follower.username}}
 										</a>
 									</b>
 								</td>
-								<!-- <td>
-									<button class="pull-right btn btn-success" style="margin:0; width:110; padding-right:0;padding-left:0;" 
-									ng-click="unFollowUser(follower)" tooltip="click to unfollow!">
-									<i class="icon-ok"></i> 
-									Following
-									</button>
-								</td> -->
 							</tr>
 						</table>
 					</li>
@@ -61,7 +54,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class=" well span6" style="position:fixed;left:300;">
+		<div class=" well span6" style="position:absolute;left:300;">
 			<ul class="nav nav-list">
 				<li class="nav-header title">What's goin on?!<br></li>
 				<li ng-repeat="act in me.activities | orderBy:'timestamp':true">
@@ -69,7 +62,7 @@
 						<div style="position: absolute; width:30%;">
 							<a href="#/users/{{act.username}}"><i class="icon-user"></i><b>{{act.username}}</b></a>
 						</div>
-						<div style="position: absolute; left:30%;">
+						<div style="position: absolute; left:30%; right:5%">
 							{{act.text}}
 						</div>
 						<div>
@@ -80,7 +73,53 @@
 				</li>
 			</ul>
 		</div>
+		<div class="well span3" style="position:fixed; left: 940; height: 256" ng-show="me.invitations > 0">
+			<ul class="nav nav-list">
+				<li class="nav-header title">Invitations!</li>
+				<li>You have <b>{{me.invitations}}</b> invitations left. Invite your freinds and make music together!
+				</li>
+				<li><br></li>
+				<li style="font-size:12px"> 
+				 	<span class="input-prepend">
+					 	<span class="add-on">@</span>
+  						<input class="span2" ng-model="_inviteEmail" required id="prependedInput" type="text" placeholder="email" style="width: 190">
+				 	</span>
+					<input type="text" required placeholder="name" ng-model="_inviteName" class="span2" style="width: 218">
+					<button class="btn btn-success" ng-click="sendInvite()" style="width: 218">Invite {{_inviteName}}!</button>
+				</li>
+			</ul>
+		</div>
+		<div class="well span3" style="position:absolute; left: 940; height: 256; overflow: hidden">
+			<ul class="nav nav-list" style="overflow-y:auto;max-height:150;">
+					<li class="nav-header title">
+						<i class="icon-eye-open"></i>
+						You're Watching
+					</li>
+					<li ng-show="me.subscribedTo.length == 0">Nobody! Invite someone and subscribe to them.</li>
+					<li ng-repeat="user in me.subscribedTo">
+						<table>
+							<tr>
+								<td>
+									<i class="icon-user" style="margin-top:2"></i>
+								</td>
+								<td style="width:80%">
+									<b>
+										<a href="/users/{{user}}">
+											{{user}}
+										</a>
+									</b>
+								</td>
+							</tr>
+						</table>
+					</li>
+				</ul>
+			
+		</div>
 	</div>
 </div>
+
+
+
+
 <!-- <doob.sound.patterns></doob.sound.patterns> -->
 
