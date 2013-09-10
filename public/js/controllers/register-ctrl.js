@@ -1,9 +1,12 @@
 define(['controllers/controllers'], function(controllers){
 	
 	controllers.controller('register-ctrl', ['$scope', '$location','auth', '$window', 
-		'$rootScope', function ($scope, $location, auth, $window, $rootScope) {
+		'$routeParams', '$rootScope', 
+		function ($scope, $location, auth, $window, $routeParams, $rootScope) {
 
 		if ($rootScope.username) return $window.history.back();
+
+		console.log($routeParams)
 
 		$scope.err = null;
 		$scope.rrm = true;

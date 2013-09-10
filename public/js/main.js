@@ -145,10 +145,82 @@ require([
 			  auth.destroy();
 			});
 
-			var promise = auth.authenticate('/home');
+			var promise = auth.authenticate();
 
 			function success(){
+				
 
+				// if (!doobio.get($rootScope.username)) {
+				// 	doobio.create($rootScope.username);
+				// }
+
+				// var f = {
+				// 	username: 1,
+				// 	activities: 1,
+				// 	followers: 1,
+				// 	following: 1,
+				// 	projects: 1,
+				// 	password: 1,
+				// 	soundPatterns: 1
+				// };
+
+				// var me = auth.me(f), _me;
+
+				// me.then(function(data){
+				// 	$rootScope.username = data.username;
+					
+				// 	_me = data;
+				// 	_me._patterns = {};
+				// 	_me._followers = {};
+				// 	_me._following = {};
+
+				// 	for (var i in _me.followers)
+				// 		_me._followers[_me.followers[i].username] = _me.followers[i];
+
+				// 	for (var i in _me.following)
+				// 		_me._following[_me.following[i].username] = _me.following[i];
+
+
+				// 	var promise = auth.getSoundPatterns();
+
+				// 	promise.then(function(soundPatterns){
+
+				// 		if (!doobio.instances[$rootScope.username])
+				// 			doobio.create($rootScope.username);
+						
+				// 		for (var i in soundPatterns) {
+
+				// 			_me._patterns[soundPatterns[i]._id] = soundPatterns[i];
+
+				// 			for (var j in soundPatterns[i].content.tracks)
+
+				// 				new doobio.instances[$rootScope.username].audio.Sound({
+				// 					name: soundPatterns[i].content.tracks[j].name,
+				// 					url: soundPatterns[i].content.tracks[j].url
+				// 				});
+
+				// 			new doobio.instances[$rootScope.username].sequencer.SoundPattern({
+				// 				name: soundPatterns[i].name,
+				// 				id: soundPatterns[i]._id, 
+				// 				tracks: soundPatterns[i].content.tracks,
+				// 				effects: soundPatterns[i].content.effects
+				// 			});
+				// 		}
+
+				// 		setTimeout(function(){
+				// 				$rootScope.me = _me;
+				// 			$location.path('/home');
+				// 			console.log($rootScope.me);
+				// 		}, 5000);
+
+				// 	}, function(error){
+				// 		console.log(error);
+				// 	});
+
+
+				// }, function(er){
+				// 	console.log(er);
+				// });
 			}
 
 			function failure () {

@@ -85,6 +85,19 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 
 		});
 
+		socket.on('remove:sequencer:SoundPattern', function(message){
+
+
+			if (message.broadcaster == $rootScope.username || 
+				!instances[message.subscriber]) return;
+
+			var sp = message.message;
+
+			doobio.instances[message.subscriber].env.removeAsset(sp.name, sp.id);
+			delete doobio.get(message.subscriber).soundPatterns[sp.name];
+
+		});
+
 		// a new sound has been added, and is being broadcasted 'new:sequencer:SoundPattern'
 		socket.on('new:sequencer:SoundPattern', function(message){
 

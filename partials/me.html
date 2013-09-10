@@ -64,7 +64,7 @@
 		<div class=" well span6" style="position:fixed;left:300;">
 			<ul class="nav nav-list">
 				<li class="nav-header title">What's goin on?!<br></li>
-				<li ng-repeat="act in me.activities">
+				<li ng-repeat="act in me.activities | orderBy:'timestamp':true">
 					<div class="container" style="padding-bottom: 15">
 						<div style="position: absolute; width:30%;">
 							<a href="#/users/{{act.username}}"><i class="icon-user"></i><b>{{act.username}}</b></a>

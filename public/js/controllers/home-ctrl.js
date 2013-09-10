@@ -9,7 +9,7 @@ function(controllers){
 			// socket.connect();
 		});
 
-		$scope.navBar = 'invisible';
+		$scope.navBar = 'visible';
 		$scope.isBroadcasting = false;
 		$scope.invitationEmail = '';
 		// $scope.searchUsers = [];
@@ -17,7 +17,9 @@ function(controllers){
 
 		$scope.loadedSoundCategoryList = null;
 		$scope.categoryListBindToSound = [];
-		$scope.me = null;
+		
+
+
 
 		var f = {
 			username: 1,
@@ -46,8 +48,6 @@ function(controllers){
 				$scope.me._patterns = {};
 				$scope.me._followers = {};
 				$scope.me._following = {};
-
-				console.log($scope.me.activities)
 
 				for (var i in $scope.me.followers)
 					$scope.me._followers[$scope.me.followers[i].username] = $scope.me.followers[i];

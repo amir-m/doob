@@ -432,12 +432,12 @@ define([''], function(){
 
         this.handlers = _handlers(this);
 
-        this.removeAsset = function(name, id) {
+        this.removeAsset = function(name, id, pub) {
             delete this.assets[name];
-            this.publish("remove:sequencer:SoundPattern", {
-                id: id
+            if (pub) this.publish("remove:sequencer:SoundPattern", {
+                id: id,
+                name: name
             }, this.name);
-            console.log(id)
         }
     };
 });

@@ -46,10 +46,9 @@ define(['services/services'], function(services){
 		    	return delay.promise;
 		    };
 
-		    var authenticate = function(path) {
+		    var authenticate = function() {
 
 		    	var delay = $q.defer();
-		    	var path = path || '/home';
 
 		   		$http.get('/ping').success(function() {
 

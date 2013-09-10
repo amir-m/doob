@@ -11,6 +11,7 @@ define(['services/services'], function(services){
 			$http.get('/pattern/' + user)
 			.success(function(patterns) {
 
+				console.log(patterns)
 				var p = {};
 
 				for (var i in patterns) {
@@ -34,9 +35,6 @@ define(['services/services'], function(services){
 						new doobio.instances[patterns[i].username].sequencer.SoundPattern(p);
 
 				}	
-
-				console.log(doobio.instances[patterns[i].username])
-
 
 				delay.resolve(patterns);
 			}).error(function(err) {

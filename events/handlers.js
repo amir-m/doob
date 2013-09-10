@@ -197,12 +197,17 @@ module.exports = function(io, socket, session, store, models) {
   };
 
   var removeSoundPattern = function(data) {
-    console.log(data)
+    // console.log(data)
     models.projects.SoundPattern.update({_id: data.message.id}, {$set: {
       updated: new Date().getTime(),
       active: false
     }}, function(error){
-      if (error) console.log(error)
+      if (error) console.log(error);
+    });
+
+    models.User.User.update({username: {$in: [data.broadcaster, data.subscriber] }},
+      {$inc: {soundPatterns: -1}}, function(error){
+      if (error) console.log(error);
     });
   };
 

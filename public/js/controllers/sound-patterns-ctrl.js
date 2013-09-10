@@ -105,7 +105,7 @@ function(controllers){
 			// $location.path('/sound-patterns/'+instanceName+'/'+soundPattern.id);
 		}
 		$scope.remove = function(p, i) {
-			doobio.instances[i].env.removeAsset(p.name, p.id);
+			doobio.instances[i].env.removeAsset(p.name, p.id, true);
 			delete $scope.doob.get(i).soundPatterns[p.name];
 		}
 		

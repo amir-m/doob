@@ -28,10 +28,11 @@
 		<div class="well span6" style="position: absolute;left: 300">
 			<ul class="nav nav-list">
 				<li class="nav-header title">{{user.username}} activities.</li>
-				<li ng-repeat="act in user.activities">
+				<li ng-repeat="act in user.activities | orderBy:'timestamp':true">
 					<div class="container" style="padding-bottom: 15">
 						<div style="position: absolute; width:30%;">
-							<a href="#/users/{{act.username}}"><i class="icon-user"></i><b>{{act.username}}</b></a>
+							<a href="#/users/{{act.username}}">
+								<i class="icon-user"></i><b>{{act.username}}</b></a>
 						</div>
 						<div style="position: absolute; left:30%;">
 							{{act.text}}

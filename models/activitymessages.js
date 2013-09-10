@@ -9,8 +9,9 @@ module.exports = {
 		return data.broadcaster + ' created '+ data.message.pattern.name+', a new Sound Pattern!'; 
 	},
 	'update:sequencer:SoundPattern:newTrack': function(data) {
-		// console.log(data);
-		// return data.broadcaster + ' created '+ data.pattern.name', a new Sound Pattern!'; 
+		
+		return data.broadcaster + ' added another track called `'+ data.message.track +
+		 '` to the `'+data.message.pattern+'` Sound Pattern!'; 
 	}
 };
 

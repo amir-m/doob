@@ -21,7 +21,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 	// Scenario 2.
 	var login = function(req, res, next) {
-
+		// return res.redirect('#/register/17763763829');
 		var requestor = {
 			ip: req.ip,
 			date: new Date(),
@@ -428,7 +428,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 	var getUser = function(req, res, next) {
 		
 		if (!req.param('name') || !req.session || !req.session.uid || !req.session.username) 
-			return res(401);
+			return res.send(401);
 
 		models.User.getUser(req.param('name'), function(user){
 			if (!user) return res.send(400);
@@ -441,7 +441,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		if (!req.param('user')) return res(400);
 
 		models.projects.SoundPattern.find({
-			username: req.param('user')}, function(error, p){
+			username: req.param('user'), active: true}, function(error, p){
 
 			if (error) return res.send(500);
 			if (!p) return res.send(400);
@@ -457,8 +457,8 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		if (!req.param('id') || !req.session || !req.session.uid || !
 			req.session.username) return res(401);
 
-		models.projects.SoundPattern.findById({
-			_id: req.param('id')}, function(error, p){
+		models.projects.SoundPattern.find({
+			_id: req.param('id'), active: true}, function(error, p){
 
 			if (error) return res.send(500);
 			if (!p) return res.send(400);
