@@ -72,10 +72,10 @@ require([
 		    		}
 		    	}
 		  	})  
-		    // .when('/register', {
-		    // 	templateUrl: 'partials/register.html', 
-		    // 	controller: 'register-ctrl'
-		    // })
+		    .when('/register', {
+		    	templateUrl: 'partials/register.html', 
+		    	controller: 'register-ctrl'
+		    })
 		    .when('/sound-patterns/:user', {
 		    	templateUrl: 'partials/sound-patterns.html', 
 		    	controller: 'sound-patterns-ctrl',
