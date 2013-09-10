@@ -188,7 +188,7 @@ function(controllers){
 		};
 
 		$scope.subscribeTo = function(user) {
-			$scope.me.subscribeTo.push(user.username);
+			$scope.me.subscribedTo.push(user.username);
 			socket.emit('user:subscribe', {
 				event: 'user:subscribe',
 				broadcaster: $rootScope.username,
