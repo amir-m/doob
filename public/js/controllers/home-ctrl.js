@@ -40,7 +40,7 @@ function(controllers){
 			var me = auth.me();
 
 			me.then(function(data){
-				console.log(data)
+				// console.log(data)
 				$rootScope.username = data.username;
 				if (!doobio.get($rootScope.username) && $rootScope.username) {
 					doobio.create($rootScope.username);
@@ -60,40 +60,45 @@ function(controllers){
 				// 	$scope.me._patterns[$scope.me.soundPatterns[i].id] = $scope.me.soundPatterns[i];
 
 				$scope.loadDoobInstance(function(error, doob){
-					if (error) return console.log(error);
-
-					var promise = auth.getSoundPatterns();
-
-					promise.then(function(soundPatterns){
-
-						// console.log(soundPatterns)
-						if (!doobio.instances[$rootScope.username])
-							doobio.create($rootScope.username);
-						
-						for (var i in soundPatterns) {
-
-							$scope.me._patterns[soundPatterns[i]._id] = soundPatterns[i];
-
-							for (var j in soundPatterns[i].content.tracks)
-
-								new doobio.instances[$rootScope.username].audio.Sound({
-									name: soundPatterns[i].content.tracks[j].name,
-									url: soundPatterns[i].content.tracks[j].url
-								});
-
-							new doobio.instances[$rootScope.username].sequencer.SoundPattern({
-								name: soundPatterns[i].name,
-								id: soundPatterns[i]._id, 
-								tracks: soundPatterns[i].content.tracks,
-								effects: soundPatterns[i].content.effects
-							});
-						}
-
-						fullyLoad.resolve();
-
-					}, function(error){
+					if (error) {
 						fullyLoad.reject();
-					});
+						return console.log(error);
+					}
+
+					fullyLoad.resolve();
+
+					// var promise = auth.getSoundPatterns();
+
+					// promise.then(function(soundPatterns){
+
+					// 	// console.log(soundPatterns)
+					// 	// if (!doobio.instances[$rootScope.username])
+					// 	// 	doobio.create($rootScope.username);
+						
+					// 	// for (var i in soundPatterns) {
+
+					// 	// 	$scope.me._patterns[soundPatterns[i]._id] = soundPatterns[i];
+
+					// 	// 	for (var j in soundPatterns[i].content.tracks)
+
+					// 	// 		new doobio.instances[$rootScope.username].audio.Sound({
+					// 	// 			name: soundPatterns[i].content.tracks[j].name,
+					// 	// 			url: soundPatterns[i].content.tracks[j].url
+					// 	// 		});
+
+					// 	// 	new doobio.instances[$rootScope.username].sequencer.SoundPattern({
+					// 	// 		name: soundPatterns[i].name,
+					// 	// 		id: soundPatterns[i]._id, 
+					// 	// 		tracks: soundPatterns[i].content.tracks,
+					// 	// 		effects: soundPatterns[i].content.effects
+					// 	// 	});
+					// 	// }
+
+					// 	fullyLoad.resolve();
+
+					// }, function(error){
+					// 	fullyLoad.reject();
+					// });
 
 				});
 

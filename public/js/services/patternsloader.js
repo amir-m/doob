@@ -11,12 +11,16 @@ define(['services/services'], function(services){
 			$http.get('/pattern/' + user)
 			.success(function(patterns) {
 
-				console.log(patterns)
 				var p = {};
 
 				for (var i in patterns) {
 					if (!doobio.instances[patterns[i].username]) 
 						doobio.create(patterns[i].username);
+
+					if (doobio.instances[patterns[i].username].env.assets[patterns[i].name])
+						delete doobio.instances[patterns[i].username].env.assets[patterns[i].name];
+					
+
 					for (var j in patterns[i].content.tracks) {
 
 						if (!doobio.instances[patterns[i].username].env.assets[patterns[i].content.tracks[j].name])
@@ -32,7 +36,7 @@ define(['services/services'], function(services){
 					p['id'] = patterns[i]._id;
 					
 					if (!doobio.instances[patterns[i].username].env.assets[patterns[i].name])
-						new doobio.instances[patterns[i].username].sequencer.SoundPattern(p);
+						new doobio.instances[patterns[i].username].sequencer.SoundPattern(p, false);
 
 				}	
 

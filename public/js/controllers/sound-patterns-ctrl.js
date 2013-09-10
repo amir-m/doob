@@ -4,17 +4,12 @@ function(controllers){
 	controllers.controller('sound-patterns-ctrl', ['$scope', '$location', '$rootScope', 
 		'socket', '$q', 'doobio', 'patterns', '$routeParams', //'loaded', 
 		function ($scope, $location, $rootScope, socket, $q, doobio, patterns, $routeParams) { //, loaded) {
-		// console.log($scope.$id);
-		// console.log($scope.doob.sounds);
-		// if (!$rootScope.username) {
-		// 	var promise
-			
-		// }
+		
 		$scope.patterns = patterns;
 		
 		var p = {};
 
-		console.log($routeParams)
+
 				
 		// for (var i in $scope.patterns) {
 		// 	if (!doobio.instances[$scope.patterns[i].username]) 
