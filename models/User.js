@@ -68,6 +68,12 @@ module.exports = function(mongoose, async, logins, models) {
 		options._id = _objectId();
 		var r = options.requestor;
 		delete options.requestor;
+		
+		options.subscribers = options.subscribers || [];
+		options.subscribedTo = options.subscribedTo || [];
+		options.followers = options.followers || [];
+		options.following = options.following || [];
+		options.soundPatterns = options.soundPatterns || 0;
 
 
 		async.waterfall([
