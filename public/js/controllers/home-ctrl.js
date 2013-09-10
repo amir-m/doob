@@ -172,11 +172,12 @@ function(controllers){
 				username: user.username
 			}).success(function(){
 				$scope.me._following[user.username] = user;
+				if ($scope.$$phase != "$apply" && $scope.$$phase != "$digest" ) $scope.$apply();
 				$scope.me.following.push(user.username);
 				socket.emit('user:follow', {
 					event: 'user:follow',
 					broadcaster: $rootScope.username,
-					follower: user.username,
+					following: user.username,
 					subscriber: user.username,
 					timestamp: new Date().getTime()
 				});
