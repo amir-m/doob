@@ -87,7 +87,8 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 		            		if (!user || !user.username) res.send(401);
 
-		            		// Scenario 2. 1.a.i.4.c		
+		            		// Scenario 2. 1.a.i.4.c	
+		            		
 		            		req.session.uid = result.uid;
 		            		req.session.username = user.username;
 
