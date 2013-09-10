@@ -27,7 +27,7 @@
 			<div class="well sidebar-nav">
 				<ul class="nav nav-list" style="overflow-y:auto;max-height:150;">
 					<li class="nav-header title">People You follow!</li>
-					<li ng-show="me.followers.length == 0">You follow nobody! Invite and follow someone.</li>
+					<li ng-show="me.following.length == 0">You follow nobody! Invite and follow someone.</li>
 					<li ng-show="me._following.length == 0">You follow no one! Follow someone.</li>
 					<li ng-repeat="following in me._following">
 						<table>

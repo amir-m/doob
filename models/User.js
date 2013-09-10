@@ -449,6 +449,7 @@ module.exports = function(mongoose, async, logins, models) {
 		unFollow: unFollow,
 		getUser: getUser,
 		insertActivity: insertActivity,
-		saveSoundPattern: saveSoundPattern
+		saveSoundPattern: saveSoundPattern,
+		objectId: _objectId
 	};
 };

@@ -22,6 +22,8 @@ module.exports = function(routes, app){
 
 	app.get('/destroy', routes.index.destroy);
 
+	app.get('/id', routes.index.id);
+
 	app.post('/logout', routes.user.logout);
 
 	app.post('/invite', routes.user.invite);

@@ -115,6 +115,13 @@ module.exports = function(models, sessionMaxAge, async){
 		// }, 5000);
 	};
 
+	var id = function(req, res, next) {
+		
+		if (!req.session || !req.session.uid || !req.session.username) return res.send(401);
+		
+		return res.send(models.User.ObjectId);
+	};
+
 	return {
 		index: index,
 		public: public,
@@ -123,6 +130,7 @@ module.exports = function(models, sessionMaxAge, async){
 		ping: ping,
 		destroy: destroy,
 		sounds: sounds,
-		search: search
+		search: search,
+		id: id
 	}
 };
