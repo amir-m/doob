@@ -19,7 +19,7 @@ define(['directives/directives'], function(directives){
 				}
 				scope.removeTrack = function(track) {
 					
-					scope.pattern.removeTrack(track, true);
+					doobio.instances[scope.instanceName].env.assets[scope.pattern.name].removeTrack(track, true);
 					// console.log(sound)
 				}
 				scope.toggleNote = function(i, patternSound) {

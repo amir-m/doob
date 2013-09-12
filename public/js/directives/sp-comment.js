@@ -28,6 +28,8 @@ define(['directives/directives'], function(directives){
 							timestamp: new Date().getTime(),
 							comment: $(element).val()
 						});
+
+						scope.$apply();
 						
 						$(element).val('');
 						$(element).blur();
