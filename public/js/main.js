@@ -49,7 +49,7 @@ require([
 	'services/effects',
 	'services/userloader',
 	'services/patternsloader',
-	'services/PatternLoader', 
+	'services/patternloader', 
 	'directives/play-inline',
 	'directives/sound-picker',
 	'directives/sound-pattern',
