@@ -104,16 +104,21 @@ define([], function () {
 			var Sound = function (sound, pub) {
 
 				var self = this, buf, isL;
+			
 				if (!sound || !sound.url)  {
 					throw 'audio.Sound : Invalid Sound arguments.';
 				}
 				sound.name = sound.name || doob.uniqueNames.Sound;
 
-				if (doob.sounds.indexOf(sound.name) != -1) return doob.sounds[sound.name];
+				// if (doob.sounds.indexOf(sound.name) != -1) return doob.sounds[sound.name];
 
 				var properties = {
 					// Queues for onload, onloadind, onload, onfinishplaying & onstop events.
 					// Functions will be triggered based on their registration order.
+					id: {
+						value: sound.id,
+						enumerable: true, writable: true, configurable: false
+					},
 					name: {
 						value: sound.name,
 						enumerable: true, writable: true, configurable: false

@@ -58,7 +58,7 @@ define(['services/services'], function(services){
 		   			if (!$rootScope.username) {
 		   				if ($cookies.username) {
 		   					$rootScope.username = $cookies.username;
-		   					delay.resolve();
+		   					delay.resolve($rootScope.username);
 		   				}
 			   			// Scenario 1 - 2.a
 			   			else {
@@ -68,7 +68,7 @@ define(['services/services'], function(services){
 			   					$rootScope.username = data.username;
 			   					$cookies.username = data.username;
 			   					// $location.path(path);
-			   					delay.resolve();
+			   					delay.resolve($rootScope.username);
 			   				});
 			   			}
 		   			}
@@ -90,7 +90,7 @@ define(['services/services'], function(services){
 			   					$rootScope.username = username;
 			   					$cookies.username = username;
 			   					// $location.path(path);
-			   					delay.resolve();
+			   					delay.resolve($rootScope.username);
 			   				}, function(){
 			   					// error
 								// $location.path('/login');

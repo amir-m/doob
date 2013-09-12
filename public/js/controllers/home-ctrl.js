@@ -58,49 +58,51 @@ function(controllers){
 
 				// for (var i in $scope.me.soundPatterns)
 				// 	$scope.me._patterns[$scope.me.soundPatterns[i].id] = $scope.me.soundPatterns[i];
+				fullyLoad.resolve();
 
-				$scope.loadDoobInstance(function(error, doob){
-					if (error) {
-						fullyLoad.reject();
-						return console.log(error);
-					}
+				// $scope.loadDoobInstance(function(error, doob){
+				// 	if (error) {
+				// 		fullyLoad.reject();
+				// 		return console.log(error);
+				// 	}
 
-					fullyLoad.resolve();
 
-					// var promise = auth.getSoundPatterns();
+				// 	// var promise = auth.getSoundPatterns();
 
-					// promise.then(function(soundPatterns){
+				// 	// promise.then(function(soundPatterns){
 
-					// 	// console.log(soundPatterns)
-					// 	// if (!doobio.instances[$rootScope.username])
-					// 	// 	doobio.create($rootScope.username);
+				// 	// 	// console.log(soundPatterns)
+				// 	// 	// if (!doobio.instances[$rootScope.username])
+				// 	// 	// 	doobio.create($rootScope.username);
 						
-					// 	// for (var i in soundPatterns) {
+				// 	// 	// for (var i in soundPatterns) {
 
-					// 	// 	$scope.me._patterns[soundPatterns[i]._id] = soundPatterns[i];
+				// 	// 	// 	$scope.me._patterns[soundPatterns[i]._id] = soundPatterns[i];
 
-					// 	// 	for (var j in soundPatterns[i].content.tracks)
+				// 	// 	// 	for (var j in soundPatterns[i].content.tracks)
 
-					// 	// 		new doobio.instances[$rootScope.username].audio.Sound({
-					// 	// 			name: soundPatterns[i].content.tracks[j].name,
-					// 	// 			url: soundPatterns[i].content.tracks[j].url
-					// 	// 		});
+				// 	// 	// 		new doobio.instances[$rootScope.username].audio.Sound({
+				// 	// 	// 			name: soundPatterns[i].content.tracks[j].name,
+				// 	// 	// 			url: soundPatterns[i].content.tracks[j].url
+				// 	// 	// 		});
 
-					// 	// 	new doobio.instances[$rootScope.username].sequencer.SoundPattern({
-					// 	// 		name: soundPatterns[i].name,
-					// 	// 		id: soundPatterns[i]._id, 
-					// 	// 		tracks: soundPatterns[i].content.tracks,
-					// 	// 		effects: soundPatterns[i].content.effects
-					// 	// 	});
-					// 	// }
+				// 	// 	// 	new doobio.instances[$rootScope.username].sequencer.SoundPattern({
+				// 	// 	// 		name: soundPatterns[i].name,
+				// 	// 	// 		id: soundPatterns[i]._id, 
+				// 	// 	// 		tracks: soundPatterns[i].content.tracks,
+				// 	// 	// 		effects: soundPatterns[i].content.effects
+				// 	// 	// 	});
+				// 	// 	// }
 
-					// 	fullyLoad.resolve();
+				// 	// 	fullyLoad.resolve();
 
-					// }, function(error){
-					// 	fullyLoad.reject();
-					// });
+				// 	// }, function(error){
+				// 	// 	fullyLoad.reject();
+				// 	// });
 
-				});
+				// });
+
+				$("#topnav").slideDown(200);
 
 			}, function(er, status){
 				console.log(er);
@@ -111,61 +113,64 @@ function(controllers){
 			return fullyLoad.promise;
 		}; 
 
-		var load = $scope.promiseTofullyLoad();
-		load.then(function(){
-			console.log('loaded...')
-			
-		}, function(){});
-
-		$scope.authenticate = function(callback) {
-
-			if (!$rootScope.username) {
-
-				var promise = auth.authenticate();
-
-				promise.then(function(){
-					if (callback) callback(null, $rootScope.username);
-					$scope.navBar = 'visible';
-					
-					// $scope.doob = doobio;
-					// $cookies.doob = $cookies.doob || {};
-					// $cookies.doob[$rootScope.username] = doobio.get($rootScope.username).assetsToJSON;
-				}, function(){
-					$location.path('/login');
-					if (callback) callback('Authentication failed.');
-
-				});	
-			}
-			else if (callback) callback(null, $rootScope.username);
-		};
-
-		$scope.authenticate();
-
-		$scope.loadDoobInstance = function(callback) {
-			
-			$scope.authenticate(function(error, username){
-				// $scope.$broadcast('doob');
+		if (!$scope.me) {
+			var load = $scope.promiseTofullyLoad();
+			load.then(function(){
+				console.log('loaded...')
 				
-				$scope.doob = doobio;
+			}, function(){});
+			
+		} 
 
-				if (error) {
-					console.log(error);
-					if (callback) callback(error);
-				}
-				else if (!doobio.get(username)) {
-					doobio.create(username);
-					if (callback) callback(null, doobio.get(username));
-					$scope.$broadcast('doob:ready', $scope.doob);
-				}
-				else if (doobio.get(username)) {
-					if (callback) callback(null, doobio.get(username));
-					$scope.$broadcast('doob:ready', $scope.doob);
-				}
-				else if (callback) callback('There`s a problem loadding doob.io instance!');
-			});
-		};
+		// $scope.authenticate = function(callback) {
 
-		$scope.loadDoobInstance();
+		// 	if (!$rootScope.username) {
+
+		// 		var promise = auth.authenticate();
+
+		// 		promise.then(function(){
+		// 			if (callback) callback(null, $rootScope.username);
+		// 			$scope.navBar = 'visible';
+					
+		// 			// $scope.doob = doobio;
+		// 			// $cookies.doob = $cookies.doob || {};
+		// 			// $cookies.doob[$rootScope.username] = doobio.get($rootScope.username).assetsToJSON;
+		// 		}, function(){
+		// 			$location.path('/login');
+		// 			if (callback) callback('Authentication failed.');
+
+		// 		});	
+		// 	}
+		// 	else if (callback) callback(null, $rootScope.username);
+		// };
+
+		// $scope.authenticate();
+
+		// $scope.loadDoobInstance = function(callback) {
+			
+		// 	$scope.authenticate(function(error, username){
+		// 		// $scope.$broadcast('doob');
+				
+		// 		$scope.doob = doobio;
+
+		// 		if (error) {
+		// 			console.log(error);
+		// 			if (callback) callback(error);
+		// 		}
+		// 		else if (!doobio.get(username)) {
+		// 			doobio.create(username);
+		// 			if (callback) callback(null, doobio.get(username));
+		// 			$scope.$broadcast('doob:ready', $scope.doob);
+		// 		}
+		// 		else if (doobio.get(username)) {
+		// 			if (callback) callback(null, doobio.get(username));
+		// 			$scope.$broadcast('doob:ready', $scope.doob);
+		// 		}
+		// 		else if (callback) callback('There`s a problem loadding doob.io instance!');
+		// 	});
+		// };
+
+		// $scope.loadDoobInstance();
 
 		$scope.followUser = function(user) {
 			if (user.username in $scope.me._following) return;

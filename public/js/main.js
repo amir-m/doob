@@ -2,6 +2,7 @@ require.config({
 	baseUrl: '/public/js',
 	paths: {
 		angular: 'lib/angular',
+		socketio: '../../socket.io/socket.io',
 		angularResource: 'lib/angular-resource',
 		angularCookies: 'lib/angular-cookies',
 		jquery: 'lib/jquery',
@@ -14,6 +15,9 @@ require.config({
 		sequencer: 'lib/sequencer'
 	},
 	shim: {
+		'socketio': {
+			exports: 'io'
+		},
 		'angular': {
 			deps: ['jquery'],
 			exports: 'angular'
@@ -29,6 +33,7 @@ require([
 	'angular',
 	'app', 
 	'domready',
+	'socketio',
 	'uiBootstrap',
 	'controllers/home-ctrl',
 	'controllers/login-ctrl',
@@ -44,6 +49,7 @@ require([
 	'services/effects',
 	'services/userloader',
 	'services/patternsloader',
+	'services/PatternLoader', 
 	'directives/play-inline',
 	'directives/sound-picker',
 	'directives/sound-pattern',
@@ -52,12 +58,11 @@ require([
 	'directives/new-sound-pattern',
 	'directives/sp-name-input',
 	'directives/search',
-	'directives/pinger'
-	], function($, angular, app, domReady) {
+	'directives/pinger',
+	'directives/sp-comment'
+	], function($, angular, app, domReady, socketio) {
 		
 		'use strict';
-
-
 
 		app.config(['$routeProvider', '$httpProvider', 
 			function($routeProvider, $httpProvider) {
@@ -72,10 +77,10 @@ require([
 		    		}
 		    	}
 		  	})  
-		    // .when('/register', {
-		    // 	templateUrl: 'partials/register.html', 
-		    // 	controller: 'register-ctrl'
-		    // })
+		    .when('/register', {
+		    	templateUrl: 'partials/register.html', 
+		    	controller: 'register-ctrl'
+		    })
 		    .when('/sound-patterns/:user', {
 		    	templateUrl: 'partials/sound-patterns.html', 
 		    	controller: 'sound-patterns-ctrl',

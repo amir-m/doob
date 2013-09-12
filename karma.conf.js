@@ -5,24 +5,55 @@ module.exports = function(config) {
   config.set({
 
     // base path, that will be used to resolve files and exclude
-    basePath: './',
+    basePath: '',
 
 
     // frameworks to use
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'requirejs'],
 
 
     // list of files / patterns to load in the browser
     files: [
-        JASMINE,
-        JASMINE_ADAPTER,
-      'views/index.html',
-//      'public/js',
+        // JASMINE,
+        // {pattern: 'public/js/lib/**/*.js', included: false},
+        // 'public/js/lib/jquery.js',
+        '/socket.io/socket.io.js/',
         'public/js/lib/angular.js',
-        'public/js/lib/jquery.js',
-        'public/js/lib/*',
-        'public/js/*',
-      'test/*'
+        'public/js/lib/angular-mocks.js',
+        {pattern: 'public/js/lib/*.js', included: false},
+        {pattern: 'public/js/controllers/*.js', included: false},
+        {pattern: 'public/js/directives/*.js', included: false},
+        {pattern: 'public/js/services/*.js', included: false},
+        // {pattern: 'public/js/*.js', included: false},
+        {pattern: 'tests/unit/*Spec.js', included: false},
+        {pattern: 'tests/unit/services/*Spec.js', included: false},
+        {pattern: 'tests/unit/controllers/*Spec.js', included: false},
+        {pattern: 'tests/unit/directives/*Spec.js', included: false},
+        'public/js/controllers/controllers.js',
+        // 'public/js/app-test.js',
+        'public/js/main-test.js',
+        // {pattern: 'test/*.js', included: false},
+        // 'public/js/lib/require.js',
+        // 'public/js/main.js',
+        // 'public/js/lib/angular-mocks.js',
+        // 'public/js/lib/angular-resource.js',
+        // // 'public/js/lib/angular-cookies.js',
+        // // 'public/js/lib/domready.js',
+        // 'public/js/lib/ui-bootstrap-tpls-0.5.0.js',
+        // 'public/js/lib/doob.js',
+        // 'public/js/lib/io.js',
+        // 'public/js/lib/effects.js',
+        // 'public/js/lib/audio.js',
+        // 'public/js/lib/sequencer.js',
+        
+        // 'public/js/controllers/*.js',
+        // 'public/js/services/*.js',
+        // 'public/js/directives/*.js',
+        // 'public/js/app.js',
+        // 'public/js/*',
+        // 'views/index.html',
+        // 'test/app.js',
+        // 'app-test.js',
 //      'public/test/*Spec.js',
 //      'public/test/**/*Spec.js',
 //      'public/test/**/*Spec.js',
@@ -31,17 +62,27 @@ module.exports = function(config) {
     ],
 
 
+
     // list of files to exclude
     exclude: [
         'public/js/lib/jquery-2.0.3.min.map',
-        'public/js/lib/version.txt'
-      
+        'public/js/lib/version.txt',
+        'public/js/main.js',
+        'public/js/app.js',
+        'public/js/bootstrap.js',
+        'public/js/login.js',
     ],
+
+    proxies: {
+        '/' : 'http://localhost:8080/'
+    },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress'],
+    reporters: ['dots', 'spec'],
+
+    loggers: [{type: 'console'}],
 
 
     // web server port
@@ -78,6 +119,13 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: false
+    singleRun: false,
+
+    // plugins: [
+    //     'karma-requirejs',
+    //     'karma-jasmine',
+    //     'karma-html2js-preprocessor',
+    //     'karma-spec-reporter',
+    // ]
   });
 };

@@ -22,7 +22,7 @@ define(['directives/directives'], function(directives){
                             scope.$apply()
                         }
                         else {
-                            new doobio.instances[scope.instanceName].sequencer.SoundPattern({
+                            doobio.instances[scope.instanceName].soundPattern({
                                 name: scope.name
                             }, true);
                             $('#spname').blur();

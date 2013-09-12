@@ -20,7 +20,7 @@ define(['directives/directives'], function(directives){
 
 				scope.addSound = function(i, j){
 
-					new doobio.instances[scope.instanceName].audio.Sound({
+					new doobio.instances[scope.instanceName].sound({
 						name: scope.listBindToSound[scope.soundList.indexOf(i)][j].name,
 						url: scope.listBindToSound[scope.soundList.indexOf(i)][j].url
 					}, true);

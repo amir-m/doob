@@ -4,7 +4,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 	services.factory('doobio', ['socket', '$http', '$rootScope', 
 	function(socket, $http, $rootScope) {
 
-		var loadedAssets = {}, self = this;
+		var loadedAssets = {}, self = this, instances = {}, instanceNames = [];
 
 		// doob unrelated messages...
 		socket.on('user:notification', function(message){
@@ -133,10 +133,11 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 			// create all the sounds in this sound pattern
 			for (var sound in sp.tracks)
 				new instances[message.broadcaster].audio.sound({
-					name: sound.name, url: sound.url
+					name: sound.name, url: sound.url,
+					id: sound.id ? sound.id : null
 				});	
 			
-			new instances[message.broadcaster].sequencer.SoundPattern(message.message);
+			new instances[message.broadcaster].soundPattern(message.message);
 
 		});
 
@@ -181,7 +182,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 
 		// a new sound has been added, and is being broadcasted
 		socket.on('new:aduio:Sound', function(message){
-
+			console.log(message)
 			// TODO: LOGGING...
 			// if the broadcaster is the same as this user, or if the broadcaster's instance 
 			// has not yet been created, it's probably a wrong message.
@@ -197,7 +198,8 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 				name: s.name,
 				url: s.url,
 				gainName: s.gain.name,
-				graphName: s.graph.name
+				graphName: s.graph.name,
+				id: s.id ? s.id : null
 			};
 			
 			
@@ -247,7 +249,8 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 				var t = new re_d.effects.Reverb({
 					name: d.independents.effects.reverbs[i].name,
 					graphName: d.independents.effects.reverbs[i].graphName,
-					impulse: d.independents.effects.reverbs[i].impulse
+					impulse: d.independents.effects.reverbs[i].impulse,
+					id: d.independents.effects.reverbs[i].id || null,
 				});
 				
 			}
@@ -258,7 +261,8 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 					name: d.independents.sounds[i].name,
 					url: d.independents.sounds[i].url,
 					graphName: d.independents.sounds[i].graphName,
-					gainName: d.independents.sounds[i].gainName
+					gainName: d.independents.sounds[i].gainName,
+					id: d.independents.sounds[i].id || null,
 				});
 
 			// load routes
@@ -280,7 +284,8 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 					tempo: d.independents.sequencers.soundPatterns[i].tempo,
 					bars: d.independents.sequencers.soundPatterns[i].bars,
 					steps: d.independents.sequencers.soundPatterns[i].steps,
-					tracks: d.independents.sequencers.soundPatterns[i].tracks
+					tracks: d.independents.sequencers.soundPatterns[i].tracks,
+					id: d.independents.sequencers.soundPatterns[i].id || null,
 				};
 				
 				new re_d.sequencer.SoundPattern(sp);
@@ -308,7 +313,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 
 	            if (config.loading && typeof config.loading === 'function') config.loading();
 
-	            	instances[$rootScope.username].env.context.decodeAudioData(request.response, 
+	            	instances[instanceNames[0]].env.context.decodeAudioData(request.response, 
 	            	function(buffer){
 
 	                loadedAssets[config.url] = buffer;
@@ -443,11 +448,21 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
             }
 		}
 		
+		var attachID = function (resource, doob) {
 
+			$http.get('/id').success(function(id){
+				doob.env.assets[resource.name].id = id;
+				doob.env.ids[id] = doob.env.assets[resource.name];
+				// console.log(self.env.assets[sound.name].id)
+				
+			}).error(function(data, status){
+				console.log(status);
+			});
+		}
         
 
     	function doob(name) {
-
+    		var self = this;
     		this.name = name;
     		this.isAlien = name == $rootScope.username ? false : true;
     		this.isBroadcasting = false;
@@ -459,6 +474,28 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     		this.audio = _audio(this.env, this.io);
     		this.effects = _effects(this.env, this.io);
     		this.sequencer = _sequencer(this.env, this.io, this.audio);
+
+    		this.sound = function(sound, pub) {
+    			
+    			sound = self.audio.Sound(sound, pub);
+    			if (!sound.id) attachID(self.env.assets[sound.name], self);
+    			
+    			return self.env.assets[sound.name];
+    		};
+
+    		this.soundPattern = function(sp, pub) {
+    			sp = self.sequencer.SoundPattern(sp, pub);
+    			if (!sp.id) attachID(self.env.assets[sp.name], self);
+
+    			return self.env.assets[sp.name];
+    		};
+
+    		this.effect = function(fx, pub) {
+    			fx = self.effects.Reverb(fx, pub);
+    			if (!fx.id) attachID(self.env.assets[fx.name], self);
+
+    			return self.env.assets[fx.name];
+    		};
 
     		// subscribe doobio to all events of this doob
     		for (var i in handlers) 
@@ -480,7 +517,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     		instanceNames.push(this.name);
     	}
 
-    	var instances = {}, instanceNames = [];
+    	
 
         // console.log();
 		

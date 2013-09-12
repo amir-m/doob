@@ -1,6 +1,6 @@
 
-<div class="well" style="overflow:hidden; overflow-x:auto;">	
-		<table class="table table-hover">
+<div class="well" style="overflow:hidden; overflow-x:auto; padding-bottom: 0;">	
+		<table class="table table-hover" style="margin-bottom:0; border-bottom: 1 solid rgb(221, 221, 211)">
 		<tbody>
 			<tr ng-repeat="patternSound in pattern.tracks" class="sound-pattern">
 				<td class="sound-name-borders">
@@ -25,6 +25,7 @@
 						<icon ng-class="{'icon-music': patternSound.pattern.indexOf($index + 1) != -1}" style="margin:0;"></icon>
 						</button>
 
+
 						<!-- <doob.pattern.note>
 						</doob.pattern.note> -->
 
@@ -33,4 +34,8 @@
 			</tr>
 		</tbody>
 	</table>
+	<span class="created-info">
+		<i class="icon-arrow-right"></i> Created at {{patternInfo.created | date: 'MMM d, h:mm a'}}
+	</span>
+				<span class="created-info"> <i class="icon-ok"></i>  Modified at {{patternInfo.updated | date: 'MMM d, h:mm a'}}</span>
 </div>

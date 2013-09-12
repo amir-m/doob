@@ -1,6 +1,6 @@
 define(['directives/directives'], function(directives){
 
-	directives.directive('doob.sound.pattern', function(){
+	directives.directive('doob.sound.pattern', ['doobio', function(doobio){
 	
 		return {
 	
@@ -8,11 +8,12 @@ define(['directives/directives'], function(directives){
 			// require: '^soundPatterns',
 			restrict: 'E',
 			replace: true,
-			scope: {
-				pattern: '=',
-				instanceName: '='
-			},
+			// scope: {
+			// 	pattern: '=',
+			// 	instanceName: '='
+			// },
 			link: function(scope, element, attrs) {
+				
 				scope.beats = function() {
 					return new Array(scope.pattern.steps);
 				}
@@ -23,7 +24,9 @@ define(['directives/directives'], function(directives){
 				}
 				scope.toggleNote = function(i, patternSound) {
 					
-					scope.pattern.toggleNote(i, patternSound, true);
+					scope.patternInfo.updated = new Date().getTime();
+					doobio.instances[scope.instanceName].env.assets[scope.pattern.name].toggleNote(i, patternSound, true);
+
 					// on = !on;
 					// scope.onOff = on ? onClass : offClass;
 					// scope.icon = on ? onIcon : offIcon;
@@ -37,5 +40,5 @@ define(['directives/directives'], function(directives){
 				// scope.patternSounds = scope.pattern.sounds;
 			}
 		}
-	});
+	}]);
 });

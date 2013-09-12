@@ -80,35 +80,58 @@
 									</b></a> 
 								</li>
 								<li>
-									<a><b>{{pattern.name}}</b></a> 
+									<a><b>{{patternInfo.name}}</b></a> 
 								</li>
 								<!-- <li>
+									{{pattern}}
 									<doob.sound.picker></doob.sound.picker>	
 								</li> -->
 								<li class="btn-toolbar" style="margin-top: 5px;">
 								  <div class="btn-group">
-									<button class="btn btn-small" ng-click="pattern.play()">
+									<button class="btn btn-small" ng-click="play(pattern)">
 										<icon class="icon-play"></icon>
 									</button>
-									<button class="btn btn-small" ng-click="pattern.stop()">
+									<button class="btn btn-small" ng-click="stop(pattern)">
 										<icon class="icon-stop"></icon>
 									</button>
-									<button tooltip="Loop!" class="btn btn-small" ng-click="pattern.play(1)">
+									<button tooltip="Loop!" class="btn btn-small" ng-click="play(pattern, 1)">
 										<icon class="icon-play-circle"></icon>
 									</button>
 								  </div>
 								</li>
-								<li >
+								<!-- <li >
 									<a class="pull-right" ng-click="">Save</a>
-								</li>
+								</li> -->
 							</ul>
 						</div>
 					</div>
 				</div>
-				<doob.sound.pattern instance-name="instanceName" pattern="pattern">
+				<doob.sound.pattern>
 				</doob.sound.pattern>
-				<!-- <span class="created-info"><i class="icon-arrow-right"></i> Created at {{me._patterns[pattern.id].created | date: 'MMM d, h:mm a'}}</span>
-				<span class="created-info"> <i class="icon-ok"></i>  Last updated at {{me._patterns[pattern.id].updated | date: 'MMM d, h:mm a'}}</span> -->
+				<div class="well">
+					<input type="text" style="width:100%; height: 40px" sp-comment placeholder="Comment..."><br>
+					<div ng-repeat="comment in patternInfo.comments | orderBy:'timestamp':true"">
+						<table style="width:100%">
+							<tr>
+								<td style="width:15%;">
+									<a href="#/users/{{comment.commenter}}">
+										<i class="icon-user" style="margin-top:2"></i>
+										<span style="padding-left:5">{{comment.commenter}}</span>
+									</a>
+								</td>
+								<td class="created-info" style="text-align:left; border-bottom:1px solid rgb(227, 227, 227);" rowspan="2" >
+									{{comment.comment}}
+								</td>
+								<!-- <td>{{comment}}</td> -->
+							</tr>
+							<tr style="width:100%;border-bottom:1px solid rgb(227, 227, 227)">
+								<td class="created-info">{{comment.timestamp | date: 'MMM d, h:mm a'}}</td>
+							</tr>
+						</table>
+					</div>
+						
+				</div>
+				
 				<!-- <a ng-bind="now() | date: 'MMM d, h:mm a'"> -->
 			</div>
 		</div>

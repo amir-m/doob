@@ -1,18 +1,34 @@
 define(['controllers/controllers'], function(controllers){
 	
-	controllers.controller('login-ctrl', ['$scope', '$location','auth', 
-	function ($scope, $location, auth) {
+	controllers.controller('login-ctrl', ['$scope', '$location','auth', '$rootScope', 
+	function ($scope, $location, auth, $rootScope) {
 
 		$scope.err = null;
 		$scope.lrm = true;
 		$scope.rrm = true;
 
 		$scope.$parent.navBar = 'invisible';
-		$scope.$parent.authenticate(function(err, username){
-			if (err) return;
+
+		if (!$rootScope.username) {
+
+			var promise = auth.authenticate();
+
+			promise.then(function(username){
+				if (err) return;
+				$location.path('/home');
+				$scope.$parent.navBar = 'visible';
+			});
+			
+		}
+		else {
 			$location.path('/home');
-			$scope.$parent.navBar = 'visible';
-		}) 
+			$scope.$parent.navBar = 'visible';	
+		}
+		// $scope.$parent.authenticate(function(err, username){
+		// 	if (err) return;
+		// 	$location.path('/home');
+		// 	$scope.$parent.navBar = 'visible';
+		// }) 
 
 		$scope.login = function(){
 			auth.login($scope.lu, $scope.lp, $scope.lrm, function(status){

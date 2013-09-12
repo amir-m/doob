@@ -2,17 +2,19 @@
 
 	<head>
     <meta name="fragment" content="!" />
-		<link rel="stylesheet" type="text/css" href="/public/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="/public/css/style.css">
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- 
+    <script src="http://localhost:8080/socket.io/socket.io.js"></script>
+     -->
     <script data-main="/public/js/main" src="/public/js/lib/require.js"></script>
+    <link rel="stylesheet" type="text/css" href="/public/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/style.css">
     <title>(((doob)))</title>
 	</head>
 
 	<body pinger ng-controller="home-ctrl">
     <span pinger></span>
 
-    <div class="navbar navbar-fixed-top" ng-class="navBar">
+    <div class="navbar navbar-fixed-top" ng-class="navBar" style="display:none;" id="topnav">
       <div class="navbar-inner">
         <div class="container">
           <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">

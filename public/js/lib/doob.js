@@ -6,7 +6,7 @@ define([''], function(){
             audio: {
                 'new:aduio:Sound': function(ev, sound, pub){
 
-                    if (!sound) throw 'bad event!!!';
+                    if (!sound) return console.log('bad event!!!');
 
                     // var ex = sound.exportable();
                     // var path = ex.path;
@@ -18,7 +18,8 @@ define([''], function(){
                             name: sound.name,
                             url: sound.url,
                             graphName: sound.graph.name,
-                            gainName: sound.gain.name
+                            gainName: sound.gain.name,
+                            id: sound.id
                         }
                         self.sounds.push(sound.name);
                     }
@@ -359,6 +360,7 @@ define([''], function(){
         this.assetsToJSON = {};
         this.dummyNodes = {};
         this.dummySounds = {};
+        this.ids = {};
         this.soundPatterns = {};
         this.graphs = []; 
         this.chains = [];

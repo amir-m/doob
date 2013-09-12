@@ -20,8 +20,8 @@ module.exports = function(mongoose, models, async) {
 			userid: String,
 			timestamp: {type: String, default: new Date().getTime()}
 		},
-		content: {}
-
+		content: {},
+		comments: []
 	});
 
 	SoundPatternSchema.add({ active: Boolean });
@@ -61,6 +61,7 @@ module.exports = function(mongoose, models, async) {
 				bars: pattern.bars,
 				tracks: pattern.tracks
 			},
+			comments: []
 		});
 
 		async.waterfall([

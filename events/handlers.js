@@ -1,5 +1,8 @@
 module.exports = function(io, socket, session, store, models) {
 
+/**
+* handleres files!
+*/
 
   // var follow = function(toBefolloewd, followingBy){
   //   models.User.follower(toBefolloewd, followingBy, function(res){
@@ -217,8 +220,20 @@ module.exports = function(io, socket, session, store, models) {
     });
   };
 
-  models.User.User.update({_id: session.uid}, {$inc: {soundPatterns: -1}});
+  var newSoundPatternComment = function(data) {
+    // console.log(data)
+    models.projects.SoundPattern.update({_id: data.patternId}, {$push: {
+      comments: {
+        timestamp: data.timestamp,
+        commenter: data.commenter,
+        comment: data.comment
+      }
+    }}, function(error){
+      if (error) console.log(error);
+      console.log('finissssssh')
+    });
 
+  };
 
   return {
     'disconnect': disconnect,
@@ -233,6 +248,7 @@ module.exports = function(io, socket, session, store, models) {
     'update:sequencer:SoundPattern:removeTrack': forward,
     'new:sequencer:SoundPattern': saveSP,
     'fetch:SoundPatterns:request': fetchSoundPatterns,
-    'remove:sequencer:SoundPattern': removeSoundPattern
+    'remove:sequencer:SoundPattern': removeSoundPattern,
+    'new:soundPattern:comment': newSoundPatternComment
   };
 };

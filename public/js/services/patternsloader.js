@@ -7,7 +7,6 @@ define(['services/services'], function(services){
 			var delay = $q.defer(), user = $route.current.params.user || $rootScope.username;			
 
 			// if (doobio.instances[user]) delay.resolve(doobio.)
-
 			$http.get('/pattern/' + user)
 			.success(function(patterns) {
 
@@ -39,7 +38,7 @@ define(['services/services'], function(services){
 						new doobio.instances[patterns[i].username].sequencer.SoundPattern(p, false);
 
 				}	
-
+				
 				delay.resolve(patterns);
 			}).error(function(err) {
 				delay.reject(err);

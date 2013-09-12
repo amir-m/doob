@@ -1,5 +1,9 @@
 module.exports = function(app) {
 
+/**
+* invites modules!
+*/
+
 	var smtpTransport = require('nodemailer').createTransport("SMTP",{
 	   service: "Zoho",
 	   auth: {
