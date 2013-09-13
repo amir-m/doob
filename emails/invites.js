@@ -25,8 +25,8 @@ module.exports = function(app) {
 	//    }
 	// });
 
-	app.render('sendinvite', {from: 'Amir', to: 'Friend'}, function(error, html){
-		mailOptions['html'] = html;
+	// app.render('sendinvite', {from: 'Amir', to: 'Friend'}, function(error, html){
+	// 	mailOptions['html'] = html;
 		// smtpTransport.sendMail(mailOptions, function(error, response){
 		//    if(error){
 		//        console.log(error);
@@ -34,8 +34,8 @@ module.exports = function(app) {
 		//        console.log("Message sent: " + response.message);
 		//    }
 		// });
-	console.log(html)
-	});
+	// console.log(html)
+	// });
 	
 	var send = function(_from, _to, _email) {
 		var mailOptions = {

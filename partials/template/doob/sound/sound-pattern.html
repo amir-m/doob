@@ -22,7 +22,7 @@
 						<button 
 						ng-class="{'btn btn-small btn-success': patternSound.pattern.indexOf($index + 1) != -1, 'btn btn-small': true }"
 						ng-click="toggleNote($index + 1, patternSound)" style="border-radius:0; height:18; width: 18; padding:0;margin:0;">
-						<icon ng-class="{'icon-music': patternSound.pattern.indexOf($index + 1) != -1}" style="margin:0;"></icon>
+						<icon ng-class="{'icon-note': patternSound.pattern.indexOf($index + 1) != -1}" style="margin:0;"></icon>
 						</button>
 
 
@@ -35,7 +35,7 @@
 		</tbody>
 	</table>
 	<span class="created-info">
-		<i class="icon-arrow-right"></i> Created at {{patternInfo.created | date: 'MMM d, h:mm a'}}
+		<i class="icon-cog-alt"></i> Created at {{patternInfo.created | date: 'MMM d, h:mm a'}}
 	</span>
-				<span class="created-info"> <i class="icon-ok"></i>  Modified at {{patternInfo.updated | date: 'MMM d, h:mm a'}}</span>
+				<span class="created-info"> <i class="icon-cog"></i>  Modified at {{patternInfo.updated | date: 'MMM d, h:mm a'}}</span>
 </div>

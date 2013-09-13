@@ -2,8 +2,8 @@ define(['controllers/controllers'],
 	function(controllers){
 
 		controllers.controller('AppCtrl', ['$scope', '$location', '$rootScope', 'auth', 
-			'$http','socket', '$timeout',
-			function ($scope, $location, $rootScope, auth, $http, socket, $timeout) {
+			'$http','socket', '$timeout', '$q', 
+			function ($scope, $location, $rootScope, auth, $http, socket, $timeout, $q) {
 
 				$rootScope.$on('$routeChangeError', function(event, current, previous, rejection){
 					$("#btmloaderimg").hide();
@@ -40,6 +40,8 @@ define(['controllers/controllers'],
 				$scope.searchUsers = [];
 				$scope.searchSP = [];
 				$scope.isBroadcasting = false;
+				$scope.loadedSoundCategoryList = null;
+				$scope.categoryListBindToSound = [];
 				// $scope.notificationMessage = "";
 
 
@@ -92,6 +94,44 @@ define(['controllers/controllers'],
 				$scope.logout = function(){
 					auth.logout(this);
 					$scope.isBroadcasting = false;
+				}
+
+				$scope.loadSoundCategoryList = function() {
+
+					var delay = $q.defer()
+
+					if ($scope.loadedSoundCategoryList && $scope.categoryListBindToSound) {
+						delay.resolve([$scope.loadedSoundCategoryList, $scope.categoryListBindToSound]);
+					}
+					else {
+
+						$http.get('/sounds').success(function(data, status) {
+
+							$scope.loadedSoundCategoryList = [];
+							
+							for (var i in data) {
+								if (data[i].category != 'impulses') {
+									$scope.loadedSoundCategoryList.push(data[i].category);
+									$scope.categoryListBindToSound[i] = [];
+									// scope.categoryListBindToSound[data[i].category] = data[i].sounds;
+									// scope.categoryListBindToSound.push(data[i].sounds.name);
+								// scope.loadedList[i] = true;
+								for (var j = 0; j < data[i].sounds.length; ++j)
+									$scope.categoryListBindToSound[i].push(data[i].sounds[j]);
+								}
+							}
+
+							// console.log($scope.categoryListBindToSound)
+							delay.resolve([$scope.loadedSoundCategoryList, $scope.categoryListBindToSound]);
+						}).error(function(data, status) {
+							console.log(data);
+							delay.reject();
+						});					
+					}
+
+
+					return delay.promise;
+					// return $scope.loadedSoundCategoryList;
 				}
 
 

@@ -1,5 +1,7 @@
 module.exports = function(routes, app){
 
+	app.get('/public/font/*', routes.index.font);
+
 	app.get('/public/*', routes.index.public);
 
 	app.get('/template/*', routes.index.template);

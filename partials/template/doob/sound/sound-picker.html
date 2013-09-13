@@ -2,14 +2,14 @@
 	
 	<button   
 	class="btn btn-small dropdown-toggle" ng-click="loadedSounds()">
-		<icon class="icon-plus"></icon>
+		<icon class="icon-plus-circled" style="font-size:15"></icon>
 	</button>
 
 	<ul class="dropdown-menu" style="max-height: 200px;">
 		
 		<li>
 			<a stop-event='click' ng-click="load()">
-				<icon class="icon-download-alt"></icon> Load...
+				<icon class="icon-download"></icon> Load...
 			</a>
 		</li>
 		
@@ -21,12 +21,12 @@
 				<ul class="dropdown-menu" style="max-height: 200px; overflow-y:auto;">
 					<li ng-repeat="soundObject in soundObjects[$index]">
 						<a style="cursor: default" stop-event="click">
-							<span class="close" stop-event="click"  
+							<span class="close" stop-event="click" style="font-size:20" 
 							ng-click="play($parent.$index, $index)"> 
-								<icon class="icon-volume-down" >
+								<icon class="icon-listen" style="font-size:20">
 								</icon>
 							</span>
-							<i style="cursor: pointer; margin-top:1px" class="icon-plus" tooltip="Add Me!"
+							<i style="cursor: pointer; margin-top:1px" class="icon-plus-circled" tooltip="Add Me!"
 							tooltip-placement="right" ng-click="addSound(sound, $index)" >
 							</i>
 							{{soundObject}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

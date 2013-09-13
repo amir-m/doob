@@ -51,12 +51,12 @@
 					<!-- <button class="btn btn-block"></button> -->
 
 					<button class="btn btn-block" style="margin:0;padding-right:0;padding-left:0;" ng-class="{'btn-success':iSubscribe(user.username),' btn-warning':!iSubscribe(user.username)}" ng-click="subscribeTo(user)">
-                        <i ng-class='{"icon-eye-open": iSubscribe(user.username), "icon-eye-close": !iSubscribe(user.username)}'></i> 
+                        <i ng-class='{"icon-eye": iSubscribe(user.username), "icon-eye-off": !iSubscribe(user.username)}'></i> 
                         {{subscribeButtonText(user.username)}}
                     </button>
 
 					<button class="btn btn-block" style="margin:0;padding-right:0;padding-left:0;" ng-class="{'btn-success':iFollow(user.username),' btn-warning':!iFollow(user.username)}" ng-click="followUser(user)">
-                        <i ng-class='{"icon-ok": iFollow(user.username), "icon-user": !iFollow(user.username)}'></i> 
+                        <i ng-class='{"icon-group": iFollow(user.username), "icon-user": !iFollow(user.username)}'></i> 
                         {{followButtonText(user.username)}}
                     </button>
 

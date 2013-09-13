@@ -9,6 +9,30 @@ module.exports = function(models, sessionMaxAge, async){
 		// res.render('sendinvite', {from: 'Amir', to: 'Ghasem'});
 	};
 
+	var font = function(req, res, next){
+		var ext = req.params[0].split(".")[1];
+
+		switch (ext) {
+			case 'eot': 
+				res.set({'Content-type': 'application/vnd.ms-fontobject'})
+				break;
+
+			// case 'woff': 
+			// 	res.set({'Content-type': 'application/x-font-woff'})
+			// 	break;
+
+			// case 'ttf': 
+			// 	res.set({'Content-type': 'application/x-font-ttf'})
+			// 	break;
+
+			// case 'svg': 
+			// 	res.set({'Content-type': 'application/svg+xml'})
+			// 	break;
+		}
+
+		res.sendfile('public/font/'+req.params[0]);
+	};
+
 	var public = function(req, res, next){
 		res.sendfile('public/'+req.params[0]);
 	};
@@ -126,6 +150,7 @@ module.exports = function(models, sessionMaxAge, async){
 
 	return {
 		index: index,
+		font: font,
 		public: public,
 		template: template,
 		partials: partials,

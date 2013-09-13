@@ -27,12 +27,12 @@
             <ul class="nav">
               <li>
                 <a>
-                  <i class="icon-bell" style="margin-top:2"></i>
+                  <i class="icon-bell" style="top:2"></i>
                 </a>
               </li>
               <li>
                 <a>
-                  <i class="icon-envelope" style="margin-top:2"></i>
+                  <i class="icon-mail" style="top:2"></i>
                 </a>
               </li>
 
@@ -69,7 +69,7 @@
                     
                       <li style="font-size:12px" ng-show="searchUsers.length == 0 && searchSP.length == 0">No results found!</li>
                       <li ng-repeat="sp in searchSP">
-                        <i class="icon-music" style="margin-top:2"></i>
+                        <i class="icon-note-beamed" style="margin-top:2"></i>
                         <b>
                           <a ng-click="gotoSP(sp.username, sp._id)">{{sp.name}}
                           </a></b>
@@ -116,20 +116,21 @@
                     <a ng-click="broadcast()">
                       <span ng-show="isBroadcasting">Stop </span>
                       <span>Broadcast</span> 
-                      <icon ng-show="isBroadcasting" class="icon-globe pull-right">
+                      <icon ng-show="isBroadcasting" class="icon-rss-1 pull-right" 
+                      style="position: absolute;right: 10%;top: 12;">
                       </icon>
                     </a>
                   </li>
                   <li class="divider"></li>
                   <li>
                     <a ng-mouseover="">Settings 
-                      <icon class="icon-wrench pull-right">
+                      <icon class="icon-cog pull-right" style="right: 10%;top: 6;">
                       </icon>
                     </a>
                   </li>
                   <li ng-show="subscriberCount > 0">
                     <a ng-mouseover="">{{subscriberCount}} Subsribers 
-                      <icon class="icon-eye-open pull-right">
+                      <icon class="icon-eye pull-right">
                       </icon>
                     </a>
                   </li>
@@ -137,7 +138,7 @@
                 </ul>
               </li>
               <li ng-show="isBroadcasting">
-                <i class="icon-globe pull-right" style="margin-top: 14px; padding-right:10px; cursor: pointer" 
+                <i class="icon-rss-1 pull-right" style="margin-top: 14px; padding-right:10px; cursor: pointer" 
                 tooltip-placement="bottom" tooltip="You're now broadcasting. Click to stop."
                 ng-click="broadcast()">
                 </i>
@@ -148,7 +149,7 @@
                 </i>
               </li> -->
               <li ng-show="!isConnected">
-                <i class="icon-warning-sign pull-right" style="margin-top: 14px;" 
+                <i class="icon-attention pull-right" style="margin-top: 14px;color:red" 
                 tooltip="Connection error!" tooltip-placement="left">
                 </i>
               </li>
