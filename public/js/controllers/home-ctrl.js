@@ -12,24 +12,29 @@ function(controllers){
 		$scope.navBar = 'visible';
 		$scope.isBroadcasting = false;
 		$scope.invitationEmail = '';
+		// $scope.me = null;
 		// $scope.searchUsers = [];
 		// $scope.searchSP = [];
 
 		$scope.loadedSoundCategoryList = null;
 		$scope.categoryListBindToSound = [];
 		
+		var p = auth.authenticate();
 
-
-
-		// var f = {
-		// 	username: 1,
-		// 	activities: 1,
-		// 	followers: 1,
-		// 	following: 1,
-		// 	projects: 1,
-		// 	soundPatterns: 1,
-		// 	invitations: 1
-		// };
+		p.then(function(){
+			console.log('authenticated... home');
+			if (!$scope.me) {
+			var load = $scope.promiseTofullyLoad();
+			load.then(function(){
+				console.log('loaded... home');
+				
+			}, function(){});
+			
+			} 
+		}, function(){
+			console.log('authentication failed... home');
+			$location.path('/login');
+		});
 		
 		$scope.promiseTofullyLoad = function() {
 			
@@ -40,7 +45,7 @@ function(controllers){
 			var me = auth.me();
 
 			me.then(function(data){
-				// console.log(data)
+				console.log(data)
 				$rootScope.username = data.username;
 				if (!doobio.get($rootScope.username) && $rootScope.username) {
 					doobio.create($rootScope.username);
@@ -113,14 +118,7 @@ function(controllers){
 			return fullyLoad.promise;
 		}; 
 
-		if (!$scope.me) {
-			var load = $scope.promiseTofullyLoad();
-			load.then(function(){
-				console.log('loaded...')
-				
-			}, function(){});
-			
-		} 
+		
 
 		// $scope.authenticate = function(callback) {
 

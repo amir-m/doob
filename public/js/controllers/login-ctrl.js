@@ -8,22 +8,15 @@ define(['controllers/controllers'], function(controllers){
 		$scope.rrm = true;
 
 		$scope.$parent.navBar = 'invisible';
+		
+		var promise = auth.authenticate();	
 
-		if (!$rootScope.username) {
-
-			var promise = auth.authenticate();
-
-			promise.then(function(username){
-				if (err) return;
-				$location.path('/home');
-				$scope.$parent.navBar = 'visible';
-			});
-			
-		}
-		else {
+		promise.then(function(username){
+			// $rootScope.username = username;
 			$location.path('/home');
-			$scope.$parent.navBar = 'visible';	
-		}
+			$scope.$parent.navBar = 'visible';
+		});
+
 		// $scope.$parent.authenticate(function(err, username){
 		// 	if (err) return;
 		// 	$location.path('/home');

@@ -88,7 +88,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		            		if (!user || !user.username) res.send(401);
 
 		            		// Scenario 2. 1.a.i.4.c	
-		            		
+
 		            		req.session.uid = result.uid;
 		            		req.session.username = user.username;
 
@@ -399,13 +399,9 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 		res.set('Content-Type', 'application/json');
 
-		var c = 0, f = {};
+		
 
-		for (var i in req.query) {
-			++c;
-			// if (c > 0) break;
-			if (i != 'password' && i != '_id') f[i] = req.query[i];
-		}
+		// console.log(req.query)
 				
 		// no parameter: the user only need username
 		// if (c == 0) {
@@ -415,7 +411,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 
 
-		models.User.me(req.session.uid, requestor, f, function(error, _me){
+		models.User.me(req.session.uid, requestor, req.query, function(error, _me){
 
 			if (error) return res.send(error);
 

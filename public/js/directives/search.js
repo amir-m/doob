@@ -11,11 +11,11 @@ define(['directives/directives'], function(directives){
                 scope.searchUsers = [];
                 scope.searchSP = [];
 
-                var promise = scope.promiseTofullyLoad();
+                // var promise = scope.promiseTofullyLoad();
 
-                promise.then(fullyLoaded, function(error){
-                    console.log(error);
-                });
+                // promise.then(fullyLoaded, function(error){
+                //     console.log(error);
+                // });
                 
                 element.bind('focus', function (e) {
 
@@ -26,6 +26,8 @@ define(['directives/directives'], function(directives){
                     scope.searchSP = [];
                     
                 });
+
+                fullyLoaded();
 
                 $('#barloader').show();
 

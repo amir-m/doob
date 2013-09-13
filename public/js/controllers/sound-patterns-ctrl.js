@@ -2,11 +2,28 @@ define(['controllers/controllers'],
 function(controllers){
 	
 	controllers.controller('sound-patterns-ctrl', [
-				 '$scope', '$rootScope', 'doobio', 'patterns', '$routeParams', 'PatternLoader', '$location', 
-		function ($scope, $rootScope, doobio, patterns, $routeParams, PatternLoader, $location) { //, loaded) {
+				 '$scope', '$rootScope', 'doobio', 'patterns', '$routeParams', 'PatternLoader', '$location', 'auth',
+		function ($scope, $rootScope, doobio, patterns, $routeParams, PatternLoader, $location, auth) { //, loaded) {
 		
+		var p = auth.authenticate();
 
-		$scope.patterns = $scope.patterns || patterns;
+		p.then(function(){
+			console.log('authenticated... sp %s', $rootScope.username);
+			$scope.patterns = $scope.patterns || patterns;
+			
+			for (var i in patterns) {
+				$scope.mappings[patterns[i]._id] = patterns[i];
+				
+				if (doobio.instanceNames.indexOf($rootScope.username) == -1)
+					doobio.create($rootScope.username);
+
+				$scope.sounds = doobio.get($rootScope.username) ? doobio.get($rootScope.username).sounds : null;
+			}
+		}, function(){
+			console.log('authentication failded... sp');
+			$location.path('/login');
+		});
+
 
 		var p = {}, found = false;
 		$scope.instanceName = null;
@@ -83,10 +100,7 @@ function(controllers){
 
 		// }		
 
-		if (doobio.instanceNames.indexOf($rootScope.username) == -1)
-			doobio.create($rootScope.username);
-
-		$scope.sounds = doobio.get($rootScope.username) ? doobio.get($rootScope.username).sounds : null;
+		
 
 		$scope.addSoundToPattern = function(sound, soundInstanceName) {
 			

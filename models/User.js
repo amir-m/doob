@@ -212,7 +212,17 @@ module.exports = function(mongoose, async, logins, models) {
 
 		if (!callback) return;
 
-		fields['password'] = 0;
+		// fields['password'] = 0;
+
+		var c = 0, f = {};
+
+		for (var i in fields) {
+			++c;
+			// if (c > 0) break;
+			if (i != 'password' && i != '_id') f[i] = req.query[i];
+		}
+
+		if (c == 0) fields['password'] = 0;
 
 		User.findById({_id: id}, fields, function(err, user){
 

@@ -81,7 +81,15 @@ require([
 		    	templateUrl: 'partials/register.html', 
 		    	controller: 'register-ctrl'
 		    })
-		    .when('/sound-patterns/:user', {
+		    .when('/sound-patterns', {
+		    	templateUrl: 'partials/sound-patterns.html', 
+		    	controller: 'sound-patterns-ctrl',
+		    	resolve: {
+		    		patterns: ['PatternsLoader', function(PatternsLoader){
+		    			return PatternsLoader();
+		    		}]
+		    	}
+		    }).when('/sound-patterns/:user', {
 		    	templateUrl: 'partials/sound-patterns.html', 
 		    	controller: 'sound-patterns-ctrl',
 		    	resolve: {
@@ -127,7 +135,7 @@ require([
 				}
 			})
 			// when('/register', {templateUrl: 'views/register.html', controller: RegisterCtrl}).
-			.otherwise({redirectTo: '/login'});
+			.otherwise({redirectTo: '/home'});
 
 		 //    $httpProvider.defaults.useXDomain = true;
 			// delete $httpProvider.defaults.headers.common['X-Requested-With'];

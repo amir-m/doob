@@ -37,7 +37,10 @@ define(['services/services'], function(services){
 
 		    	$http.post('/login').success(function(res, status) {
 
-		    		delay.resolve(res.username);
+		    		if (res.username) delay.resolve(res.username);
+		    		else delay.resolve();
+
+		    		
 
 		    	}).error(function(error, status){
 		    		delay.reject();
@@ -49,6 +52,8 @@ define(['services/services'], function(services){
 		    var authenticate = function() {
 
 		    	var delay = $q.defer();
+
+		    	if ($rootScope.username) delay.resolve($rootScope.username)
 
 		   		$http.get('/ping').success(function() {
 
@@ -80,7 +85,7 @@ define(['services/services'], function(services){
 			   			$rootScope.username = null;
 			   			$cookies.username = null;
 
-		   				if ($cookies.s) {
+		   				// if ($cookies.s) {
 		   					
 			   				var promise = _login();
 
@@ -96,11 +101,11 @@ define(['services/services'], function(services){
 								// $location.path('/login');
 								delay.reject();
 			   				});
-		   				}
-		   				else {
+		   				// }
+		   				// else {
 		   					// $location.path('/login');
 		   					delay.reject();
-		   				}
+		   				// }
 		   			}
 		   		});
 
