@@ -43,7 +43,9 @@ var SessionSockets = require('session.socket.io');
 // var nodemailer = require('nodemailer');
 var async = require('async');
 var useragent = require('express-useragent');
-//                  m  * s  *  ms
+//                  m  * s  * ms
+// var sessionMaxAge = 00 * 00 * 1000;
+//                  m  * s  * ms
 var sessionMaxAge = 20 * 60 * 1000;
 //                 m * d  * h  * m  * s  * ms    
 var cookieMaxAge = 1 * 30 * 24 * 60 * 60 * 1000;

@@ -24,7 +24,7 @@ module.exports = function(models, sessionMaxAge, async){
 	// Scenario 1.
 	var ping = function(req, res, next){
 
-		console.log(req.session)
+		// console.log(req.session)
 		
 		// Scenario 1. 1
 		if (req.session && req.session.uid && req.session.username) {

@@ -1,15 +1,47 @@
 define(['controllers/controllers'], 
 	function(controllers){
 
-		controllers.controller('ctrl', ['$scope', '$location', '$rootScope', 'auth', '$http','socket',
-			function ($scope, $location, $rootScope, auth, $http, socket) {
-				$scope.searchUsers = [];
-				$scope.searchSP = [];
-				$scope.isBroadcasting = false;
+		controllers.controller('AppCtrl', ['$scope', '$location', '$rootScope', 'auth', 
+			'$http','socket', '$timeout',
+			function ($scope, $location, $rootScope, auth, $http, socket, $timeout) {
+
+				$rootScope.$on('$routeChangeError', function(event, current, previous, rejection){
+					$("#btmloaderimg").hide();
+					$("#btmerrmsg").show();
+					$scope.notificationMessage = rejection;
+				});
+
+				$rootScope.$on('$routeChangeStart', function(event, current, previous, rejection){
+					$("#btmerrmsg").hide();
+					$("#btmloaderimg").show();
+				});
+
+				$rootScope.$on('error:message', function(event, message){
+					$scope.notificationMessage = message;
+					$("#btmscsmsg").hide();
+					$("#btmerrmsg").show();
+					$("#btmloaderimg").hide();
+				});
+				$rootScope.$on('success:message', function(event, message){
+					$scope.notificationMessage = message;
+					$("#btmscsmsg").show();
+					$("#btmerrmsg").hide();
+					$("#btmloaderimg").hide();
+
+					$timeout(function(){
+						$("#btmscsmsg").fadeOut();
+					}, 5000);
+				});
 
 				$scope.$on('me:done', function(ev, me){
 					$scope.me = me;
 				});
+
+				$scope.searchUsers = [];
+				$scope.searchSP = [];
+				$scope.isBroadcasting = false;
+				// $scope.notificationMessage = "";
+
 
 				$scope.gotoUser = function(name) {
 					$location.path('/users/'+name);

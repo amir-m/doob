@@ -72,21 +72,25 @@ require([
 		  $routeProvider.
 		    when('/login', {
 		    	templateUrl: 'partials/login.html', 
-		    	controller: 'login-ctrl',
-		    	resolve: function($rootScope, $location) {
-		    		$scope.navBarClass('invisible');
-		    		if ($rootScope.username) {
-		    			$location.path('/home');
-		    		}
+		    	controller: 'LoginCtrl',
+		    	resolve: {
+		    		authenticate: function($rootScope, $location, auth) {
+			    	
+			    		var promise = auth.authenticate();	
+
+			    		promise.then(function(){
+							$location.path('/home');
+						});
+			    	}
 		    	}
 		  	})  
 		    .when('/register', {
 		    	templateUrl: 'partials/register.html', 
-		    	controller: 'register-ctrl'
+		    	controller: 'RegisterCtrl'
 		    })
 		    .when('/sound-patterns', {
 		    	templateUrl: 'partials/sound-patterns.html', 
-		    	controller: 'sound-patterns-ctrl',
+		    	controller: 'SoundPatternsCtrl',
 		    	resolve: {
 		    		patterns: ['PatternsLoader', function(PatternsLoader){
 		    			return PatternsLoader();
@@ -94,7 +98,7 @@ require([
 		    	}
 		    }).when('/sound-patterns/:user', {
 		    	templateUrl: 'partials/sound-patterns.html', 
-		    	controller: 'sound-patterns-ctrl',
+		    	controller: 'SoundPatternsCtrl',
 		    	resolve: {
 		    		patterns: ['PatternsLoader', function(PatternsLoader){
 		    			return PatternsLoader();
@@ -103,7 +107,7 @@ require([
 		    })
 		    .when('/sound-patterns/:user/:id', {
 		    	templateUrl: 'partials/sound-patterns.html', 
-		    	controller: 'sound-patterns-ctrl',
+		    	controller: 'SoundPatternsCtrl',
 		    	resolve: {
 		    		patterns: ['PatternsLoader', function(PatternsLoader){
 		    			return PatternsLoader();
@@ -112,7 +116,7 @@ require([
 		    })
 			.when('/home', {
 				templateUrl: 'partials/me.html',
-				controller: 'home-ctrl', 
+				controller: 'HomeCtrl', 
 				resolve: {
 					myinfoz: ['me', function(me) {
 						return me();
@@ -121,7 +125,7 @@ require([
 			})
 			.when('/users/:user', {
 				templateUrl: 'partials/user.html', 
-				controller: 'user-ctrl', 
+				controller: 'UserCtrl', 
 				resolve: {
 					myinfoz: ['me', function(me) {
 						return me();
@@ -131,19 +135,12 @@ require([
 					}]
 				}
 			})
-			// when('/register', {templateUrl: 'views/register.html', controller: RegisterCtrl}).
 			.otherwise({redirectTo: '/home'});
-
-		 //    $httpProvider.defaults.useXDomain = true;
-			// delete $httpProvider.defaults.headers.common['X-Requested-With'];
 
 		}]);
 
 		app.run(['$window', 'auth', '$location', 'socket', 'doobio', '$rootScope',function($window, auth, 
 			$location, socket, doobio, $rootScope){
-
-			// $rootScope.isConnected = false;
-			// $rootScope.isDisconnected = true;
 
 			$window.addEventListener("beforeunload", function (e) {
 			  if ($rootScope.username && doobio.instances[$rootScope.username] && doobio.instances[$rootScope.username].isBroadcasting) {
@@ -151,22 +148,10 @@ require([
 					broadcaster: $rootScope.username,
 					event: 'user:broadcast:stop'
 				});
-				doobio.instances[$rootScope.username].isBroadcasting = false;
 			  }
 			  // auth.destroy();
 			});
 
-			// var promise = auth.authenticate();
-
-			// function success(){
-
-			// }
-
-			// function failure () {
-			// 	$location.path('/login');
-			// }
-
-			// promise.then(success, failure);
 
 		}]);
 
@@ -174,11 +159,6 @@ require([
       		angular.bootstrap(document, ['hm']);
 
       		$('html').addClass('ng-app: hm');
-      		// document.getElementsByTagName( 'html' )[0].setAttribute( "class", "ng-app: hm" );
       	});
 	}
 );
-require(['app'], function(boot){
-		// console.log(boot)
-	
-})

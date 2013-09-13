@@ -11,10 +11,10 @@
     <title>(((doob)))</title>
 	</head>
 
-	<body pinger ng-controller="ctrl">
+	<body pinger ng-controller="AppCtrl">
     <span pinger></span>
 
-    <div class="navbar navbar-fixed-top" ng-class="navBar" style="display:none;" id="topnav">
+    <div class="navbar navbar-fixed-top" style="display:none;" id="topnav">
       <div class="navbar-inner">
         <div class="container">
           <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -168,7 +168,18 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-        <a class="brand">doob.io</a>
+        <a class="brand" href="#/home">doob.io</a>
+        <ul class="nav">
+          <li id="btmloaderimg" style="display:none; position:fixed">
+            <a>
+              <img src="/public/img/loader.gif">
+            </a>
+          </li>
+          <li class="alert alert-error" id="btmerrmsg" style="display:none; position:fixed;position: fixed;margin: 0;padding-bottom: 100%;border-radius: 0;width: 100%;"><b>Oh snap! </b>{{notificationMessage}}
+          </li>
+          <li class="alert alert-success" id="btmscsmsg" style="display:none; position:fixed;position: fixed;margin: 0;padding-bottom: 100%;border-radius: 0;width: 100%;"><b>{{notificationMessage}}</b>
+          </li>
+        </ul>
       </div>
     </div>
 

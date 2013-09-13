@@ -1,39 +1,25 @@
 define(['controllers/controllers'], function(controllers){
 	
-	controllers.controller('login-ctrl', ['$scope', '$location','auth', '$rootScope', 
-	function ($scope, $location, auth, $rootScope) {
+	controllers.controller('LoginCtrl', ['$scope', '$location','auth', '$rootScope', 'authenticate', 
+	function ($scope, $location, auth, $rootScope, authenticate) {
 
 		$scope.err = null;
 		$scope.lrm = true;
 		$scope.rrm = true;
 
-		$scope.$parent.navBar = 'invisible';
+		$("#btmloaderimg").hide();
+		$("#btmerrmsg").hide();
+		$("#topnav").hide();
 		
-		var promise = auth.authenticate();	
-
-		promise.then(function(username){
-			// $rootScope.username = username;
-			$location.path('/home');
-			$scope.$parent.navBar = 'visible';
-		});
-
-		// $scope.$parent.authenticate(function(err, username){
-		// 	if (err) return;
-		// 	$location.path('/home');
-		// 	$scope.$parent.navBar = 'visible';
-		// }) 
 
 		$scope.login = function(){
-			auth.login($scope.lu, $scope.lp, $scope.lrm, function(status){
-				if (status == 401) $scope.err = 'Invalid username or password';
-				else if (status == 200) $scope.$parent.navBar = 'visible';
-			});
-			return false;
-		};
+			var promise = auth.login($scope.lu, $scope.lp, $scope.lrm);	
 
-		$scope.register = function(){
-			auth.register($scope.ru, $scope.rp, $scope.rrm, function(status){
-				if (status == 400) $scope.err = 'Bad registration request';
+			promise.then(function(username){
+				$location.path('/home');
+				$scope.$emit("success:message", 'Welcome back ' + $rootScope.username + '!');
+			}, function(){
+				$scope.$emit("error:message", 'Invalid username or password!');
 			});
 			return false;
 		};

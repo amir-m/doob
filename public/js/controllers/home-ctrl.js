@@ -1,7 +1,7 @@
 define(['controllers/controllers'], 
 function(controllers) {
 	
-	controllers.controller('home-ctrl', ['$scope', '$location', '$rootScope', 'auth', 
+	controllers.controller('HomeCtrl', ['$scope', '$location', '$rootScope', 'auth', 
 		'socket', 'doobio', '$http', '$cookies', '$q', 'myinfoz',
 		function ($scope, $location, $rootScope, auth, 
 			socket, doobio, $http, $cookies, $q, myinfoz) {
@@ -9,6 +9,10 @@ function(controllers) {
 		$scope.me = myinfoz;
 
 		$scope.$emit('me:done', $scope.me);
+
+		$("#topnav").slideDown(200);
+		$("#btmerrmsg").hide();
+		$("#btmloaderimg").hide();	
 
 		$scope.navBar = 'visible';
 		$scope.isBroadcasting = false;

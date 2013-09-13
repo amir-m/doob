@@ -1,16 +1,42 @@
 define(['services/services'], function(services){
 	
-	services.factory('PatternsLoader', ['$http', '$q', '$route', '$rootScope', 'doobio',
-		function ($http, $q, $route, $rootScope, doobio) {
+	services.factory('PatternsLoader', ['$http', '$q', '$route', '$rootScope', 
+		'doobio', 'auth', '$location',
+		function ($http, $q, $route, $rootScope, doobio, auth, $location) {
 		return function() {
 			
-			var delay = $q.defer(), user = $route.current.params.user || $rootScope.username;			
+			var delay = $q.defer(), user; 
 
-			// if (doobio.instances[user]) delay.resolve(doobio.)
-			$http.get('/pattern/' + user)
-			.success(function(patterns) {
+			// delay.reject('We couldn`t fetch sound patterns of ' + user + '!');			
+
+			var authenticateUser = auth.authenticate();
+
+			authenticateUser.then(fetch, authFailed);
+
+			function fetch() {
+				user = $route.current.params.user || $rootScope.username;
+				$http.get('/pattern/' + user)
+				.success(fetchSucced)
+				.error(function(err, status) {
+					if (status == 404) 
+						delay.reject('We couldn`t find ' + user + '!');
+					else
+						delay.reject('We couldn`t fetch sound patterns of ' + user + '!');
+				});
+			};
+
+			function authFailed() {
+				delay.reject('We couldn`t authenticate you!');
+				console.log('PatternsLoader: authFailed: We couldn`t authenticate you!');
+				$location.path('/login');
+			};
+
+			function fetchSucced(patterns) {
 
 				var p = {};
+
+				if (!doobio.instances[user]) 
+						doobio.create(user);
 
 				for (var i in patterns) {
 					if (!doobio.instances[patterns[i].username]) 
@@ -40,9 +66,7 @@ define(['services/services'], function(services){
 				}	
 				
 				delay.resolve(patterns);
-			}).error(function(err) {
-				delay.reject(err);
-			});
+			};
 
 			return delay.promise;
 		}

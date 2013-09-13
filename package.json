@@ -1,6 +1,6 @@
 {
-  "name": "hm-test",
-  "version": "0.0.1",
+  "name": "doob.io",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "start": "node app.js"

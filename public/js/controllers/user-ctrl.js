@@ -1,9 +1,13 @@
 define(['controllers/controllers'], 
 	function(controllers){
 
-		controllers.controller('user-ctrl', ['$scope', '$location', '$rootScope',
+		controllers.controller('UserCtrl', ['$scope', '$location', '$rootScope',
 		 'myinfoz', 'user', '$http', 'socket',
 			function ($scope, $location, $rootScope, myinfoz, user, $http, socket) {
+				$("#topnav").slideDown(200);
+				$("#btmerrmsg").hide();
+				$("#btmloaderimg").hide();	
+
 				$scope.user = user;
 				$scope.me = myinfoz;
 

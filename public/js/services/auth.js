@@ -7,7 +7,7 @@ define(['services/services'], function(services){
 		    function _getMe (param) {
 
 		        var delay = $q.defer();
-		        var param = param || {};
+ 		        var param = param || {};
 
 		        // for (var i in param)
 		        // 	if ($cookies[param[i]]) delay.resolve($cookies[param[i]]);
@@ -40,10 +40,9 @@ define(['services/services'], function(services){
 		    		if (res.username) delay.resolve(res.username);
 		    		else delay.resolve();
 
-		    		
 
 		    	}).error(function(error, status){
-		    		delay.reject();
+		    		delay.reject(error);
 		    	});	
 
 		    	return delay.promise;
@@ -96,10 +95,10 @@ define(['services/services'], function(services){
 			   					$cookies.username = username;
 			   					// $location.path(path);
 			   					delay.resolve($rootScope.username);
-			   				}, function(){
+			   				}, function(error){
 			   					// error
 								// $location.path('/login');
-								delay.reject();
+								delay.reject(error);
 			   				});
 		   				// }
 		   				// else {
@@ -112,8 +111,9 @@ define(['services/services'], function(services){
 		   		return delay.promise;
 		    };
 
-		    var login = function(u, p, rememberMe, callback){
+		    var login = function(u, p, rememberMe){
 		    	
+		    	var delay = $q.defer();
 		    	
 		    	var data = '';
 
@@ -142,14 +142,13 @@ define(['services/services'], function(services){
 		    		socket.connect(true);
 		    		$rootScope.username = u;
 		    		$cookies.username = u;
-		    		$location.path('/home');
-
-		    		if (callback) return callback(status);
+		    		delay.resolve();
 
 		    	}).error(function(error, status){
-		    		console.log('error')
-		    		if (callback) return callback(status);
-		    	});		   
+		    		delay.reject();
+		    	});		
+
+		    	return delay.promise;   
 		    };
 
 		    var register = function(u, p, e, rememberMe, callback){

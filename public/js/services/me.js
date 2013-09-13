@@ -1,13 +1,14 @@
 define(['services/services'], function(services){
 
-	services.factory('me', ['auth', '$location', '$rootScope', 'doobio', '$q'
-		,function(auth, $location, $rootScope, doobio, $q) {
+	services.factory('me', ['auth', '$location', '$rootScope', 'doobio', '$q', '$timeout'
+		,function(auth, $location, $rootScope, doobio, $q, $timeout) {
 			return function() {
 				var delay = $q.defer();
 
 				var promise = auth.authenticate();
 
 				function success() {
+					console.log('successed in authentication')
 					var temp;
 					var me = auth.me();
 
@@ -28,22 +29,18 @@ define(['services/services'], function(services){
 							temp._following[temp.following[i].username] = temp.following[i];
 
 
-						$("#topnav").slideDown(200);
-
 						delay.resolve(temp);
 
-
 					}, function(er, status){
-						console.log(er);
-						console.log(status);
-						delay.reject();
-						$location.path('/login');
+						console.log('failed to fetch you')
+						delay.reject('We couldn`t load your data from server! Please reload the page.');
 					});
 
 				}
 
 				function failure () {
-					delay.reject();
+					console.log('Failed to authenticate you!')
+					delay.reject('Failed to authenticate you!');
 					$location.path('/login');
 				}
 

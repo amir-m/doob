@@ -437,16 +437,24 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 		if (!req.param('user')) return res.send(400);
 
-		models.projects.SoundPattern.find({
-			username: req.param('user'), active: true}, function(error, p){
-
+		models.User.User.find({
+			usernameLowerCase: req.param('user').toLowerCase()
+		}, function(error, user){
 			if (error) return res.send(500);
-			if (!p) return res.send(400);
+			if (!user) return res.send(404);
+		
+			models.projects.SoundPattern.find({
+				username: req.param('user'), active: true}, function(error, p){
 
-			var r = ")]}',\n" + JSON.stringify(p);
+				if (error) return res.send(500);
+				if (!p) return res.send(400);
 
-			res.send(r);
+				var r = ")]}',\n" + JSON.stringify(p);
+
+				res.send(r);
+			});
 		});
+
 	};
 
 	var pattern = function(req, res, next) {

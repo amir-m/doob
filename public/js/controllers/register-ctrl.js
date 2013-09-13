@@ -1,6 +1,6 @@
 define(['controllers/controllers'], function(controllers){
 	
-	controllers.controller('register-ctrl', ['$scope', '$location','auth', '$window', 
+	controllers.controller('RegisterCtrl', ['$scope', '$location','auth', '$window', 
 		'$routeParams', '$rootScope', 
 		function ($scope, $location, auth, $window, $routeParams, $rootScope) {
 

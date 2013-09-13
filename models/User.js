@@ -219,7 +219,7 @@ module.exports = function(mongoose, async, logins, models) {
 		for (var i in fields) {
 			++c;
 			// if (c > 0) break;
-			if (i != 'password' && i != '_id') f[i] = req.query[i];
+			if (i != 'password' && i != '_id') f[i] = fields[i];
 		}
 
 		if (c == 0) fields['password'] = 0;
