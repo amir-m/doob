@@ -1,8 +1,8 @@
 define(['controllers/controllers'], 
 	function(controllers){
 
-		controllers.controller('ctrl', ['$scope', '$location', '$rootScope', 'auth',
-			function ($scope, $location, $rootScope, auth) {
+		controllers.controller('ctrl', ['$scope', '$location', '$rootScope', 'auth', '$http','socket',
+			function ($scope, $location, $rootScope, auth, $http, socket) {
 				$scope.searchUsers = [];
 				$scope.searchSP = [];
 				$scope.isBroadcasting = false;

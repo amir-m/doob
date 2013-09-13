@@ -1,8 +1,9 @@
 define(['controllers/controllers'], 
 	function(controllers){
 
-		controllers.controller('user-ctrl', ['$scope', '$location', '$rootScope', 'myinfoz', 'user',
-			function ($scope, $location, $rootScope, myinfoz, user) {
+		controllers.controller('user-ctrl', ['$scope', '$location', '$rootScope',
+		 'myinfoz', 'user', '$http', 'socket',
+			function ($scope, $location, $rootScope, myinfoz, user, $http, socket) {
 				$scope.user = user;
 				$scope.me = myinfoz;
 
