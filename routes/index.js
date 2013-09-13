@@ -68,7 +68,9 @@ module.exports = function(models, sessionMaxAge, async){
 	var search = function(req, res, next) {
 		if (!req.session || !req.session.uid || !req.session.username) return res.send(401);
 		var q = req.query.q;
-		q += '*';
+		
+		q = "^.*" + q + ".*$"
+		
 		async.parallel([
 			function(callback) { 
 				models.User.User.find({usernameLowerCase: { $regex: q, $options: 'i' }, 
