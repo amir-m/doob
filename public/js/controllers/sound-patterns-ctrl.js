@@ -116,7 +116,7 @@ function(controllers){
 
 				$scope.patternInfo = $scope.mappings[soundPattern.id];
 
-				$location.path('/sound-patterns/'+instanceName+'/'+soundPattern.id);
+				// $location.path('/sound-patterns/'+instanceName+'/'+soundPattern.id);
 
 				if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
 				$scope.$apply();

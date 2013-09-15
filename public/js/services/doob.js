@@ -184,7 +184,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 
 			if (message.broadcaster == $rootScope.username || 
 				!instances[message.subscriber]) return;
-			
+			console.log(message)
 			instances[message.subscriber].env.ids[message.message.id].changeTempo(message.message.tempo);
 
 		});
