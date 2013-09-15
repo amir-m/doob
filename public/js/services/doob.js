@@ -67,7 +67,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 			if (message.subscriber != $rootScope.username || 
 				message.broadcaster == $rootScope.username)
 				return;
-			regenerate(message);
+			// regenerate(message);
 
 		});	
 		
@@ -241,7 +241,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 				instances[message.broadcaster].isBroadcasting = true;
 			}
 
-			regenerate(message);	
+			// regenerate(message);	
 		});
 
 		// doob related messages.
