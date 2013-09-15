@@ -53,6 +53,7 @@ define(['controllers/controllers'],
 
 				$scope.$on('me:done', function(ev, me){
 					$scope.me = me;
+					console.log(me)
 				});
 
 				$scope.searchUsers = [];

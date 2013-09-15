@@ -2,8 +2,8 @@ define(['controllers/controllers'],
 function(controllers){
 	
 	controllers.controller('SoundPatternsCtrl', [
-		'$scope', '$rootScope', 'doobio', '$routeParams', '$location', 'auth', 'patterns',
-		function ($scope, $rootScope, doobio, $routeParams, $location, auth, patterns) { //, loaded) {
+		'$scope', '$rootScope', 'doobio', '$routeParams', '$location', 'auth', 'patterns', 'me',
+		function ($scope, $rootScope, doobio, $routeParams, $location, auth, patterns, me) { //, loaded) {
 
 	
 		$("#topnav").slideDown(200);
@@ -19,7 +19,11 @@ function(controllers){
 		
 		$scope.patterns = patterns;
 
-		// if ($routeParams.id) 
+		var me = me();
+
+		me.then(function(me){
+			$scope.$emit('me:done', me);
+		});
 
 			
 		for (var i in $scope.patterns) {
