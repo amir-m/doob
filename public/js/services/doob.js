@@ -1,8 +1,8 @@
 define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', 'lib/sequencer'], 
 	function(services, _doob, _audio, _io, _effects, _sequencer){
 
-	services.factory('doobio', ['socket', '$http', '$rootScope', 
-	function(socket, $http, $rootScope) {
+	services.factory('doobio', ['socket', '$http', '$rootScope', '$q',
+	function(socket, $http, $rootScope, $q) {
 
 		var loadedAssets = {}, self = this, instances = {}, instanceNames = [];
 
@@ -180,6 +180,24 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 
 		});
 
+		socket.on('update:sequencer:SoundPattern:changeTempo', function(message){
+
+			if (message.broadcaster == $rootScope.username || 
+				!instances[message.subscriber]) return;
+			
+			instances[message.subscriber].env.ids[message.message.id].changeTempo(message.message.tempo);
+
+		});
+
+		socket.on('update:sequencer:SoundPattern:changeSteps', function(message){
+
+			if (message.broadcaster == $rootScope.username || 
+				!instances[message.subscriber]) return;
+			
+			instances[message.subscriber].env.ids[message.message.id].changeSteps(message.message.steps);
+
+		});
+
 		// a new sound has been added, and is being broadcasted
 		socket.on('new:aduio:Sound', function(message){
 			console.log(message)
@@ -220,6 +238,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 			else
 			{
 				new doob(message.broadcaster);
+				instances[message.broadcaster].isBroadcasting = true;
 			}
 
 			regenerate(message);	
@@ -425,6 +444,22 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 					// }
 
                 }, 
+                'update:sequencer:SoundPattern:changeTempo': function(ev, message, name){
+                	emit(ev, {
+                		event: ev,
+                		broadcaster: $rootScope.username,
+                		subscriber: name,
+                		message: message
+					});
+                },
+                'update:sequencer:SoundPattern:changeSteps': function(ev, message, name){
+                	emit(ev, {
+                		event: ev,
+                		broadcaster: $rootScope.username,
+                		subscriber: name,
+                		message: message
+					});
+                },
                 'set:sequencer:SoundPattern:id': function(ev, message, name) {
 
 					// if (instances[name].isBroadcasting) {
@@ -632,6 +667,17 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 						doob: instances[name].env.exportables
 					});	
 				}
+			},
+			requestID: function(){
+				var delay = $q.defer();
+
+				$http.get('/id').success(function(id){
+					delay.resolve(id);
+				}).error(function(data){
+					delay.reject(data);
+				});
+
+				return delay.promise;
 			}
 		};
 	}]);

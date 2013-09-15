@@ -376,6 +376,7 @@ define([], function(){
 					sounds: this.sounds,
 				};
 			};
+
 			SoundPattern.prototype.exportable = function() {
 		   		return {
 			   		nodetype: 'sequencer.SoundPattern',
@@ -387,6 +388,34 @@ define([], function(){
                     id: this.id
                 };
 			};	
+
+			SoundPattern.prototype.changeTempo = function(tempo, pub) {
+				
+				this.tempo = tempo;
+				this.sixteenthNoteTime = (60 / this.tempo / 1);
+				this.eightthNoteTime = (60 / this.tempo / 2);
+				this.fourthNoteTime = (60 / this.tempo / 4);
+				this.secondNoteTime = (60 / this.tempo / 8);
+				this.barTime = this.fourthNoteTime * this.steps;
+
+				// var fourth = this.fourthNoteTime || (60 / (this.tempo || doob.tempo) / 4);
+				// 			steps = this.steps || 32;
+				// 			return fourth * steps;
+
+				publish('update:sequencer:SoundPattern:changeTempo', this, tempo, pub);
+
+				 
+			};
+
+			SoundPattern.prototype.changeSteps = function(steps, pub) {
+
+				this.steps = steps;
+				this.barTime = this.fourthNoteTime * this.steps;
+
+				publish('update:sequencer:SoundPattern:changeSteps', this, steps, pub);
+
+			};
+
 			return {
 				SoundPattern: SoundPattern,
 				subscribe: subscribe,

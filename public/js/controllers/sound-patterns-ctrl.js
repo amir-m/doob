@@ -2,16 +2,13 @@ define(['controllers/controllers'],
 function(controllers){
 	
 	controllers.controller('SoundPatternsCtrl', [
-				 '$scope', '$rootScope', 'doobio', 'patterns', '$routeParams', 'PatternLoader', '$location', 'auth',
-		function ($scope, $rootScope, doobio, patterns, $routeParams, PatternLoader, $location, auth) { //, loaded) {
-		
+		'$scope', '$rootScope', 'doobio', '$routeParams', '$location', 'auth', 'patterns',
+		function ($scope, $rootScope, doobio, $routeParams, $location, auth, patterns) { //, loaded) {
+
+	
 		$("#topnav").slideDown(200);
 		$("#btmerrmsg").hide();
 		$("#btmloaderimg").hide();	
-		
-		var p = auth.authenticate();
-
-		$scope.patterns = $scope.patterns || patterns;
 
 		var p = {}, found = false;
 		$scope.instanceName = null;
@@ -19,11 +16,16 @@ function(controllers){
 		$scope.patternInfo = null;
 		$scope.sounds = [];
 		$scope.mappings = $scope.mappings || {};
+		
+		$scope.patterns = patterns;
+
+		// if ($routeParams.id) 
+
 			
-		for (var i in patterns) {
+		for (var i in $scope.patterns) {
 
 			/** a simple object mapper improving pattern's accessability throughout the module */
-			$scope.mappings[patterns[i]._id] = patterns[i];
+			$scope.mappings[$scope.patterns[i]._id] = $scope.patterns[i];
 			
 			if (doobio.instanceNames.indexOf($rootScope.username) == -1)
 				doobio.create($rootScope.username);
@@ -38,14 +40,16 @@ function(controllers){
 			if ($routeParams.id in $scope.mappings) {
 				$scope.instanceName = $scope.mappings[$routeParams.id].username;
 				$scope.patternInfo = $scope.mappings[$routeParams.id];
-				$scope.pattern = $scope.mappings[$routeParams.id].content;
-				$scope.pattern['id'] = $routeParams.id;
-				$scope.pattern['name'] = $scope.mappings[$routeParams.id].name;
+				// $scope.pattern = $scope.mappings[$routeParams.id].content;
+				$scope.pattern = doobio.instances[$scope.instanceName].env.ids[$routeParams.id]
+				// $scope.pattern['id'] = $routeParams.id;
+				// $scope.pattern['name'] = $scope.mappings[$tctrouteParams.id].name;
 			}
 
 			/** if the pattern is present in the local instances, fetch it from the server
 			* and display it. */
 			else {
+				console.log('shiiiiiit')
 				var promise = PatternLoader();
 				promise.then(function(pattern){
 					// $scope.viewEdit(pattern[0], pattern[0].username)
@@ -72,11 +76,17 @@ function(controllers){
 				}, true);
 			}
 			$scope.patternInfo.updated = new Date().getTime();
-			doobio.instances[$scope.instanceName].env.assets[$scope.patternInfo.name].newTrack(sound, true);
+			doobio.instances[soundInstanceName].env.assets[$scope.patternInfo.name].newTrack(sound, true);
+
+			if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
+				$scope.$apply();
 		}
 		
 		$scope.play = function(p, flag){
+			doobio.instances[$scope.instanceName].env.assets[p.name].tempo = p.tempo
+			doobio.instances[$scope.instanceName].env.assets[p.name].steps = p.steps
 			doobio.instances[$scope.instanceName].env.assets[p.name].play(flag);
+			console.log(doobio.instances[$scope.instanceName].env.assets[p.name]);
 		};
 
 		$scope.stop = function(p, flag){
@@ -95,16 +105,21 @@ function(controllers){
 
 		$scope.viewEdit = function(soundPattern, instanceName) {
 
-			if ($routeParams.id == soundPattern.id) {
+			// console.log()
+
+			// if ($routeParams.id == soundPattern.id) {
+			// }
+			// else
 				$scope.pattern = soundPattern;
 				
 				$scope.instanceName = instanceName;
 
 				$scope.patternInfo = $scope.mappings[soundPattern.id];
-			}
-			else
 
 				$location.path('/sound-patterns/'+instanceName+'/'+soundPattern.id);
+
+				if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
+				$scope.$apply();
 		}
 
 		$scope.remove = function(p, i) {

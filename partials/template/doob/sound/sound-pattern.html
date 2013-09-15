@@ -13,21 +13,20 @@
 					</doob.play.inline>
 				</td>
 				<td class="btn-group">
-					<span ng-repeat="beat in beats()">
-						<span ng-show="$index % 4 == 0 && $index != 0 && $index % 8 != 0 && $index % 12 != 0 && $index % 16 != 0" class="quarter-divider"></span>
+					<span ng-repeat="note in totalNotes()">
+						<span ng-show="$index % 4 == 0 && $index != 0 && $index % 8 != 0 && $index % 12 != 0 && $index % 16 != 0" class="quarter-divider">
+						</span>
 						<span ng-show="$index % 8 == 0 && $index != 0 && $index % 16 != 0 && $index % 12 != 0" class="half-divider"></span>
-						<span ng-show="$index % 12 == 0 && $index != 0" class="three-quarters-divider"></span>
+						<span ng-show="$index % 12 == 0 && $index != 0" class="three-quarters-divider">
+						</span>
 						<span ng-show="$index % 16 == 0 && $index != 0" class="one-divider">
 						</span>
 						<button 
-						ng-class="{'btn btn-small btn-success': patternSound.pattern.indexOf($index + 1) != -1, 'btn btn-small': true }"
+						ng-class="{'btn btn-small btn-inverse': patternSound.pattern.indexOf($index + 1) != -1, 'btn btn-small': true }"
 						ng-click="toggleNote($index + 1, patternSound)" style="border-radius:0; height:18; width: 18; padding:0;margin:0;">
-						<icon ng-class="{'icon-note': patternSound.pattern.indexOf($index + 1) != -1}" style="margin:0;"></icon>
+							<icon ng-class="{'icon-note': patternSound.pattern.indexOf($index + 1) != -1}" style="margin:0;color:white">
+							</icon>
 						</button>
-
-
-						<!-- <doob.pattern.note>
-						</doob.pattern.note> -->
 
 					</span>
 				</td>

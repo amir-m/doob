@@ -19,6 +19,12 @@ module.exports = {
 	'update:sequencer:SoundPattern:newTrack': function(data) {
 		return data.broadcaster + ' added another track called `'+ data.message.track +
 		 '` to the `'+data.message.pattern+'` Sound Pattern!'; 
+	}, 
+	'update:sequencer:SoundPattern:changeTempo': function(data) {
+		return data.broadcaster + ' changed the tempo of ' + data.message.name + '!';
+	},
+	'update:sequencer:SoundPattern:changeSteps': function(data) {
+		return data.broadcaster + ' changed the steps of ' + data.message.name + '!';
 	}
 };
 

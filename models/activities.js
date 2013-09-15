@@ -46,6 +46,8 @@ module.exports = function(mongoose, models, async) {
 		'user:broadcast:stop': handleActivity,
 		'new:sequencer:SoundPattern': handleActivity,
 		'update:sequencer:SoundPattern:newTrack': handleActivity,
+		'update:sequencer:SoundPattern:changeTempo': handleActivity,
+		'update:sequencer:SoundPattern:changeSteps': handleActivity
 		// 'user:subscribe': handleActivity,
 		// 'user:unsubscribe': handleActivity, // Maybe NOT!
 		// 'new:aduio:Sound': handleActivity, 

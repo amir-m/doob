@@ -23,7 +23,7 @@ define([''], function(){
                         }
                         self.sounds.push(sound.name);
                     }
-
+                    self.ids[sound.id] = sound;
                     self.assets[sound.name] = sound;
                     self.assetsToJSON[sound.name] = sound.toJSON();
                     
@@ -88,6 +88,10 @@ define([''], function(){
                 },
                 'new:effects:Reverb': function(ev, reverb) {
                     self.assets[reverb.name] = reverb;
+                    
+                    if (reverb.id) self.ids[reverb.id] = reverb;
+                    else console.log('.........reverbd has no id.......');
+
                     self.assetsToJSON[reverb.name] = reverb.toJSON();
                     self.publish(ev, reverb.toJSON(), self.name);
                     
@@ -104,6 +108,7 @@ define([''], function(){
 
                     self.soundPatterns[pattern.name] = pattern;
                     self.assets[pattern.name] = pattern;
+                    self.ids[pattern.id] = pattern;
                     self.assetsToJSON[pattern.name] = pattern.toJSON();
 
                     self.exportables.independents.sequencers.soundPatterns[pattern.name] = pattern.exportable();
@@ -154,6 +159,24 @@ define([''], function(){
                         tracks: pattern.tracks
                     }, self.name);
                 },
+                'update:sequencer:SoundPattern:changeTempo': function(ev, pattern, pub){
+                    self.exportables.independents.sequencers.soundPatterns[pattern.name].tempo = pattern.tempo;
+
+                    if (pub) self.publish(ev, {
+                        id: pattern.id,
+                        tempo: pattern.tempo,
+                        name: pattern.name
+                    }, self.name);
+                },
+                'update:sequencer:SoundPattern:changeSteps': function(ev, pattern, pub){
+                    self.exportables.independents.sequencers.soundPatterns[pattern.name].steps = pattern.steps;
+
+                    if (pub) self.publish(ev, {
+                        id: pattern.id,
+                        steps: pattern.steps,
+                        name: pattern.name
+                    }, self.name);
+                },
                 'update:sequencer:SoundPattern:toggleNote' : function(ev, pattern, track, note, pub) {
                     
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].tracks =
@@ -183,7 +206,6 @@ define([''], function(){
                     }, self.name);
                 },
                 'remove:sequencer:SoundPattern': function(){
-                    
                 }
             }
         };

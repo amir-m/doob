@@ -13,10 +13,11 @@ define(['directives/directives'], function(directives){
 			// 	instanceName: '='
 			// },
 			link: function(scope, element, attrs) {
-				
-				scope.beats = function() {
+
+				scope.totalNotes = function() {
 					return new Array(scope.pattern.steps);
-				}
+				};
+				
 				scope.removeTrack = function(track) {
 					
 					doobio.instances[scope.instanceName].env.assets[scope.pattern.name].removeTrack(track, true);
@@ -24,7 +25,7 @@ define(['directives/directives'], function(directives){
 				}
 				scope.toggleNote = function(i, patternSound) {
 					
-					scope.patternInfo.updated = new Date().getTime();
+					// scope.patternInfo.updated = new Date().getTime();
 					doobio.instances[scope.instanceName].env.assets[scope.pattern.name].toggleNote(i, patternSound, true);
 
 					// on = !on;

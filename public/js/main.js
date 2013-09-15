@@ -62,7 +62,9 @@ require([
 	'directives/sp-name-input',
 	'directives/search',
 	'directives/pinger',
-	'directives/sp-comment'
+	'directives/sp-comment',
+	'directives/sp-change-tempo',
+	'directives/sp-change-steps'
 	], function($, angular, app, domReady, socketio) {
 		
 		'use strict';
@@ -94,13 +96,17 @@ require([
 		    	resolve: {
 		    		patterns: ['PatternsLoader', function(PatternsLoader){
 		    			return PatternsLoader();
-		    		}]
+		    		}],
+		    		myinfoz: ['me', function(me) {
+						return me();
+					}]
 		    	}
 		    }).when('/sound-patterns/:user', {
 		    	templateUrl: 'partials/sound-patterns.html', 
 		    	controller: 'SoundPatternsCtrl',
 		    	resolve: {
-		    		patterns: ['PatternsLoader', function(PatternsLoader){
+		    		patterns: ['PatternsLoader', 
+		    		function(PatternsLoader){
 		    			return PatternsLoader();
 		    		}]
 		    	}
@@ -109,7 +115,8 @@ require([
 		    	templateUrl: 'partials/sound-patterns.html', 
 		    	controller: 'SoundPatternsCtrl',
 		    	resolve: {
-		    		patterns: ['PatternsLoader', function(PatternsLoader){
+		    		patterns: ['PatternsLoader', 
+		    		function(PatternsLoader){
 		    			return PatternsLoader();
 		    		}]
 		    	}

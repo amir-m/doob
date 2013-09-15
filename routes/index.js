@@ -48,7 +48,16 @@ module.exports = function(models, sessionMaxAge, async){
 	// Scenario 1.
 	var ping = function(req, res, next){
 
-		// console.log(req.session)
+		if (req.query.authenticate) {
+			
+			if (req.session && req.session.uid && req.session.username) {
+
+				req.session.cookie.expires = new Date(Date.now() + sessionMaxAge);
+				req.session.cookie.maxAge = sessionMaxAge;
+				
+			}
+			return res.send(200);
+		}
 		
 		// Scenario 1. 1
 		if (req.session && req.session.uid && req.session.username) {

@@ -1,6 +1,6 @@
 define(['directives/directives'], function(directives){
 
-    directives.directive('pinger', ['auth', function (auth) {
+    directives.directive('pinger', ['$http', function ($http) {
 
         return {
             restrict: 'A',
@@ -11,7 +11,7 @@ define(['directives/directives'], function(directives){
                 
                 element.bind('click', function (e) {
 
-                    auth.authenticate();
+                    $http.get('/ping?authenticate=false');
                     
                 });
             }

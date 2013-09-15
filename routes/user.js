@@ -44,7 +44,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 				token = req.cookies[_token];
 			
 			// Scenario 2. 1.b
-			if (!uid || !sid || !token)	return res.send(400);
+			if (!uid || !sid || !token)	return res.send(401);
 
 
 			else {
@@ -441,8 +441,8 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 			usernameLowerCase: req.param('user').toLowerCase()
 		}, function(error, user){
 			if (error) return res.send(500);
-			if (!user) return res.send(404);
-		
+			if (!user || (user && !user.length)) return res.send(404);
+			
 			models.projects.SoundPattern.find({
 				username: req.param('user'), active: true}, function(error, p){
 

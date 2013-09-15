@@ -2,8 +2,9 @@ define(['controllers/controllers'],
 	function(controllers){
 
 		controllers.controller('AppCtrl', ['$scope', '$location', '$rootScope', 'auth', 
-			'$http','socket', '$timeout', '$q', 
-			function ($scope, $location, $rootScope, auth, $http, socket, $timeout, $q) {
+			'$http','socket', '$timeout', '$q', 'me', 'doobio',
+			function ($scope, $location, $rootScope, auth, $http, socket, $timeout, $q, me, doobio) {
+				
 
 				$rootScope.$on('$routeChangeError', function(event, current, previous, rejection){
 					$("#btmloaderimg").hide();
@@ -21,16 +22,33 @@ define(['controllers/controllers'],
 					$("#btmscsmsg").hide();
 					$("#btmerrmsg").show();
 					$("#btmloaderimg").hide();
+					if ($rootScope.$$phase != "$apply" && $rootScope.$$phase != "$digest") {
+						$rootScope.$apply();
+					}
 				});
-				$rootScope.$on('success:message', function(event, message){
+				$rootScope.$on('success:message', function(event, message, time){
 					$scope.notificationMessage = message;
+					var time = time || 5000;
 					$("#btmscsmsg").show();
 					$("#btmerrmsg").hide();
 					$("#btmloaderimg").hide();
+					if ($rootScope.$$phase != "$apply" && $rootScope.$$phase != "$digest") {
+						$rootScope.$apply();
+					}
 
 					$timeout(function(){
 						$("#btmscsmsg").fadeOut();
-					}, 5000);
+					}, time);
+				});
+
+				$rootScope.$on('clear:message', function(){
+					// $scope.notificationMessage = '';
+					$("#btmscsmsg").fadeOut();
+					$("#btmerrmsg").fadeOut();
+					$("#btmloaderimg").fadeOut();
+					if ($rootScope.$$phase != "$apply" && $rootScope.$$phase != "$digest") {
+						$rootScope.$apply();
+					}
 				});
 
 				$scope.$on('me:done', function(ev, me){
@@ -95,6 +113,11 @@ define(['controllers/controllers'],
 					auth.logout(this);
 					$scope.isBroadcasting = false;
 				}
+
+				$scope.broadcast = function() {
+					$scope.isBroadcasting = !$scope.isBroadcasting;
+					doobio.toggleBroadcast($rootScope.username);
+				};
 
 				$scope.loadSoundCategoryList = function() {
 

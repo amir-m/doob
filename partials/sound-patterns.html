@@ -11,7 +11,7 @@
 								<i class="icon-rss-1" 
 								ng-show="doob.instances[instanceName].isBroadcasting"></i>
 								<i class="icon-user"></i>
-								<a href="#/users/{{instanceName}}"><b>{{instanceName}}</b></a>
+								<a href="#/sound-patterns/{{instanceName}}"><b>{{instanceName}}</b></a>
 								<span class="pull-right">
 									<new-sound-pattern tooltip-placement="top" tooltip="New Sound Pattern">
 								</new-sound-pattern>
@@ -25,7 +25,7 @@
 								</i>
 								<span>{{soundPattern.name}}</span>
 								<span class="close" ng-click="viewEdit(soundPattern, instanceName)" tooltip="View/Edit" style="font-size:15">
-									<i class="icon-export"></i>
+									<i class="icon-right-circled"></i>
 								</span>
 							</a> 
 						</li>
@@ -50,7 +50,7 @@
 							{{sound}}
 							<span class="close pull-right" ng-show="showPattern()" 
 							ng-click="" tooltip="Add to the pattern">
-								<i class="icon-export" style="font-size:15"
+								<i class="icon-right-circled" style="font-size:15"
 								ng-click="addSoundToPattern(sound, instanceName)"></i>
 							</span>
 
@@ -94,9 +94,14 @@
 									<button class="btn btn-small btn-player" ng-click="stop(pattern)" style="font-size: 15;">
 										<icon class="icon-stop-1"></icon>
 									</button>
-									<button tooltip="Loop!" class="btn btn-small btn-player" ng-click="play(pattern, 1)" style="font-size: 15;">
+									<button tooltip="Play Loop" class="btn btn-small btn-player" ng-click="play(pattern, 1)" style="font-size: 15;">
 										<icon class="icon-loop" ></icon>
 									</button>
+									
+									<input tooltip="Tempo" class="sp-input" placeholder="{{pattern.tempo}}" ng-model="tempo" sp-change-tempo>
+
+									<input tooltip="Steps" class="sp-input" placeholder="{{pattern.steps}}" ng-model="steps"
+									sp-change-steps>
 								  </div>
 								</li>
 								<!-- <li >

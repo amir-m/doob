@@ -12,9 +12,9 @@ define(['directives/directives'], function(directives){
 			link: function(scope, element) {
 
 				scope.focus = function(){
+					$('#spnamedropdown').fadeIn();
 					$('#spname').focus();
 					$('#spname').val('');
-					$('#spnamedropdown').show();
 					// scope.$apply()
 				}
 

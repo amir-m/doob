@@ -164,6 +164,16 @@ module.exports = function(io, socket, session, store, models) {
       models.projects.update(data, session);
   };
 
+  var changeTempo = function (data) {
+    socket.broadcast.to(data.subscriber).emit(data.event, data);
+      models.projects.changeTempo(data, session);
+  };
+
+  var changeSteps = function (data) {
+    socket.broadcast.to(data.subscriber).emit(data.event, data);
+      models.projects.changeSteps(data, session);
+  };
+
   var saveSP = function(data) {
 
     models.projects.newSoundPattern(data, session, function(error, sp){
@@ -246,9 +256,11 @@ module.exports = function(io, socket, session, store, models) {
     'update:sequencer:SoundPattern:newTrack': forward,
     'update:sequencer:SoundPattern:toggleNote': forward,
     'update:sequencer:SoundPattern:removeTrack': forward,
+    'update:sequencer:SoundPattern:changeTempo': changeTempo,
+    'update:sequencer:SoundPattern:changeSteps': changeSteps,
     'new:sequencer:SoundPattern': saveSP,
     'fetch:SoundPatterns:request': fetchSoundPatterns,
     'remove:sequencer:SoundPattern': removeSoundPattern,
-    'new:soundPattern:comment': newSoundPatternComment
+    'new:soundPattern:comment': newSoundPatternComment,
   };
 };

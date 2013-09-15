@@ -98,26 +98,35 @@ module.exports = function(mongoose, models, async) {
 			function(error, res) {
 				if (error) return console.log(error)
 			});
+	};
 
-		// SoundPattern.findById(pattern.id, function(error, sp){
-		// 	for (var i in pattern.tracks) {
-				
-		// 		sp.content.tracks[i] = pattern.tracks[i];
-		// 		console.log(i)
-		// 	}
+	var changeTempo = function(data, session) {
+		var pattern = data.message;
+		// for (var i in pattern.tracks)
+		// console.log(pattern)
+		SoundPattern.update(
+			{ _id: pattern.id }, { $set: { 
+				'content.tempo': pattern.tempo,
+				updated: new Date().getTime() 
+			} }, 
+			function(error, res) {
+				if (error) return console.log(error)
+			});
+	};
 
-		// 	if (error) return console.log(error);
-
-		// 	sp.updated = new Date().getTime();
-		// 	// sp.content.tracks = pattern.tracks;
-		// 	sp.markModified('content');
-		// 	sp.save(function(error) {
-		// 	console.log(error);
-		// 		if (error) return error;
-		// 		console.log(sp.content.tracks)
-		// 	});
-		// });
-	}
+	var changeSteps = function(data, session) {
+		var pattern = data.message;
+		// for (var i in pattern.tracks)
+		// console.log(pattern)
+		SoundPattern.update(
+			{ _id: pattern.id }, { $set: { 
+				'content.steps': pattern.steps,
+				updated: new Date().getTime() 
+			} }, 
+			function(error, res) {
+				if (error) return console.log(error)
+			});
+	};
 
 	var fetchSoundPatterns = function(userid, callbackFn) {
 
@@ -129,6 +138,8 @@ module.exports = function(mongoose, models, async) {
 	return {
 		newSoundPattern: newSoundPattern,
 		update: update,
+		changeTempo: changeTempo,
+		changeSteps: changeSteps,
 		fetchSoundPatterns: fetchSoundPatterns,
 		SoundPattern: SoundPattern
 	};

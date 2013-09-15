@@ -1,6 +1,7 @@
 define(['directives/directives'], function(directives){
 
-    directives.directive('search', ['$http', '$rootScope', function ($http) {
+    directives.directive('search', ['$http', '$rootScope', 'me', 
+        function ($http, $rootScope, me) {
 
         return {
             restrict: 'A',
@@ -8,6 +9,7 @@ define(['directives/directives'], function(directives){
             //     ev: '='
             // },
             link: function (scope, element, attr) {
+
 
                 scope.searchUsers = [];
                 scope.searchSP = [];
