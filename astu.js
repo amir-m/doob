@@ -8,7 +8,7 @@ if (process.env.MONGOLAB_URI)
 else
   var mg = "mongodb://localhost/doob";
 
-var users = require('./models/user')(mongoose);
+var users = require('./models/User')(mongoose);
 
 mongoose.connect(mg, function(err){
     if (err) throw err;
