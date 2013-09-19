@@ -616,3 +616,8 @@ body {
   text-align: center;
   color: rgb(150, 150, 150);
 }
+
+.change-password-input {
+  height: 30;
+margin-bottom: 10;
+}

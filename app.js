@@ -197,7 +197,29 @@ server.listen(app.get('port'), function(){
 //   })
 // })
 
+// redisClient.get('s%3Aj9NYyYXWUoNyR4yQqPSdbWwi.e86Z0yMUjnTX%2B5bqQmp0Gx%2FS%2B9W4%2FW8ixckwFzeqQWo'
+// , function(e, r) {
+//   console.log(e)
+//   console.log(r)
+// })
 
+// sessionStore.get('*', function(er, results){
+  // console.log(express.session.Store.prototype.load)
+// })
+
+// express.session.Store.prototype.load('s%3Aj9NYyYXWUoNyR4yQqPSdbWwi.e86Z0yMUjnTX%2B5bqQmp0Gx%2FS%2B9W4%2FW8ixckwFzeqQWo', function(er, r){
+// })
+
+// sessionStore.client.keys("sess:*", function(e, r ){
+  
+//   console.log(e)
+//   console.log(r)
+// })
+
+// // models.User.User.findOne({username: 'qoppi'}, function(e, r){
+// //     console.log(e)
+// //     console.log(r)
+// })
 
 
 // var key1 = 'key1';

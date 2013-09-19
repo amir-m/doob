@@ -26,6 +26,8 @@ module.exports = function(routes, app){
 
 	app.get('/id', routes.index.id);
 
+	app.get('/settings', routes.user.getSettings);
+
 	app.post('/logout', routes.user.logout);
 
 	app.post('/invite', routes.user.invite);
@@ -37,6 +39,14 @@ module.exports = function(routes, app){
 	app.post('/project', routes.project.index);
 
 	app.put('/user/follow', routes.user.follow);
+
+	app.put('/settings', routes.user.putSettings);
+
+	app.put('/changepassword', routes.user.changepassword);
+
+	app.put('/changeemail', routes.user.changeEmail);
+
+	app.put('/settings', routes.user.putSettings);
 
 	app.get('/', routes.index.index);
 	

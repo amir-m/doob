@@ -48,6 +48,8 @@ module.exports = function(models, sessionMaxAge, async){
 	// Scenario 1.
 	var ping = function(req, res, next){
 
+		// console.log(req)
+
 		if (req.query.authenticate) {
 			
 			if (req.session && req.session.uid && req.session.username) {
@@ -56,6 +58,7 @@ module.exports = function(models, sessionMaxAge, async){
 				req.session.cookie.maxAge = sessionMaxAge;
 				
 			}
+
 			return res.send(200);
 		}
 		
@@ -99,7 +102,7 @@ module.exports = function(models, sessionMaxAge, async){
 	};
 
 	var search = function(req, res, next) {
-		if (!req.session || !req.session.uid || !req.session.username) return res.send(401);
+		if (!validateSession(req)) return res.send(401);
 		var q = req.query.q;
 		
 		q = "^.*" + q + ".*$"
@@ -152,9 +155,16 @@ module.exports = function(models, sessionMaxAge, async){
 
 	var id = function(req, res, next) {
 		
-		if (!req.session || !req.session.uid || !req.session.username) return res.send(401);
+		if (!validateSession(req)) return res.send(401);
 		
 		return res.send(models.User.ObjectId);
+	};
+
+	function validateSession(req) {
+		if (!req.session || !req.session.uid || !req.session.username) {
+			return false;
+		}
+		return true;
 	};
 
 	return {

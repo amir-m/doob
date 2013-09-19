@@ -1,0 +1,32 @@
+<div style="margin-left:30px; height:200;">
+	<li class="nav-header title" style="padding:0; margin:0">Security</li>
+	<hr>
+	<div style="width:50%; float:left;">
+		<h4 style="color:rgb(150,150,150);margin-top:0;margin-bottom:15;">
+			Reset Your Password
+		</h4>
+		<form class="form-horizontal">
+			<input ng-model="pass" type="password" style="height: 30;margin-bottom: 10;" placeholder="Current Password"><br>
+			<input ng-model="newPass" type="password" style="height: 30;margin-bottom: 10;" placeholder="New Password">
+			<br>
+
+			<button class="btn" ng-click="changePassword()">Reset My Password</button><br>
+		</form>
+	</div>
+	<div >
+		<h4 style="color:rgb(150,150,150);margin-top:0;margin-bottom:15;">
+			Change Your Email
+		</h4>
+		<form class="form-horizontal">
+			<input type="password" ng-model="chngemailpass" style="height: 30;margin-bottom: 10;" placeholder="Current Password"><br>
+			<input type="email" ng-model="newemail" style="height: 30;margin-bottom: 10;" placeholder="New Email">
+			<br>
+
+			<button ng-click="changeEmail()" class="btn">Change My Email</button><br>
+		</form>
+	</div>
+	
+	<hr>
+	
+</div>
+

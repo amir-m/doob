@@ -5,8 +5,6 @@ define(['services/services'], function(services){
 		function ($http, $q, $route, $rootScope, doobio, auth, $location) {
 		return function() {
 
-			
-			
 			var delay = $q.defer(), user; 
 
 			// delay.reject('We couldn`t fetch sound patterns of ' + user + '!');			

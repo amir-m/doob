@@ -1,0 +1,50 @@
+<div style="margin-left:30px; height:200;">
+	<li class="nav-header title" style="padding:0; margin:0">Notifications</li>
+	<hr>
+	<div style="width:100%; float:left;">
+		<h4 style="color:rgb(150,150,150);margin-top:0;margin-bottom:15;">
+			Email
+		</h4>
+		<div>Which type of email notifications you would like to receive?</div><br>
+		<div>
+			<table style="position:relative; font-size:14">
+				<tr style="border-bottom:1px solid rgb(238, 238, 238);">
+					<td style="width:300">New messages</td>
+					<td class="pull-right">
+						<a ng-click="toggleNotificationState('messages')">
+							Turn {{getNotificationState('messages')}}
+						</a>
+					</td>
+				</tr>
+				<tr style="border-bottom:1px solid rgb(238, 238, 238);">
+					<td style="width:300">Someone starts following you</td>
+					<td class="pull-right">
+						<a ng-click="toggleNotificationState('new_follower')">
+							Turn {{getNotificationState('new_follower')}}
+						</a>
+					</td>
+				</tr>
+				<tr style="border-bottom:1px solid rgb(238, 238, 238);">
+					<td style="width:300">People you follow create new projects</td>
+					<td class="pull-right">
+						<a ng-click="toggleNotificationState('new_projects')">
+							Turn {{getNotificationState('new_projects')}}
+						</a>
+					</td>
+				</tr>
+				<tr style="border-bottom:1px solid rgb(238, 238, 238);">
+					<td style="width:300">Projects you follow get updated</td>
+					<td class="pull-right">
+						<a ng-click="toggleNotificationState('updates_projects')">
+							Turn {{getNotificationState('updates_projects')}}
+						</a>
+					</td>
+				</tr>
+			</table>
+			
+		</div>
+		<br>
+	<hr>
+
+</div>
+

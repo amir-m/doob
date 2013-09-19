@@ -2,16 +2,22 @@ define(['controllers/controllers'],
 	function(controllers){
 
 		controllers.controller('UserCtrl', ['$scope', '$location', '$rootScope',
-		 'myinfoz', 'user', '$http', 'socket',
-			function ($scope, $location, $rootScope, myinfoz, user, $http, socket) {
+		 	'user', '$http', 'socket', 'me', 
+			function ($scope, $location, $rootScope, user, $http, socket) {
 				$("#topnav").slideDown(200);
 				$("#btmerrmsg").hide();
 				$("#btmloaderimg").hide();	
 
 				$scope.user = user;
-				$scope.me = myinfoz;
 
-				$scope.$emit("me:done", $scope.me);
+				var me = me();
+
+				me.then(function(m){
+					$scope.$emit("me:done", m);
+				}, function(reason){
+					$scope.$emit("error:message", reason);
+				});
+
 
 				$scope.show = function() {
 					console.log($scope.user)

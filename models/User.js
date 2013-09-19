@@ -39,15 +39,52 @@ module.exports = function(mongoose, async, logins, models) {
 
 	});
 
-	// schema settings
-	UserSchema.set('autoIndex', false);
-	UserSchema.index({
-		name: 1,
-		username: 1
-	});
+	// SettingsSchema = new mongoose.Schema({
+	// 	_id: {type: String, required: true, unique: true},
+	// 	userid: String,
+	// 	username: String,
+	// 	// usernameLowerCase: String,
+	// 	updated: Number,
+	// 	notifications: {
+	// 		description: {type: String, default: 'Whenever any of the following events happens, we will notify you by sending you an email. Here, you can change the notification settings.'},
+	// 		messages: {
+	// 			cat: {type: String, default: 'User Interactions'},
+	// 			description: {type: String, default: 'When you receive a new private messages.'},
+	// 			val: {type: Boolean, default: true}
+	// 		},
+	// 		new_follower: {
+	// 			cat: {type: String, default: 'User Interactions'},
+	// 			description: {type: String, default: 'When you have a new follower.'},
+	// 			val: {type: Boolean, default: true}
+	// 		},
+	// 		new_sound_patterns: {
+	// 			cat: {type: String, default: 'Sound Patterns'},
+	// 			description: {type: String, default: 'When people you follow create new sound patterns.'},
+	// 			val: {type: Boolean, default: true}
+	// 		},
+	// 		sound_patterns_updates: {
+	// 			cat: {type: String, default: 'Sound Patterns'},
+	// 			description: {type: String, default: 'When a sound pattern which you follow is modified by other people.'},
+	// 			val: {type: Boolean, default: true}
+	// 		}
+	// 	}
+	// });
+	
+	SettingsSchema = new mongoose.Schema({
+		_id: {type: String, required: true, unique: true},
+		userid: String,
+		// usernameLowerCase: String,
+		updated: Number,
+		notifications: {
+			messages: {type: Boolean, default: true},
 
-	// models
-	var User = mongoose.model('User', UserSchema);
+			new_follower: {type: Boolean, default: true},
+
+			new_projects: {type: Boolean, default: true},
+
+			updates_projects: {type: Boolean, default: true}
+		}
+	});
 
 	InviteSchema = new mongoose.Schema({
 		username: String,
@@ -55,7 +92,25 @@ module.exports = function(mongoose, async, logins, models) {
 		email: String,
 	});
 
+	// schema settings
+	UserSchema.set('autoIndex', false);
+	UserSchema.index({
+		name: 1,
+		username: 1
+	});
+
+	SettingsSchema.set('autoIndex', false);
+	SettingsSchema.index({
+		userid: 1,
+		username: 1
+	});
+
+	// models
+	var User = mongoose.model('User', UserSchema);
+
 	var Invite = mongoose.model('Invite', InviteSchema);
+
+	var Settings = mongoose.model('Settings', SettingsSchema);
 
 	var createUser = function(options, callbackFn){
 
@@ -117,6 +172,26 @@ module.exports = function(mongoose, async, logins, models) {
 						console.log('models.User.create: a user succesfully registered.'.info);
 						user.logins.push(r);
 						user.save();
+						callback(null, user);
+					}
+				});
+			},
+			function(user, callback) {
+				// create a new user
+				var settings = new Settings({
+					_id: _objectId(),
+					userid: user._id,
+					username: user.username,
+					updated: new Date().getTime()
+				});
+
+				settings.save(function(err){
+					if (err) {
+						console.log('models.User.create setting saving error:'.error);
+						callback(err)
+						// return callbackFn({error: err});
+					} else {
+						console.log('models.User.create: settings for the user created.'.info);
 						callback(null, {success: true, id: user._id});
 					}
 				});
@@ -177,6 +252,112 @@ module.exports = function(mongoose, async, logins, models) {
 					logins.successfulLogin(user._id, requestor);
 					callback(null, {success: true, id: user.id, username: user.username});
 				}
+			}
+		],
+		function(error, result) {
+			if (callbackFn) callbackFn(error, result)
+		});
+	};
+
+	var changePassword = function(username, password, newPassword, requestor, callbackFn){
+
+		async.waterfall([
+			function(callback) {
+				User.findOne({
+					usernameLowerCase: username.toLowerCase() 
+				}, function(error, user) {
+					callback(error, user);
+				});
+			},
+			function(user, callback) {
+
+				if (!user) {
+					callback(401);
+				} 
+				else
+					bcrypt.compare(password, user.password, function(error, result) {
+    					callback(error, result, user);
+					});
+			}, 
+
+			function(matched, user, callback) {
+
+				if (!matched) callback(401);
+
+				else
+
+					bcrypt.genSalt(10, function(err, salt) {
+						callback(err, salt, user);
+					});
+			},
+
+			function(salt, user, callback) {
+				
+				bcrypt.hash(newPassword, salt, function(err, hash) {
+					user.password = hash;
+					callback(err, user);
+				});
+			},
+
+			function(user, callback) {
+				user.save(function(error){
+					if (error) callback(error);
+					else callback(null, 200);
+				});
+			}
+		],
+		function(error, result) {
+			if (callbackFn) callbackFn(error, result)
+		});
+	};
+
+	var changeEmail = function(username, password, email, requestor, callbackFn){
+
+		async.waterfall([
+			function(callback) {
+				User.findOne({
+					usernameLowerCase: username.toLowerCase() 
+				}, function(error, user) {
+					callback(error, user);
+				});
+			},
+			function(user, callback) {
+
+				if (!user) {
+					callback(401);
+				} 
+				else
+					bcrypt.compare(password, user.password, function(error, result) {
+    					callback(error, result, user);
+					});
+			}, 
+
+			function(matched, user, callback) {
+
+				if (!matched) callback(401);
+
+				else
+
+					User.findOne({email: email}, function(error, result){
+						callback(error, result, user)
+					});
+			},
+
+			function(emailExist, user, callback) {
+				
+				if (emailExist) callback(409);
+				else callback(null, user);
+			},
+
+			function(user, callback) {
+
+				user.email = email;
+				user.markModified = "email";
+				
+				user.save(function(error){
+					if (error) callback(error);
+					else callback(null, 200);
+				});
 			}
 		],
 		function(error, result) {
@@ -451,6 +632,7 @@ module.exports = function(mongoose, async, logins, models) {
 	return {
 		User: User,
 		Invite: Invite,
+		Settings: Settings,
 		createUser: createUser,
 		authenticateUser: authenticateUser,
 		logout: logout,
@@ -460,6 +642,8 @@ module.exports = function(mongoose, async, logins, models) {
 		getUser: getUser,
 		insertActivity: insertActivity,
 		saveSoundPattern: saveSoundPattern,
-		objectId: _objectId
+		changePassword: changePassword,
+		objectId: _objectId,
+		changeEmail: changeEmail
 	};
 };

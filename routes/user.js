@@ -275,7 +275,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 	var logout = function(req, res, next) {
 
-		if (!req.session || !req.session.uid) return res.send(404);
+		if (!validateSession(req)) return res.send(404);
 
 		if (req.cookies[_uid] && req.cookies[_sid] && req.cookies[_token]) {
 
@@ -284,15 +284,17 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 				if (error) return res.send(error);
 
-				req.session.uid = null;
-				req.session.username = null;
+				req.session.destroy(function(error){
 
-				res.clearCookie(_uid);
-				res.clearCookie(_sid);
-				res.clearCookie(_token);
-				res.clearCookie(_cookieSet);
-				
-				return res.send(200);
+					res.clearCookie(_uid);
+					res.clearCookie(_sid);
+					res.clearCookie(_token);
+					res.clearCookie(_cookieSet);
+					
+					if (error) return res.send(500);
+					return res.send(200);
+					
+				});
 			});
 		}
 	};
@@ -382,6 +384,10 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 	var me = function(req, res, next) {
 
+		if (!validateSession(req)) return res.send(401);
+
+		console.log(req.session)
+
 		var requestor = {
 			ip: req.ip,
 			date: new Date(),
@@ -395,7 +401,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 			platform: req.useragent.Platform
 		};
 
-		if (!req.session || !req.session.uid || !req.session.username) return res.send(401);
+		
 
 		res.set('Content-Type', 'application/json');
 
@@ -424,7 +430,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 	var getUser = function(req, res, next) {
 		
-		if (!req.param('name') || !req.session || !req.session.uid || !req.session.username) 
+		if (!req.param('name') || !validateSession(req)) 
 			return res.send(401);
 
 		models.User.getUser(req.param('name'), function(user){
@@ -434,6 +440,8 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 	};
 
 	var patterns = function(req, res, next) {
+
+		if (!validateSession(req)) return res.send(401);
 
 		if (!req.param('user')) return res.send(400);
 
@@ -459,8 +467,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 	var pattern = function(req, res, next) {
 
-		if (!req.param('id') || !req.session || !req.session.uid || !
-			req.session.username) return res.send(401);
+		if (!req.param('id') || !validateSession(req)) return res.send(401);
 
 		models.projects.SoundPattern.find({
 			_id: req.param('id'), active: true}, function(error, p){
@@ -477,8 +484,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 	var follow = function(req, res, next) {
 
-		if (!req.body._id || !req.session || !req.session.uid || !
-			req.session.username || !req.body.username) return res.send(401);
+		if (!req.body._id || !req.body.username || !validateSession(req)) return res.send(401);
 
 		// models.activities['user:follow']
 
@@ -508,8 +514,8 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 	};
 
 	var invite = function(req, res, next) {
-		if (!req.body.email || !req.body.name || !req.session || !req.session.uid ||
-			!req.session.username) return res.send(401);
+
+		if (!req.body.email || !req.body.name || !validateSession(req)) return res.send(401);
 
 		models.User.Invite.create({
 			username: req.session.username,
@@ -528,6 +534,151 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 	};
 
+	var getSettings = function(req, res, next) {
+
+		if (!validateSession(req)) return res.send(401);
+
+		models.User.Settings.find({userid: req.session.uid}, function(error, s){
+
+			var r = ")]}',\n" + JSON.stringify(s);
+			
+			res.send(r);
+		});
+
+	};
+
+	function putSettings(req, res, next) {
+
+		if (!validateSession(req)) return res.send(401);
+
+		var q = {}, j = 0, key, value;
+
+		for (var i in req.query) {
+
+			if (j == 0) {
+				key = i;
+			}
+			else if (j == 1) {
+				key += '.' + i 
+				value = JSON.parse(req.query[i]);
+			}
+			else break;
+			++j;
+		}
+
+		q[key] = value;
+
+		q['updated'] = new Date().getTime();
+
+		// models.User.Settings.findOne({userid: req.session.uid}, function(error, result){
+		// 	console.log(result);
+		// });
+
+		models.User.Settings.update({userid: req.session.uid}, {$set: q}, function(error){
+			
+			if (error) return res.send(500);
+
+			return res.send(200);
+		});
+
+	}; 
+
+	function changepassword(req, res, next) {
+
+		if (!validateSession(req)) return res.send(401);
+
+		if (!req.body.password || !req.body.newPassword) return res.send(400);
+
+		var requestor = {
+			ip: req.ip,
+			date: new Date(),
+			timestamp: (new Date()).getTime(),
+			host: req.host,
+			path: req.path,
+			params: req.params,
+			OS: req.useragent.OS,
+			browser: req.useragent.Browser,
+			browserVersion: req.useragent.Version,
+			platform: req.useragent.Platform
+		};
+
+		models.User.changePassword(req.session.username, req.body.password, req.body.newPassword,
+		requestor,
+		function(error, result){
+			if (error) {
+				return res.send(error);
+			}
+
+			models.Session.Session.update({uid: req.session.uid, active: true}, 
+				{$set: {
+					active: false,
+					'series.updated': Date.now()
+				}}, {multi: true}, function(error, result){
+					
+					if (error) return res.send(500);
+					
+
+					// TODO: Destroy all active sessions... you can get all sessions from
+					// sessionStore.client.keys("sess:*", fun.... but you may want to 
+					// look into a more feasible solution.
+
+					req.session.destroy(function(error){
+
+						res.clearCookie(_uid);
+						res.clearCookie(_sid);
+						res.clearCookie(_token);
+						res.clearCookie(_cookieSet);
+						
+						if (error) return res.send(500);
+						return res.send(200);
+						
+					});
+
+				});
+
+		});
+
+	}; 
+
+	function changeEmail(req, res, next) {
+
+		if (!validateSession(req)) return res.send(401);
+
+		if (!req.body.password || !req.body.email) return res.send(400);
+
+		var requestor = {
+			ip: req.ip,
+			date: new Date(),
+			timestamp: (new Date()).getTime(),
+			host: req.host,
+			path: req.path,
+			params: req.params,
+			OS: req.useragent.OS,
+			browser: req.useragent.Browser,
+			browserVersion: req.useragent.Version,
+			platform: req.useragent.Platform
+		};
+
+		models.User.changeEmail(req.session.username, req.body.password, req.body.email,
+		requestor,
+		function(error, result){
+			if (error) {
+				return res.send(error);
+			}
+			return res.send(result);
+		});
+
+	}; 
+
+
+	function validateSession(req) {
+		if (!req.session || !req.session.uid || !req.session.username) {
+			return false;
+		}
+		return true;
+	};
+
+
 	return {
 		login: login,
 		logout: logout,
@@ -537,6 +688,10 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		patterns: patterns,
 		pattern: pattern,
 		follow: follow,
-		invite: invite
+		invite: invite,
+		getSettings: getSettings,
+		putSettings: putSettings,
+		changepassword: changepassword,
+		changeEmail: changeEmail
 	}
 };

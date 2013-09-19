@@ -1,7 +1,8 @@
 define(['services/services'], function(services){
 
-	services.factory('me', ['auth', '$location', '$rootScope', 'doobio', '$q', '$timeout'
-		,function(auth, $location, $rootScope, doobio, $q, $timeout) {
+	services.factory('me', ['auth', '$location', '$rootScope', 'doobio', '$q', 
+		'$timeout', '$route', 
+		function(auth, $location, $rootScope, doobio, $q, $timeout, $route) {
 			return function() {
 
 				var delay = $q.defer();
@@ -33,8 +34,9 @@ define(['services/services'], function(services){
 						delay.resolve(temp);
 
 					}, function(er, status){
-						console.log(er)
-						console.log(status)
+						// console.log(er)
+						// console.log(status)
+						// $route.reload();
 						delay.reject('We couldn`t load your data from server! Please reload the page.');
 					});
 

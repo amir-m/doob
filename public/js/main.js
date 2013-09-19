@@ -46,6 +46,7 @@ require([
 	'services/patternsloader',
 	'services/patternloader', 
 	'services/me', 
+	'services/settingsloader', 
 	'controllers/ctrl',
 	'controllers/home-ctrl',
 	'controllers/login-ctrl',
@@ -53,6 +54,7 @@ require([
 	'controllers/sound-patterns-ctrl',
 	'controllers/sound-pattern-ctrl',
 	'controllers/user-ctrl',
+	'controllers/settings-ctrl',
 	'directives/play-inline',
 	'directives/sound-picker',
 	'directives/sound-pattern',
@@ -64,7 +66,9 @@ require([
 	'directives/pinger',
 	'directives/sp-comment',
 	'directives/sp-change-tempo',
-	'directives/sp-change-steps'
+	'directives/sp-change-steps',
+	'directives/settings-security',
+	'directives/settings-notifications', 
 	], function($, angular, app, domReady, socketio) {
 		
 		'use strict';
@@ -134,11 +138,27 @@ require([
 				templateUrl: 'partials/user.html', 
 				controller: 'UserCtrl', 
 				resolve: {
-					myinfoz: ['me', function(me) {
-						return me();
-					}],
 					user: ['UserLoader', function(UserLoader) {
 						return UserLoader();
+					}]
+				}
+			})
+			.when('/settings', {
+				// templateUrl: 'partials/settings.html', 
+				// controller: 'SettingsCtrl', 
+				// resolve: {
+				// 	settings: ['SettingsLoader', function(SettingsLoader) {
+				// 		return SettingsLoader();
+				// 	}]
+				// }
+				redirectTo: '/settings/security'
+			})
+			.when('/settings/:setting', {
+				templateUrl: 'partials/settings.html', 
+				controller: 'SettingsCtrl', 
+				resolve: {
+					settings: ['SettingsLoader', function(SettingsLoader) {
+						return SettingsLoader();
 					}]
 				}
 			})
