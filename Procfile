@@ -1,1 +1,1 @@
-web: node astu.js
+web: node app.js
