@@ -5,17 +5,29 @@ define(['directives/directives'], function(directives){
 	
 		return {
 	
-			templateUrl: 'partials/template/doob/sound/new-sound-pattern.html',
+			templateUrl: 'partials/template/doob/new-sound-pattern.html',
 			restrict: 'E',
 			replace: true,
 			
 			link: function(scope, element) {
 
-				scope.focus = function(){
-					$('#spnamedropdown').fadeIn();
-					$('#spname').focus();
-					$('#spname').val('');
-					// scope.$apply()
+				scope.focusClass = "plus";
+				scope.focused = false;
+
+				scope.toggleFocus = function(){
+					
+					if (!scope.focused) {
+						$('#spnamedropdown').fadeIn();
+						$('#spname').focus();
+						$('#spname').val('');
+						scope.focusClass = "cancel";
+					}
+					else {
+						$('#spnamedropdown').fadeOut();
+						scope.focusClass = "plus";
+					}
+
+					scope.focused = !scope.focused;
 				}
 
 				scope.addSound = function(i, j){

@@ -6,6 +6,11 @@ define(['directives/directives'], function(directives){
 		return {
 				
 			link: function(scope, element, att) {
+				
+				// console.log(scope.patternInfo)
+				// console.log(scope.instanceName)
+				// console.log(scope.pattern)
+
 				element.bind('keyup', function(e){
 					if (e.which == 13) {
 						// console.log('comment');

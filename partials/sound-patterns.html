@@ -1,10 +1,12 @@
 <div class="container-fluid">
 	<!-- style="background-color: gray" -->
 	<div class="row-fluid" >
-		<div class="span3" >
-			<div class="well sidebar-nav">
+
+		<div class="span3">
+			<div class="well sidebar-nav" style="position: fixed;width: 256;max-height: 300;overflow: hidden;overflow-y: auto;">
 				<ul class="nav nav-list">
 					<li class="nav-header title">Sound Patterns</li>
+					<li class="divider"></li>
 					<ul class="nav" ng-repeat="instanceName in doob.instanceNames">
 						<li style="margin-bottom:5">
 							<span>
@@ -13,18 +15,18 @@
 								<i class="icon-user"></i>
 								<a href="#/sound-patterns/{{instanceName}}"><b>{{instanceName}}</b></a>
 								<span class="pull-right">
-									<new-sound-pattern tooltip-placement="top" tooltip="New Sound Pattern">
-								</new-sound-pattern>
+									<new-sound-pattern>
+									</new-sound-pattern>
 								</span>
 							</span>
 						</li>
 						<li ng-repeat="soundPattern in doob.get(instanceName).soundPatterns">
-							<a ng-click="viewEdit(soundPattern, instanceName)" style="cursor: default">
+							<a ng-click="viewEdit(soundPattern, instanceName)" style="cursor: pointer">
 								<i class="icon-cancel" style="cursor: pointer" tooltip="Delete!"
 								stop-event="click" ng-click="remove(soundPattern, instanceName)">
 								</i>
 								<span>{{soundPattern.name}}</span>
-								<span class="close" ng-click="viewEdit(soundPattern, instanceName)" tooltip="View/Edit" style="font-size:15">
+								<span class="pull-right" ng-click="viewEdit(soundPattern, instanceName)" tooltip="View/Edit" style="font-size:15">
 									<i class="icon-right-circled"></i>
 								</span>
 							</a> 
@@ -32,7 +34,7 @@
 					</ul>
 				</ul>
 			</div>
-			<div class="well sidebar-nav">
+			<div class="well sidebar-nav" style="position: fixed;width: 256;max-height: 300;overflow: hidden;overflow-y: auto;top:300">
 				<ul class="nav nav-list">
 					<li class="nav-header">Sounds</li>
 					<ul class="nav" ng-repeat="instanceName in doob.instanceNames">
@@ -42,104 +44,31 @@
 								<i class="icon-user"></i>
 								<b style="cursor:pointer">{{instanceName}}</b>
 								<span class="pull-right" stop-event="click">
-									<doob.sound.picker tooltip-placement="top" tooltip="Add Sound"></doob.sound.picker>
+									<sound-picker tooltip-placement="top" tooltip="Add Sound"></sound-picker>
 								</span>
 							</a>
 						</li>
-						<li ng-repeat="sound in doob.get(instanceName).sounds">
-							{{sound}}
-							<span class="close pull-right" ng-show="showPattern()" 
-							ng-click="" tooltip="Add to the pattern">
-								<i class="icon-right-circled" style="font-size:15"
-								ng-click="addSoundToPattern(sound, instanceName)"></i>
-							</span>
-
-							<doob.play.inline icon-position="pull-right" sound="sound" context="instanceName" stop-event="click">
+						<li ng-repeat="sound in doob.get(instanceName).sounds" >
+							<doob.play.inline sound="sound" context="instanceName" stop-event="click">
 							</doob.play.inline>
+							<span  sound="{{sound}}">{{sound}}</span>
+							<span class="pull-right" ng-show="showPattern()" 
+							 tooltip="Add to Pattern" >
+								<add-sound></add-sound>
+							</span>
 							<!-- <input type="range" name="points" min="1" max="100"> -->
 						</li>
 						<li class="divider"></li>
 
-						<!-- <li><doob.sound.picker></doob.sound.picker></li> -->
 					</ul>
 				</ul>
 			</div>
 		</div>
-		<div class="span9" ng-show="showPattern()">
-
-			<button class="close pull-left" style="padding-left: 2px;" ng-click="closePattern()">&times;
-			</button>
-			<div class="pattern-container">
-				<div class="navbar navbar-fixed-top" style="left: inherit;right: inherit;top: inherit;margin: 0;padding: 0;position: relative;z-index: 0;">
-					<div class="navbar-inner" style="border-radius: 20px; box-shadow: 0 0 0 0">
-						<div class="container">
-							<ul class="nav">
-								<li>
-									<a><b><i class="icon-user" style="margin-top:6"></i>
-										{{instanceName}}
-									</b></a> 
-								</li>
-								<li>
-									<a><b>{{patternInfo.name}}</b></a> 
-								</li>
-								<!-- <li>
-									{{pattern}}
-									<doob.sound.picker></doob.sound.picker>	
-								</li> -->
-								<li class="btn-toolbar" style="margin-top: 5px;">
-								  <div class="btn-group">
-									<button class="btn btn-small btn-player" ng-click="play(pattern)" style="font-size: 15;">
-										<icon class="icon-play-1"></icon>
-									</button>
-									<button class="btn btn-small btn-player" ng-click="stop(pattern)" style="font-size: 15;">
-										<icon class="icon-stop-1"></icon>
-									</button>
-									<button tooltip="Play Loop" class="btn btn-small btn-player" ng-click="play(pattern, 1)" style="font-size: 15;">
-										<icon class="icon-loop" ></icon>
-									</button>
-									
-									<input tooltip="Tempo" class="sp-input" placeholder="{{pattern.tempo}}" ng-model="tempo" sp-change-tempo>
-
-									<input tooltip="Steps" class="sp-input" placeholder="{{pattern.steps}}" ng-model="steps"
-									sp-change-steps>
-								  </div>
-								</li>
-								<!-- <li >
-									<a class="pull-right" ng-click="">Save</a>
-								</li> -->
-							</ul>
-						</div>
-					</div>
-				</div>
-				<doob.sound.pattern>
-				</doob.sound.pattern>
-				<div class="well">
-					<input type="text" style="width:100%; height: 40px" sp-comment placeholder="Comment..."><br>
-					<div ng-repeat="comment in patternInfo.comments | orderBy:'timestamp':true">
-						<table style="width:100%">
-							<tr>
-								<td style="width:15%;">
-									<a href="#/users/{{comment.commenter}}">
-										<i class="icon-user" style="margin-top:2"></i>
-										<span style="padding-left:5">{{comment.commenter}}</span>
-									</a>
-								</td>
-								<td class="created-info" style="text-align:left; border-bottom:1px solid rgb(227, 227, 227);" rowspan="2" >
-									{{comment.comment}}
-								</td>
-								<!-- <td>{{comment}}</td> -->
-							</tr>
-							<tr style="width:100%;border-bottom:1px solid rgb(227, 227, 227)">
-								<td class="created-info">{{comment.timestamp | date: 'MMM d, h:mm a'}}</td>
-							</tr>
-						</table>
-					</div>
-						
-				</div>
-				
-				<!-- <a ng-bind="now() | date: 'MMM d, h:mm a'"> -->
-			</div>
+		<div class="span9" id="soundpatterns" style="margin-bottom:50">
+			<!-- <sound-pattern>
+			</sound-pattern> -->
 		</div>
+		
 	</div>
 </div>
 <!-- <doob.sound.patterns></doob.sound.patterns> -->

@@ -1,0 +1,123 @@
+
+<div style="padding-bottom: 30;">
+
+	<button class="close pull-left" style="padding-left: 2px;" 
+	ng-click="closePattern(patternInfo)">&times;
+	</button>
+	<div class="pattern-container">
+		<div class="navbar navbar-fixed-top" style="left: inherit;right: inherit;top: inherit;margin: 0;padding: 0;position: relative;z-index: 0;">
+			<div class="navbar-inner" style="border-radius: 20px; box-shadow: 0 0 0 0">
+				<div class="container">
+					<ul class="nav">
+						<li>
+							<a><b><i class="icon-user" style="margin-top:6"></i>
+								{{instanceName}}
+							</b></a> 
+						</li>
+						<li>
+							<a><b>{{patternInfo.name}}</b></a> 
+						</li>
+
+						<li class="btn-toolbar" style="margin-top: 5px;">
+							<div class="btn-group">
+								<button class="btn btn-small btn-player" ng-click="play(instanceName, pattern)" style="font-size: 15;">
+									<icon class="icon-play-1"></icon>
+								</button>
+								<button class="btn btn-small btn-player" ng-click="stop(instanceName, pattern)" style="font-size: 15;">
+									<icon class="icon-stop-1"></icon>
+								</button>
+								<button tooltip="Play Loop" class="btn btn-small btn-player" ng-click="play(instanceName, pattern, 1)" style="font-size: 15;">
+									<icon class="icon-loop" ></icon>
+								</button>
+
+								<input tooltip="Tempo" class="sp-input" placeholder="{{pattern.tempo}}" ng-model="tempo" sp-change-tempo>
+
+								<input tooltip="Steps" class="sp-input" placeholder="{{pattern.steps}}" ng-model="steps"
+								sp-change-steps>
+							</div>
+						</li>
+
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="well" style="overflow:hidden; overflow-x:auto; padding-bottom: 0;">	
+			<table class="table table-hover" style="margin-bottom:0; border-bottom: 1 solid rgb(221, 221, 211)">
+				<tbody sortable-tabel>
+					<tr ng-repeat="patternSound in pattern.tracks" class="sound-pattern">
+						<td class="sound-name-borders" style="cursor:move">
+							<doob.play.inline icon-position="pull-right" sound="patternSound.dummyName" context="instanceName" stop-event="click">
+							</doob.play.inline>
+							<button class="close pull-left" style="padding-right: 10px;"  
+							ng-click="removeTrack(patternSound)">&times;
+							</button>
+							{{patternSound.name}}&nbsp;&nbsp;&nbsp;
+
+						</td>
+						<td class="btn-group">
+							<span ng-repeat="note in totalNotes()">
+								<span ng-show="$index % 4 == 0 && $index != 0 && $index % 8 != 0 && $index % 12 != 0 && $index % 16 != 0" class="quarter-divider">
+								</span>
+								<span ng-show="$index % 8 == 0 && $index != 0 && $index % 16 != 0 && $index % 12 != 0" class="half-divider"></span>
+								<span ng-show="$index % 12 == 0 && $index != 0" class="three-quarters-divider">
+								</span>
+								<span ng-show="$index % 16 == 0 && $index != 0" class="one-divider">
+								</span>
+								<button 
+								ng-class="{'btn btn-small btn-inverse': patternSound.pattern.indexOf($index + 1) != -1, 'btn btn-small': true }"
+								ng-click="toggleNote($index + 1, patternSound)" style="border-radius:0; height:18; width: 18; padding:0;margin:0;">
+								<icon ng-class="{'icon-note': patternSound.pattern.indexOf($index + 1) != -1}" style="margin:0;color:white">
+								</icon>
+								</button>
+
+							</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<span class="created-info">
+				<i class="icon-cog-alt"></i> Created at {{patternInfo.created | date: 'MMM d, h:mm a'}}
+			</span>
+			<span class="created-info"> <i class="icon-cog"></i>  Modified at {{patternInfo.updated | date: 'MMM d, h:mm a'}} 
+			</span>
+			<span class="created-info" ng-show="patternInfo.likesCount==0" 
+				tooltip="Likes"> 
+				<i class="icon-heart"></i>  {{patternInfo.likesCount}} 
+			</span>
+			<span class="created-info" ng-show="patternInfo.forksCount==0" 
+			tooltip="Forks!"> 
+				<i style="color:blue" class="icon-cog-alt"></i>  {{patternInfo.forksCount}} 
+			</span>
+			<span class="created-info" ng-show="patternInfo.comments.length>0" 
+			tooltip="Comments!"> 
+				<i style="color:green" class="icon-chat"></i>  {{patternInfo.comments.length}} 
+			</span>
+		</div>
+
+
+		<div class="well">
+			<input type="text" style="width:100%; height: 40px" sp-comment placeholder="Comment..."><br>
+			<div ng-repeat="comment in patternInfo.comments | orderBy:'timestamp':true" class="comment">
+				<table style="width:100%">
+					<tr>
+						<td style="width:15%;">
+							<a href="#/users/{{comment.commenter}}">
+								<i class="icon-user" style="margin-top:2"></i>
+								<span style="padding-left:5">{{comment.commenter}}</span>
+							</a>
+						</td>
+						<td class="comment-text" rowspan="2" style="border-right:0">
+							{{comment.comment}}
+						</td>
+					</tr>
+					<tr style="width:100%;border-bottom:1px solid rgb(227, 227, 227);">
+						<td class="created-info" style="border-right:0">{{comment.timestamp | date: 'MMM d, h:mm a'}}</td>
+					</tr>
+				</table>
+			</div>
+
+		</div>
+
+	</div>
+</div>

@@ -1,0 +1,5 @@
+<div class="sound-patterns" ng-repeat="instanceName in doob.instanceNames">
+  <div class="sound-pattern" ng-repeat="soundPattern in doob.get(instanceName).soundPatterns">
+    <doob.sound.pattern instance-name="instanceName" pattern="soundPattern"></doob.sound.pattern>
+  </div>
+</div>

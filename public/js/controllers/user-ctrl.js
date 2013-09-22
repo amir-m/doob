@@ -3,7 +3,7 @@ define(['controllers/controllers'],
 
 		controllers.controller('UserCtrl', ['$scope', '$location', '$rootScope',
 		 	'user', '$http', 'socket', 'me', 
-			function ($scope, $location, $rootScope, user, $http, socket) {
+			function ($scope, $location, $rootScope, user, $http, socket, me) {
 				$("#topnav").slideDown(200);
 				$("#btmerrmsg").hide();
 				$("#btmloaderimg").hide();	

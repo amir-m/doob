@@ -2,8 +2,10 @@ define(['controllers/controllers'],
 function(controllers){
 	
 	controllers.controller('SoundPatternsCtrl', [
-		'$scope', '$rootScope', 'doobio', '$routeParams', '$location', 'auth', 'patterns', 'me',
-		function ($scope, $rootScope, doobio, $routeParams, $location, auth, patterns, me) { //, loaded) {
+		'$scope', '$rootScope', 'doobio', '$routeParams', 
+		'$location', 'auth', 'patterns', 'me', '$compile',
+		function ($scope, $rootScope, doobio, $routeParams, 
+		$location, auth, patterns, me, $compile) { //, loaded) {
 
 	
 		$("#topnav").slideDown(200);
@@ -16,6 +18,8 @@ function(controllers){
 		$scope.patternInfo = null;
 		$scope.sounds = [];
 		$scope.mappings = $scope.mappings || {};
+		$scope.openPatterns = {};
+		$scope.openPattern = false;
 		
 		$scope.patterns = patterns;
 
@@ -53,7 +57,6 @@ function(controllers){
 			/** if the pattern is present in the local instances, fetch it from the server
 			* and display it. */
 			else {
-				console.log('shiiiiiit')
 				var promise = PatternLoader();
 				promise.then(function(pattern){
 					// $scope.viewEdit(pattern[0], pattern[0].username)
@@ -69,60 +72,84 @@ function(controllers){
 
 		$scope.doob = doobio;
 
-		$scope.addSoundToPattern = function(sound, soundInstanceName) {
+		// $scope.addSoundToPattern = function(sound, soundInstanceName) {
 			
-			// console.log('sound: %s, instanceName: %s, $scope.pattern: %s, $scope.instanceName', 
-			// 	sound, soundInstanceName, $scope.pattern.name, $scope.instanceName);
-			if (!doobio.instances[$scope.instanceName].env.assets[sound]) {
-				new doobio.instances[$scope.instanceName].audio.Sound({
-					name: sound,
-					url: doobio.instances[soundInstanceName].env.assets[sound].url
-				}, true);
-			}
-			$scope.patternInfo.updated = new Date().getTime();
-			doobio.instances[soundInstanceName].env.assets[$scope.patternInfo.name].newTrack(sound, true);
+		// 	// console.log('sound: %s, instanceName: %s, $scope.pattern: %s, $scope.instanceName', 
+		// 	// 	sound, soundInstanceName, $scope.pattern.name, $scope.instanceName);
+		// 	if (!doobio.instances[$scope.instanceName].env.assets[sound]) {
+		// 		new doobio.instances[$scope.instanceName].audio.Sound({
+		// 			name: sound,
+		// 			url: doobio.instances[soundInstanceName].env.assets[sound].url
+		// 		}, true);
+		// 	}
+		// 	$scope.patternInfo.updated = new Date().getTime();
+		// 	doobio.instances[soundInstanceName].env.assets[$scope.patternInfo.name].newTrack(sound, true);
 
-			if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
-				$scope.$apply();
-		}
+		// 	if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
+		// 		$scope.$apply();
+		// }; 
+
+		$scope.loadedOpenPatterns = function () {
+			console.log($scope.openPatterns)
+		}; 
+
+		$scope.allowDrop = function (ev) {
+			ev.preventDefault();
+		};
+		$scope.drag = function (sound, instanceName) {
+			// console.log(sound)
+			// console.log(instanceName)
+			// $scope.addSoundToPattern(sound, instanceName)
+		};
 		
-		$scope.play = function(p, flag){
-			doobio.instances[$scope.instanceName].env.assets[p.name].tempo = p.tempo
-			doobio.instances[$scope.instanceName].env.assets[p.name].steps = p.steps
-			doobio.instances[$scope.instanceName].env.assets[p.name].play(flag);
-			console.log(doobio.instances[$scope.instanceName].env.assets[p.name]);
-		};
 
-		$scope.stop = function(p, flag){
-			doobio.instances[$scope.instanceName].env.assets[p.name].stop(flag);
+		$scope.reArrange = function () {
+			console.log('reArrange the biatch!')
 		};
+		
 
 		$scope.showPattern = function() {
-			return $scope.pattern != null
+
+			return $scope.openPattern;
 		}
 
-		$scope.closePattern = function() {
-			$scope.instanceName = null;
-			$scope.pattern = null;
-			$scope.patternInfo = null;
+		$scope.closePattern = function(pattern) {
+			
+			$('#' + pattern._id).remove();
+			delete $scope.openPatterns[pattern._id];
 		}
 
 		$scope.viewEdit = function(soundPattern, instanceName) {
 
-			// console.log()
+			if (soundPattern.id in $scope.openPatterns) {
+				$('html, body').animate({
+					scrollTop: $("#"+soundPattern.id).offset().top - 50
+				}, 200);
+				return;
+			}
 
-			// if ($routeParams.id == soundPattern.id) {
-			// }
-			// else
-				$scope.pattern = soundPattern;
+			var html = "<sound-pattern id='"+soundPattern.id+"'></sound-pattern>";
+			var scope = $scope.$new();
+
+			scope.pattern = soundPattern;
 				
-				$scope.instanceName = instanceName;
+			scope.instanceName = instanceName;
 
-				$scope.patternInfo = $scope.mappings[soundPattern.id];
+			scope.patternInfo = $scope.mappings[soundPattern.id];
 
-				// $location.path('/sound-patterns/'+instanceName+'/'+soundPattern.id);
 
-				if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
+			/*
+			*	append this pattern to the current sound patterns
+			*/
+			$('#soundpatterns').append($compile(html)(scope));
+			$('html, body').animate({
+				scrollTop: $("#"+soundPattern.id).offset().top - 55
+			}, 200);
+
+			$scope.openPatterns[soundPattern.id] = soundPattern;
+			$scope.openPattern = true;
+
+			if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
 				$scope.$apply();
 		}
 

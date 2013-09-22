@@ -416,7 +416,9 @@ define([''], function(){
 
             if (this.subscribers[ev]) {
                 for (var i in this.subscribers[ev])
+                {
                     this.subscribers[ev][i].apply(ev, args);
+                }
             }
             // console.log(ev)
             if (ev == 'all') return;

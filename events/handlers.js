@@ -176,21 +176,14 @@ module.exports = function(io, socket, session, store, models) {
 
   var saveSP = function(data) {
 
+    console.log(data);
+
     models.projects.newSoundPattern(data, session, function(error, sp){
 
-      // the user is still connected.
-      if (io.sockets.sockets[data.broadcaster])
-          io.sockets.sockets[io.sockets.sockets[data.broadcaster]].
-          emit('set:sequencer:SoundPattern:id', {
-            event: 'set:sequencer:SoundPattern:id',
-            broadcaster: 'sys',
-            subscriber: data.subscriber,
-            timestamp: new Date().getTime(),
-            message: {
-              id: sp._id,
-              pattern: data.message.pattern.name//id
-            }
-          });
+      if (error) {
+        console.log(error)
+      };
+
     });
   };
 

@@ -1,0 +1,14 @@
+<span class="dropdown" >
+	<i class="icon-right-circled dropdown-toggle" style="font-size:15; cursor:pointer" ng-click="reArrange()">
+	</i>
+	
+	<ul class="dropdown-menu" style="max-height: 200px;position:relative;">
+		
+		<li ng-repeat="i in openPatterns" style="opacity:1;">
+			<a ng-click="addSoundToPattern(sound, instanceName, i)"> 
+				{{i.name}}
+			</a>
+		</li>
+	</ul>
+	
+</span>

@@ -6,6 +6,7 @@ require.config({
 		angularResource: 'lib/angular-resource',
 		angularCookies: 'lib/angular-cookies',
 		jquery: 'lib/jquery',
+		jqueryui: 'lib/jqueryui',
 		domready: 'lib/domready',
 		uiBootstrap: 'lib/ui-bootstrap-tpls-0.5.0',
 		doob: 'lib/doob',
@@ -15,11 +16,10 @@ require.config({
 		sequencer: 'lib/sequencer'
 	},
 	shim: {
-		'socketio': {
-			exports: 'io'
-		},
+		'jqueryui': { deps: ['jquery'] },
+		'socketio': { exports: 'io' },
 		'angular': {
-			deps: ['jquery'],
+			deps: ['jquery', 'jqueryui'],
 			exports: 'angular'
 		},
 		'angularResource': { deps: ['angular'] },
@@ -34,6 +34,7 @@ require([
 	'app', 
 	'domready',
 	'socketio',
+	'jqueryui',
 	'uiBootstrap',
 	'services/auth',
 	'services/socket',
@@ -69,6 +70,10 @@ require([
 	'directives/sp-change-steps',
 	'directives/settings-security',
 	'directives/settings-notifications', 
+	'directives/draggable',
+	'directives/droppable',
+	'directives/sortable-table', 
+	'directives/add-sound'
 	], function($, angular, app, domReady, socketio) {
 		
 		'use strict';

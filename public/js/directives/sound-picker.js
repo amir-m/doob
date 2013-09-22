@@ -1,19 +1,21 @@
 define(['directives/directives'], function(directives){
 
-	directives.directive('doob.sound.picker', ['doobio', '$rootScope', 
+	directives.directive('soundPicker', ['doobio', '$rootScope', 
 		function(doobio, $rootScope){
 	
 		return {
 	
-			templateUrl: 'partials/template/doob/sound/sound-picker.html',
+			templateUrl: 'partials/template/doob/sound-picker.html',
 			restrict: 'E',
 			replace: true,
 			
 			link: function(scope, element) {
-
+				
 				element.bind('click', function (e) {
                     e.stopPropagation();
                 });
+
+                
 
 				scope.soundList = [];
 				scope.soundObjects = [];

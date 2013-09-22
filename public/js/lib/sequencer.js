@@ -188,10 +188,9 @@ define([], function(){
 
 			return o;
 
-
-
 			};
 			SoundPattern.prototype.play = function(mode) {
+				console.log(this.id);
 				if (this.playbackState == 1) return;
 				if (mode) 
 					this.enQ(true);
@@ -303,6 +302,7 @@ define([], function(){
 				schedule(loop ? 1 : this.bars);
 				
 				function schedule(bars) {
+					if (self.playbackState == 0) return;
 					for (var i = 0; i < 1; ++i) {
 
 						for (var sound in self.tracks) {
@@ -349,8 +349,11 @@ define([], function(){
 			
 			
 			SoundPattern.prototype.stop = function(options) {
-				if (self.intvl) clearInterval(intvl);
-				for (var i = 0, l = this.patternSources.length; i < l; ++i) {
+				console.log(this.id);
+				console.log(this.patternSources)
+				console.log(this.soundPatternSources)
+				if (this.intvl) clearInterval(intvl);
+				for (var i = 0;i < this.patternSources.length; ++i) {
 					if(this.patternSources[i]) {
 						this.patternSources[i].stop ? this.patternSources[i].stop(0) : 
 						this.patternSources[i].noteOff(0);
@@ -360,6 +363,8 @@ define([], function(){
 				this.playbackState = 0;
 				this.scheduledBars = 1;
 				this.soundPatternSources = {};
+				console.log(this.patternSources)
+				console.log(this.soundPatternSources)
 			};
 			
 			SoundPattern.prototype.toJSON = function() {

@@ -93,7 +93,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 
 			var flag = message.broadcaster == 'sys' ? true : false;
 
-			instances[message.subscriber].env.assets[sp.pattern].setId(sp.id, flag);
+			// instances[message.subscriber].env.assets[sp.pattern].setId(sp.id, flag);
 
 			// create all the sounds in this sound pattern
 			for (var sound in sp.tracks)
@@ -250,7 +250,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 		var emit = function(event, message) {
 			// if (message.broadcaster && message.subscriber 
 			// 	&& message.broadcaster == message.subscriber) return;
-			console.log(message)
+			// console.log(message)
 			if (!message.timestamp) message.timestamp = new Date().getTime();
 			socket.emit(event, message);
 		};
@@ -397,18 +397,18 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 				}
 			},
 			sequencer: {
-                'new:sequencer:SoundPattern': function(ev, message, name) {
+     //            'new:sequencer:SoundPattern': function(ev, message, name) {
 					
-					// if (instances[name].isBroadcasting) {
-						emit(ev, {
-							event: ev,
-							broadcaster: $rootScope.username,
-							subscriber: name,
-							message: message
-						});
-					// }
+					// // if (instances[name].isBroadcasting) {
+					// 	emit(ev, {
+					// 		event: ev,
+					// 		broadcaster: $rootScope.username,
+					// 		subscriber: name,
+					// 		message: message
+					// 	});
+					// // }
 
-                }, 
+     //            }, 
                 'update:sequencer:SoundPattern:toggleNote': function(ev, message, name) {
 
 					// if (instances[name].isBroadcasting) {
@@ -483,14 +483,16 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
             }
 		}
 		
-		var attachID = function (resource, doob) {
+		var attachID = function (resource, doob, callback) {
 
 			$http.get('/id').success(function(id){
 				doob.env.assets[resource.name].id = id;
 				doob.env.ids[id] = doob.env.assets[resource.name];
+				if (callback) callback(null);
 				// console.log(self.env.assets[sound.name].id)
 				
 			}).error(function(data, status){
+				if (callback) callback(data); 
 				console.log(status);
 			});
 		}
@@ -499,6 +501,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     	function doob(name) {
     		var self = this;
     		this.name = name;
+    		this.patterns = {};
     		this.isAlien = name == $rootScope.username ? false : true;
     		this.isBroadcasting = false;
     		this.isListening = false;
@@ -519,10 +522,42 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     		};
 
     		this.soundPattern = function(sp, pub) {
-    			sp = self.sequencer.SoundPattern(sp, pub);
-    			if (!sp.id) attachID(self.env.assets[sp.name], self);
+    			var delay = $q.defer();
 
-    			return self.env.assets[sp.name];
+    			sp = self.sequencer.SoundPattern(sp, pub);
+    			if (!sp.id) attachID(self.env.assets[sp.name], self, function(error){
+    				if (!error) _createPatternInfo();
+    				else delay.reject(error);
+    			});
+    			else _createPatternInfo();
+
+    			function _createPatternInfo() {
+
+    				self.patterns[sp.id] = {
+						_id: sp.id,
+    					name: sp.name,
+    					created: new Date().getTime(),
+    					updated: new Date().getTime(),
+    					soundsCount: 0,
+    					content: sp,								
+						likesCount: 0,
+						forksCount: 0, 
+						forks: {},
+						comments: []
+    				}
+
+    				delay.resolve(self.patterns[sp.id]);
+
+					emit('new:sequencer:SoundPattern', {
+						event: 'new:sequencer:SoundPattern',
+						broadcaster: $rootScope.username,
+						timestamp: self.patterns[sp.id].created,
+						subscriber: $rootScope.username,
+						message: sp.exportable()
+					});
+    			}
+
+    			return delay.promise;
     		};
 
     		this.effect = function(fx, pub) {
@@ -535,12 +570,14 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     		// subscribe doobio to all events of this doob
     		for (var i in handlers) 
     			for (var j in this.env.handlers[i])
-    				this.env.subscribe(j, handlers[i][j]);
+    				if (handlers[i][j])
+    					this.env.subscribe(j, handlers[i][j]);
 
     		// subscribe this doob to all events of this doob's audio, io, effects, etc events
     		for (var i in this.env.handlers) 
     			for (var j in this.env.handlers[i])
-    				this[i].subscribe(j, this.env.handlers[i][j]);
+    				if (this.env.handlers[i][j])
+    					this[i].subscribe(j, this.env.handlers[i][j]);
 
 
     		// subscribe this doob to all events of this doob's io events

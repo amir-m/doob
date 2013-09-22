@@ -5,7 +5,7 @@ define(['directives/directives'], function(directives){
 	
 		return {
 	
-			templateUrl: 'partials/template/doob/general/play-inline.html',
+			templateUrl: 'partials/template/doob/play-inline.html',
 			restrict: 'E',
 			replace: false,
 			scope: {

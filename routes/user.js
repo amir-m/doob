@@ -386,8 +386,6 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 		if (!validateSession(req)) return res.send(401);
 
-		console.log(req.session)
-
 		var requestor = {
 			ip: req.ip,
 			date: new Date(),

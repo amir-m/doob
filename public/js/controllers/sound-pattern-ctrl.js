@@ -1,7 +1,7 @@
 define(['controllers/controllers'], 
 function(controllers){
 	
-	controllers.controller('UserCtrl', ['$scope', '$location', '$rootScope', 'user',
+	controllers.controller('SoundPatternCtrl', ['$scope', '$location', '$rootScope', 'user',
 	function ($scope, $location, $rootScope, user) {
 		$scope.user = user;
 

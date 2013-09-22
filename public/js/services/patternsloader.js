@@ -79,7 +79,7 @@ define(['services/services'], function(services){
 
 					}	
 
-					console.log(patterns)
+					// console.log(patterns)
 					
 					delay.resolve(patterns);
 				}

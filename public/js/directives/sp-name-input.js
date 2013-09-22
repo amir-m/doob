@@ -4,9 +4,6 @@ define(['directives/directives'], function(directives){
 
         return {
             restrict: 'A',
-            // scope: {
-            //     ev: '='
-            // },
             link: function (scope, element, attr) {
                 
                 element.bind('keydown', function (e) {
@@ -26,29 +23,37 @@ define(['directives/directives'], function(directives){
                                 var tempo = !isNaN(parseInt(scope.tempo)) ? parseInt(scope.tempo) : 120;
                                 var steps = !isNaN(parseInt(scope.steps)) ? parseInt(scope.steps) : 32;
 
-                                doobio.instances[scope.instanceName].soundPattern({
+                                var p = doobio.instances[scope.instanceName].soundPattern({
                                     name: scope.name,
                                     id: id,
                                     tempo: tempo,
                                     steps: steps
                                 }, true);
-                                $('#spname').blur();
-                                $('#spnamedropdown').hide();
-                                scope.$emit("success:message", 
-                                    'Pattern '+ scope.name+' was successfully created.', 3000);
-                                // scope.$apply();
+
+                                p.then(function(_pattern){
+                                    $('#spname').blur();
+                                    $('#spnamedropdown').hide();
+                                    scope.$emit("success:message", 
+                                        'Pattern '+ scope.name+' was successfully created.', 3000);
+
+                                    /*
+                                    *   set the mapping (patternInfo) on sp-ctrl
+                                    */
+                                    scope.mappings[_pattern._id] = _pattern;
+                                    
+                                }, function(e){
+                                    scope.$emit("error:message", e);
+                                    scope.$apply();
+                                });
                                 
                             }, function(){
-                                scope.$emit("error:message", 'An error occured in creating you patter. Could you please try again?');
+                                scope.$emit("error:message", 'An error occured in creating you pattern. Could you please try again?');
                                 scope.$apply();
                             });
                         }
                     }
+                    
                 });
-                // element.bind('blur', function(e){
-                //     $("#spnamedropdown").fadeOut();
-                //     scope.$emit("clear:message");
-                // })
             }
         };
     }]);

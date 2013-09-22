@@ -10,15 +10,16 @@ module.exports = function(mongoose, models, async) {
 		
 		_id: {type: String, required: true, unique: true},
 		name: String,
-		userid: {type: String, required: true, unique: true},
+		userid: {type: String, required: true},
 		username: String,
 		created: Number,
 		updated: Number,
-		sounds: Number,
-		forksCount: {type: String, default: 0}, 
+		soundsCount: {type: Number, default: 0},
+		likesCount: {type: Number, default: 0}, 
+		forksCount: {type: Number, default: 0}, 
 		forks: {
 			userid: String,
-			timestamp: {type: String, default: new Date().getTime()}
+			timestamp: {type: Number, default: new Date().getTime()}
 		},
 		content: {},
 		comments: []
@@ -38,7 +39,7 @@ module.exports = function(mongoose, models, async) {
 
 	var newSoundPattern = function(data, session, callbackFn) {
 		
-		var pattern = data.message.pattern, soundsCount = 0;
+		var pattern = data.message, soundsCount = 0;
 
 		for (var i in pattern.tracks) ++soundsCount;
 

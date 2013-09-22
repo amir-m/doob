@@ -157,7 +157,7 @@ module.exports = function(models, sessionMaxAge, async){
 		
 		if (!validateSession(req)) return res.send(401);
 		
-		return res.send(models.User.ObjectId);
+		return res.send(models.User.objectId());
 	};
 
 	function validateSession(req) {

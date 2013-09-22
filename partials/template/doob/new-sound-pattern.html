@@ -1,0 +1,19 @@
+<span class="dropdown"  style="margin-buttom: 10" >
+
+	<a ng-click="toggleFocus()" class=" dropdown-toggle" style="cursor:pointer" tooltip-placement="top" tooltip="New Sound Pattern">
+		<icon class="icon-{{focusClass}}-circled" style="font-size:15; cursor:pointer">
+		</icon>
+	</a>
+
+	<ul class="dropdown-menu" style="max-height: 200px;display: none;position: fixed;top: 135px;left: 240px;" id="spnamedropdown">
+		<li>
+			<input id="spname" placeholder="Pattern Name" ng-model="name" sp-name-input>
+		</li>	
+		<li>
+			<input id="sptempo" placeholder="Tempo (120)" ng-model="tempo" sp-name-input>
+		</li>
+		<li>
+			<input id="spsteps" placeholder="Steps (32)" ng-model="steps" sp-name-input>
+		</li>
+	</ul>
+</span>

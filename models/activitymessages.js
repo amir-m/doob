@@ -14,7 +14,7 @@ module.exports = {
 		return '`'+data.broadcaster + '` subscribed to `'+ data.to +'`!'
 	},
 	'new:sequencer:SoundPattern': function(data) {
-		return data.broadcaster + ' created '+ data.message.pattern.name+', a new Sound Pattern!'; 
+		return data.broadcaster + ' created '+ data.message.name+', a new Sound Pattern!'; 
 	},
 	'update:sequencer:SoundPattern:newTrack': function(data) {
 		return data.broadcaster + ' added another track called `'+ data.message.track +

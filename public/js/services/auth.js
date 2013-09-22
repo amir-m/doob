@@ -53,33 +53,33 @@ define(['services/services'], function(services){
 
 		    	var delay = $q.defer();
 
-		    	console.log('.....`authenticate` enter')
+		    	// console.log('.....`authenticate` enter')
 
 		    	if ($rootScope.username) {
 		    		delay.resolve($rootScope.username);
-		    		console.log($rootScope.username)
-		    		console.log('..... `authenticate` if ($rootScope.username)')
+		    		// console.log($rootScope.username)
+		    		// console.log('..... `authenticate` if ($rootScope.username)')
 		    	}
 
 
 		   		else {
 
-		   			console.log('..... `authenticate` else ($rootScope.username)')
+		   			// console.log('..... `authenticate` else ($rootScope.username)')
 
 		   			$http.get('/ping').success(function() {
 
-		   				console.log('..... `authenticate` /ping success')
+		   				// console.log('..... `authenticate` /ping success')
 
 			   			socket.connect(true);
 			 
 			   			// Scenario 1 - 2.b
 			   			if (!$rootScope.username) {
 			   				
-			   				console.log('..... /ping success ... !username')
+			   				// console.log('..... /ping success ... !username')
 
 			   				if ($cookies.username) {
 
-			   					console.log('..... `authenticate` /ping success ... cookie.username')
+			   					// console.log('..... `authenticate` /ping success ... cookie.username')
 
 			   					$rootScope.username = $cookies.username;
 			   					delay.resolve($rootScope.username);
@@ -87,55 +87,55 @@ define(['services/services'], function(services){
 				   			// Scenario 1 - 2.a
 				   			else {
 
-				   				console.log('..... `authenticate` /ping success ... !cookie.username')
+				   				// console.log('..... `authenticate` /ping success ... !cookie.username')
 
 				   				var promise = _getMe({'username': 1});
 
 				   				promise.then(function(data){
 
-				   					console.log('..... `authenticate` _getMe success')
-				   					console.log(data)
+				   					// console.log('..... `authenticate` _getMe success')
+				   					// console.log(data)
 
 				   					$rootScope.username = data.username;
 				   					$cookies.username = data.username;
 				   					// $location.path(path);
 				   					delay.resolve($rootScope.username);
 				   				}, function(){
-				   					console.log('..... `authenticate` _getMe FAILED');
-				   					console.log('..... HANDLE IT .....');
-				   					console.log('..... `authenticate` _getMe FAILED');
+				   					// console.log('..... `authenticate` _getMe FAILED');
+				   					// console.log('..... HANDLE IT .....');
+				   					// console.log('..... `authenticate` _getMe FAILED');
 				   				});
 				   			}
 			   			}
 
 			   		}).error(function(data, status) {
 
-			   			console.log('..... `authenticate` /ping failed');
-			   			console.log(status)
+			   			// console.log('..... `authenticate` /ping failed');
+			   			// console.log(status)
 
 			   			if (status == 401) {
 				   			socket.disconnect(false);
 				   			$rootScope.username = null;
 				   			$cookies.username = null;
 			   				
-			   				console.log('..... `authenticate` _login');
+			   				// console.log('..... `authenticate` _login');
 			   				var promise = _login();
 
 			   				promise.then(function(username){
 			   					// success
-			   					console.log('..... `authenticate` _login succeed');
+			   					// console.log('..... `authenticate` _login succeed');
 			   					socket.connect(true);
 			   					$rootScope.username = username;
 			   					$cookies.username = username;
 			   					delay.resolve($rootScope.username);
 			   				}, function(error){
 			   					// error
-			   					console.log('..... `authenticate` _login failed');
+			   					// console.log('..... `authenticate` _login failed');
 								delay.reject(error);
 			   				});
 			   			}
 		   				else {
-		   					console.log('..... `authenticate` ping failed with other status');
+		   					// console.log('..... `authenticate` ping failed with other status');
 		   					delay.reject();
 		   				}
 			   		});
@@ -203,7 +203,7 @@ define(['services/services'], function(services){
 		    		$location.path('/home');
 		    		if (callback) return callback(res);
 		    	}).error(function(error, status){
-		    		console.log(error)
+		    		// console.log(error)
 		    		if (status == 400 && callback) return callback(status);
 		    	});;
 		    };
@@ -220,7 +220,7 @@ define(['services/services'], function(services){
 	            	$location.path('/login');
 
 	            }).error(function(){
-	            	console.log('logout: error');
+	            	// console.log('logout: error');
 	            	$cookies.username = null;
 	            	$rootScope.username = null;
 	            	$location.path('/login');
