@@ -10,13 +10,13 @@ define(['controllers/controllers'],
 
 				$scope.user = user;
 
-				var me = me();
+				// var me = me();
 
-				me.then(function(m){
-					$scope.$emit("me:done", m);
-				}, function(reason){
-					$scope.$emit("error:message", reason);
-				});
+				// me.then(function(m){
+				// 	$scope.$emit("me:done", m);
+				// }, function(reason){
+				// 	$scope.$emit("error:message", reason);
+				// });
 
 
 				$scope.show = function() {

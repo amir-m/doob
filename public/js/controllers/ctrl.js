@@ -5,6 +5,10 @@ define(['controllers/controllers'],
 			'$http','socket', '$timeout', '$q', 'me', 'doobio',
 			function ($scope, $location, $rootScope, auth, $http, socket, $timeout, $q, me, doobio) {
 				
+				// if ($rootScope.me) {
+				// 	$scope.me = $rootScope.me;
+				// 	// $rootScope.me = null;
+				// }
 
 				$rootScope.$on('$routeChangeError', function(event, current, previous, rejection){
 					$("#btmloaderimg").hide();

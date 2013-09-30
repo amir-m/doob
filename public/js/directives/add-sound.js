@@ -18,15 +18,27 @@ define(['directives/directives'], function(directives){
 						}, true);
 					}
 					
-					scope.mappings[pattern.id].updated = new Date().getTime();
+					var updated = new Date().getTime();
 					
-					doobio.instances[instance].env.assets[pattern.name].newTrack(sound, true);
+					var promise = doobio.instances[instance].newTrack(sound, pattern.id, updated, true);
 
-					
+					promise.then(function () {
 
-					if (scope.$$phase != '$apply' && scope.$$phase != '$digest') {
-						scope.$apply();
-					}
+						scope.mappings[pattern.id].updated = updated;					
+
+						console.log(updated);
+						console.log(scope.mappings[pattern.id].updated);
+
+
+						if (scope.$$phase != '$apply' && scope.$$phase != '$digest') {
+							scope.$apply();
+						}
+
+						scope.$emit("success:message", "Track successfully added.")
+
+					}, function(error) {
+						scope.$emit("error:message", "Something went wrong and we couldn`t add the track. Please try again. If it still doesn`t work, please reload the page.")
+					});	
 					
 				}
 

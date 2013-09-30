@@ -31,6 +31,17 @@
 								</span>
 							</a> 
 						</li>
+						<li class="btn-group">
+							<button tooltip="Play All" class="btn btn-small" ng-click="playAll()">
+								<i class="icon-play-1"></i>
+							</button>
+							<button tooltip="Stop All" class="btn btn-small" ng-click="stopAll()">
+								<i class="icon-stop"></i>
+							</button>
+							<button tooltip="Loop All" class="btn btn-small" ng-click="loopAll()">
+								<i class="icon-loop"></i>
+							</button>
+						</li>
 					</ul>
 				</ul>
 			</div>
@@ -49,8 +60,8 @@
 							</a>
 						</li>
 						<li ng-repeat="sound in doob.get(instanceName).sounds" >
-							<doob.play.inline sound="sound" context="instanceName" stop-event="click">
-							</doob.play.inline>
+							<play-inline sound="sound" context="instanceName" stop-event="click">
+							</play-inline>
 							<span  sound="{{sound}}">{{sound}}</span>
 							<span class="pull-right" ng-show="showPattern()" 
 							 tooltip="Add to Pattern" >

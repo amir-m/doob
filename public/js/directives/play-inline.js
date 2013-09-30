@@ -1,6 +1,6 @@
 define(['directives/directives'], function(directives){
 
-	directives.directive('doob.play.inline', ['doobio', '$rootScope', 
+	directives.directive('playInline', ['doobio', '$rootScope', 
 		function(doobio, $rootScope) {
 	
 		return {

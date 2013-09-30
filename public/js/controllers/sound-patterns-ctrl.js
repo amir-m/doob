@@ -3,10 +3,62 @@ function(controllers){
 	
 	controllers.controller('SoundPatternsCtrl', [
 		'$scope', '$rootScope', 'doobio', '$routeParams', 
-		'$location', 'auth', 'patterns', 'me', '$compile',
+		'$location', 'auth', 'patterns', 'me', '$compile', 'socket', '$http', 
 		function ($scope, $rootScope, doobio, $routeParams, 
-		$location, auth, patterns, me, $compile) { //, loaded) {
+		$location, auth, patterns, me, $compile, socket, $http) { 
 
+		socket.on('new:soundPattern:comment', handlePatternIncommingData);
+		socket.on('new:soundPattern:like', handlePatternIncommingData);
+		socket.on('new:soundPattern:fork', handlePatternIncommingData);
+
+		function handlePatternIncommingData (message) {
+			if (message.broadcaster == $rootScope.username ||!message.data.resource || 
+			!$scope.mappings[message.data.resource]) return;
+			var event = message.event;
+			var sub = event.split(":");
+			sub = sub[sub.length - 1];
+
+			switch (sub) {
+				
+				case ("comment"): 
+					
+					$scope.mappings[message.data.resource].comments.push({
+						commenter: message.data.commenter,
+						timestamp: message.timestamp,
+						comment: message.data.comment,
+						_id: message.data._id
+					});
+
+					if ($scope.$$phase != "$apply" && $scope.$$phase != "$digest")
+						$scope.$apply();
+
+					break;
+
+				case ("like"): 
+					
+					if (!$scope.mappings[message.data.resource].likesCount)
+						$scope.mappings[message.data.resource].likesCount = 1;
+					else 
+						$scope.mappings[message.data.resource].likesCount++;
+					
+					if ($scope.$$phase != "$apply" && $scope.$$phase != "$digest")
+						$scope.$apply();
+
+					break;
+
+				case ("fork"): 
+					
+					if (!$scope.mappings[message.data.resource].forksCount)
+						$scope.mappings[message.data.resource].forksCount = 1;
+					else 
+						$scope.mappings[message.data.resource].forksCount++;
+					
+					if ($scope.$$phase != "$apply" && $scope.$$phase != "$digest")
+						$scope.$apply();
+
+					break;
+			}
+		}
 	
 		$("#topnav").slideDown(200);
 		$("#btmerrmsg").hide();
@@ -89,6 +141,8 @@ function(controllers){
 		// 		$scope.$apply();
 		// }; 
 
+		
+
 		$scope.loadedOpenPatterns = function () {
 			console.log($scope.openPatterns)
 		}; 
@@ -104,7 +158,7 @@ function(controllers){
 		
 
 		$scope.reArrange = function () {
-			console.log('reArrange the biatch!')
+			// console.log('reArrange the biatch!')
 		};
 		
 
@@ -114,14 +168,23 @@ function(controllers){
 		}
 
 		$scope.closePattern = function(pattern) {
-			
-			$('#' + pattern._id).remove();
-			delete $scope.openPatterns[pattern._id];
+			var id = pattern._id ? pattern._id : pattern.id;
+			$('#' + id).remove();
+			delete $scope.openPatterns[id];
+
+			socket.emit("leave", {
+				event: "leave",
+				broadcaster: $rootScope.username,
+				room: id,
+				timestamp: new Date().getTime()
+			});
+
 		}
 
 		$scope.viewEdit = function(soundPattern, instanceName) {
 
 			if (soundPattern.id in $scope.openPatterns) {
+				
 				$('html, body').animate({
 					scrollTop: $("#"+soundPattern.id).offset().top - 50
 				}, 200);
@@ -149,14 +212,83 @@ function(controllers){
 			$scope.openPatterns[soundPattern.id] = soundPattern;
 			$scope.openPattern = true;
 
+			socket.emit("join", {
+				event: "join",
+				broadcaster: $rootScope.username,
+				room: soundPattern.id,
+				timestamp: new Date().getTime()
+			});
+
 			if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
 				$scope.$apply();
+
+			// if (!$scope.mappings[soundPattern.id].iLikeIt) {
+
+			// 	$http.get('/me?like='+soundPattern.id).success(function (data) {
+			// 		console.log(data);
+			// 		$scope.mappings[soundPattern.id].iLikeIt = data.like;
+			// 	}).error(function (error, status) {
+			// 		console.log(error);
+			// 		console.log(status);
+			// 	});
+
+			// }
+			
+			if (!$scope.mappings[soundPattern.id]) return;
+
+			if (!$scope.mappings[soundPattern.id].iLikeIt || 
+				!$scope.mappings[soundPattern.id].iForkedIt) {
+				// console.log(soundPattern.id);
+				$http.get('/me?likefork='+soundPattern.id).success(function (data) {
+					// console.log(data);
+					$scope.mappings[soundPattern.id].iLikeIt = data.like;
+					$scope.mappings[soundPattern.id].iForkedIt = data.forked;
+				}).error(function (error, status) {
+					console.log(error);
+					console.log(status);
+				});
+			}
 		}
 
 		$scope.remove = function(p, i) {
+			
+			if ($scope.openPatterns[p.id]) $scope.closePattern($scope.mappings[p.id]);
 			doobio.instances[i].env.removeAsset(p.name, p.id, true);
 			delete $scope.doob.get(i).soundPatterns[p.name];
-		}
+
+			socket.emit("remove:sequencer:SoundPattern", {
+				event: "remove:sequencer:SoundPattern",
+				broadcaster: $rootScope.username,
+				subscriber: $rootScope.username,
+				timestamp: new Date().getTime(),
+				message: {
+					id: p.id,
+					name: p.name
+				}
+			})
+		};
+
+		$scope.playAll = function() {
+			
+			$scope.stopAll();
+
+			for (var i in $scope.openPatterns)
+				$scope.openPatterns[i].play();
+		};
+
+		$scope.stopAll = function() {
+			
+			for (var i in $scope.openPatterns)
+				$scope.openPatterns[i].stop();
+		};
+
+		$scope.loopAll = function() {
+			
+			$scope.stopAll();
+
+			for (var i in $scope.openPatterns)
+				$scope.openPatterns[i].play(1);
+		};
 		
 	}]);
 });

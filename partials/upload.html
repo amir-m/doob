@@ -1,0 +1,31 @@
+<h3>
+  Upload!!!
+</h3>
+
+
+<div file-uploader>
+  <div >
+    Choose files that you want to upload to your space.
+    <span ng-show="me.accType != 10">You have <b>{{myQuota()}}</b> of free space.</span>
+    <span ng-show="me.accType == 10">You have unlimited free space.</span>
+  </div><br />
+  <button class="btn btn-large btn-warning" id="startupload">
+    Choose Files 
+  </button>
+    <input type="file" id="multiplefileuploader" style="display:none" multiple/>
+  <br>
+  <div>
+    <table ng-show="progressReports[0]" class="table table-bordered" style="width:75%">
+      <tbody>
+        
+        <tr ng-repeat="report in progressReports" id="{{report.id}}">
+          <td >{{report.fileName}}</td>
+          <td >{{report.fileSize}}</td>
+          <td id="columnstatus">{{report.status}}</td>
+          <td id="columnprogress">{{report.progress}}</td>
+          <td id="columnshare" style="display:none">Share</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

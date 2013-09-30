@@ -47,10 +47,10 @@
 				<tbody sortable-tabel>
 					<tr ng-repeat="patternSound in pattern.tracks" class="sound-pattern">
 						<td class="sound-name-borders" style="cursor:move">
-							<doob.play.inline icon-position="pull-right" sound="patternSound.dummyName" context="instanceName" stop-event="click">
-							</doob.play.inline>
+							<play-inline icon-position="pull-right" sound="patternSound.dummyName" context="instanceName" stop-event="click">
+							</play-inline>
 							<button class="close pull-left" style="padding-right: 10px;"  
-							ng-click="removeTrack(patternSound)">&times;
+							ng-click="removeTrack(patternSound.id)">&times;
 							</button>
 							{{patternSound.name}}&nbsp;&nbsp;&nbsp;
 
@@ -66,7 +66,7 @@
 								</span>
 								<button 
 								ng-class="{'btn btn-small btn-inverse': patternSound.pattern.indexOf($index + 1) != -1, 'btn btn-small': true }"
-								ng-click="toggleNote($index + 1, patternSound)" style="border-radius:0; height:18; width: 18; padding:0;margin:0;">
+								ng-click="toggleNote($index + 1, patternSound.id)" style="border-radius:0; height:18; width: 18; padding:0;margin:0;">
 								<icon ng-class="{'icon-note': patternSound.pattern.indexOf($index + 1) != -1}" style="margin:0;color:white">
 								</icon>
 								</button>
@@ -77,27 +77,42 @@
 				</tbody>
 			</table>
 			<span class="created-info">
-				<i class="icon-cog-alt"></i> Created at {{patternInfo.created | date: 'MMM d, h:mm a'}}
+				<i class="icon-cog-alt"></i> {{createdOrForked()}} at {{patternInfo.created | date: 'MMM d, h:mm a'}}
 			</span>
 			<span class="created-info"> <i class="icon-cog"></i>  Modified at {{patternInfo.updated | date: 'MMM d, h:mm a'}} 
 			</span>
-			<span class="created-info" ng-show="patternInfo.likesCount==0" 
-				tooltip="Likes"> 
+			<span class="created-info" ng-show="patternInfo.likesCount>0"> 
 				<i class="icon-heart"></i>  {{patternInfo.likesCount}} 
 			</span>
-			<span class="created-info" ng-show="patternInfo.forksCount==0" 
-			tooltip="Forks!"> 
+			<span class="created-info" ng-show="patternInfo.forksCount>0" 
+			tooltip="Forks!" tooltip-placement="left"> 
 				<i style="color:blue" class="icon-cog-alt"></i>  {{patternInfo.forksCount}} 
 			</span>
-			<span class="created-info" ng-show="patternInfo.comments.length>0" 
-			tooltip="Comments!"> 
-				<i style="color:green" class="icon-chat"></i>  {{patternInfo.comments.length}} 
+			<span class="created-info" ng-show="patternInfo.comments.length>0" ng-click="toggleShowComments()" style="cursor:pointer"> 
+				<i style="color:green" class="icon-chat"></i> 
 			</span>
+			<div class="btn-group pull-right" style="top:3">
+				<span class="btn" ng-click="toggleShowComments()" style="cursor:pointer"> 
+					<i style="color:green" class="icon-chat"></i> 
+				</span>
+
+				<span class="btn" ng-click="likeThis()" style="cursor:pointer"
+				tooltip="Like this!" ng-show="!mappings[pattern.id].iLikeIt"> 
+					<i class="icon-heart"></i> 
+				</span>
+
+				<span class="btn" ng-click="forkThis()" style="cursor:pointer"
+				tooltip="Fork This!" 
+				ng-show="!mappings[pattern.id].iForkedIt && patternInfo.username != username" 
+				tooltip-placement="left">
+					<i style="color:blue" class="icon-cog-alt"></i> 
+				</span>
+			</div>
 		</div>
 
 
-		<div class="well">
-			<input type="text" style="width:100%; height: 40px" sp-comment placeholder="Comment..."><br>
+		<div class="well" style="display:none; max-height:200; overflow:hidden; overflow-y:auto;" id="spcomments">
+			<input type="text" style="width:100%; height: 40px" id="spcommentinput" sp-comment placeholder="Comment..."><br>
 			<div ng-repeat="comment in patternInfo.comments | orderBy:'timestamp':true" class="comment">
 				<table style="width:100%">
 					<tr>
