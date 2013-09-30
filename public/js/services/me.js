@@ -13,9 +13,9 @@ define(['services/services'], function(services){
 
 				function success() {
 					var temp;
-					var me = auth.me();
+					var _me = auth.me();
 
-					me.then(function(data){
+					_me.then(function(data){
 						$rootScope.username = data.username;
 						if (!doobio.get($rootScope.username) && $rootScope.username) {
 							doobio.create($rootScope.username);
@@ -34,7 +34,6 @@ define(['services/services'], function(services){
 						delay.resolve(temp);
 
 					}, function(er, status){
-						// console.log(er)
 						// console.log(status)
 						// $route.reload();
 						delay.reject('We couldn`t load your data from server! Please reload the page.');

@@ -38,6 +38,10 @@ module.exports = function(routes, app){
 
 	app.post('/project', routes.project.index);
 
+	app.post('/upload', routes.audio.upload);
+
+	app.post('/test', routes.audio.test);
+
 	app.put('/user/follow', routes.user.follow);
 
 	app.put('/settings', routes.user.putSettings);
@@ -47,6 +51,8 @@ module.exports = function(routes, app){
 	app.put('/changeemail', routes.user.changeEmail);
 
 	app.put('/settings', routes.user.putSettings);
+
+	app.put('/upload', routes.audio.newAudioFile);
 
 	app.get('/', routes.index.index);
 	

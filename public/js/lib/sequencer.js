@@ -212,20 +212,8 @@ define([], function(){
 				
 				if (!note) return;
 
-				if (typeof track == 'string') {
+				track = this.tracks[track];
 
-					
-
-					for (var i in this.tracks) {
-						
-						if (track == this.tracks[i].dummyName) {
-							track = this.tracks[i];
-							break;
-						}
-					}
-
-					
-				}
 				// invalid note number
 				if (note > this.steps || note < 1) return;
 
@@ -240,25 +228,49 @@ define([], function(){
 					// this.tracks[note.soundName].pattern.push(note.note);	
 					track.pattern.push(note);
 				}
-				publish('update:sequencer:SoundPattern:toggleNote', this, track.dummyName, note, pub);
+				publish('update:sequencer:SoundPattern:toggleNote', this, track.id, note, pub);
 				
 			};
 
-			SoundPattern.prototype.removeTrack = function(track, pub) {
+			SoundPattern.prototype.removeTrack = function(track) {
+				console.log(track)
+				console.log(this.tracks[track])
 
-				var dummyName = track.dummyName || track;
+				delete this.tracks[track];
+				console.log(this.tracks[track])
 
-				for (var i in this.tracks) {
-					if (dummyName == this.tracks[i].dummyName) {
-						delete this.tracks[i];
-						break;
-					}
-				}
+				// var dummyName = track.dummyName || track;
 
-				publish('update:sequencer:SoundPattern:removeTrack', this, dummyName, pub);
+				// for (var i in this.tracks) {
+				// 	if (dummyName == this.tracks[i].dummyName) {
+				// 		delete this.tracks[i];
+				// 		break;
+				// 	}
+				// }
+
+				publish('update:sequencer:SoundPattern:removeTrack', this, track);
 			};
 
-			SoundPattern.prototype.newTrack = function(s, pub) {
+			SoundPattern.prototype.newTrack = function(s, id) {
+
+				var sound = audio.duplicateSound(s, id);
+
+ 				sound.graph.destination = this.gain.connectable;
+				sound.graph.connect();
+
+				this.tracks[id] = {
+					name: s,
+					pattern: [],
+					url: sound.url,
+					id: id
+				};
+				
+
+				publish('update:sequencer:SoundPattern:newTrack', this, s, id);
+
+			};
+
+			SoundPattern.prototype.renameTrack = function(s, id, pub) {
 
 				var name = s + '_' + this.name;
 				// console.log(doob.assets)
@@ -276,7 +288,8 @@ define([], function(){
 						name: s,
 						dummyName: sound.name,
 						pattern: [],
-						url: sound.url
+						url: sound.url,
+						id: id
 					};
 				}
 				else
@@ -284,10 +297,11 @@ define([], function(){
 						name: s,
 						dummyName: sound.name,
 						pattern: [],
-						url: sound.url
+						url: sound.url,
+						id: id
 					};
 
-				publish('update:sequencer:SoundPattern:newTrack', this, s, pub);
+				publish('update:sequencer:SoundPattern:newTrack', this, s, id, pub);
 
 			};
 
@@ -349,9 +363,7 @@ define([], function(){
 			
 			
 			SoundPattern.prototype.stop = function(options) {
-				console.log(this.id);
-				console.log(this.patternSources)
-				console.log(this.soundPatternSources)
+				
 				if (this.intvl) clearInterval(intvl);
 				for (var i = 0;i < this.patternSources.length; ++i) {
 					if(this.patternSources[i]) {
@@ -363,8 +375,6 @@ define([], function(){
 				this.playbackState = 0;
 				this.scheduledBars = 1;
 				this.soundPatternSources = {};
-				console.log(this.patternSources)
-				console.log(this.soundPatternSources)
 			};
 			
 			SoundPattern.prototype.toJSON = function() {
@@ -383,6 +393,14 @@ define([], function(){
 			};
 
 			SoundPattern.prototype.exportable = function() {
+
+				for (var sound in this.tracks) {
+					if (this.tracks[sound]['$$hashKey']) {
+						delete this.tracks[sound]['$$hashKey'];
+					}
+					
+				}
+
 		   		return {
 			   		nodetype: 'sequencer.SoundPattern',
                     name: this.name,

@@ -7,7 +7,6 @@ define(['services/services'], function(services){
 
 	    var socket = io.connect('/', {reconnect: false, 'try multiple transports': false});
 
-
 	    var get = function(){
 
 	    	var delay = $q.defer();
@@ -56,7 +55,6 @@ define(['services/services'], function(services){
 	    });
 
 	    socket.on('connect', function () {
-	        console.log('connected to the socket server.');
 	        
 	        if ($rootScope.$$phase == '$apply' || $rootScope.$$phase == '$digest') {
 	        	$rootScope.isConnected = true;

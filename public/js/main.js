@@ -55,6 +55,7 @@ require([
 	'controllers/sound-patterns-ctrl',
 	'controllers/sound-pattern-ctrl',
 	'controllers/user-ctrl',
+	'controllers/upload-ctrl',
 	'controllers/settings-ctrl',
 	'directives/play-inline',
 	'directives/sound-picker',
@@ -73,19 +74,45 @@ require([
 	'directives/draggable',
 	'directives/droppable',
 	'directives/sortable-table', 
-	'directives/add-sound'
+	'directives/add-sound',
+	'directives/file-uploader',
 	], function($, angular, app, domReady, socketio) {
 		
 		'use strict';
 
-		app.config(['$routeProvider', '$httpProvider', 
-			function($routeProvider, $httpProvider) {
-		  $routeProvider.
-		    when('/login', {
-		    	templateUrl: 'partials/login.html', 
-		    	controller: 'LoginCtrl',
-		    	resolve: {
-		    		authenticate: function($rootScope, $location, auth) {
+		app.config(
+		['$routeProvider', '$httpProvider', 
+		function($routeProvider, $httpProvider) {
+			// $httpProvider.responseInterceptors.push(
+			// 	['$q', function($q) {
+			// 		return function(promise) {
+			// 			return promise.then(function (response) {
+
+			// 				return response;
+
+			// 			}, function (response) {
+			// 				console.log(response.status)
+			// 				if (response.status == 401) {
+			// 					// $.ajax({
+			// 					// 	type: "POST",
+			// 					// 	url: "/login"
+			// 					// }).done(function (data) {
+			// 					// 	console.log(data)
+			// 					// })
+			// 						return response;
+			// 				}
+			// 				else return response;
+							
+			// 			});	
+			// 		}
+			// 	}
+			// ]);
+			$routeProvider.
+			when('/login', {
+				templateUrl: 'partials/login.html', 
+				controller: 'LoginCtrl',
+				resolve: {
+					authenticate: function($rootScope, $location, auth) {
 			    	
 			    		var promise = auth.authenticate();	
 
@@ -93,43 +120,44 @@ require([
 							$location.path('/home');
 						});
 			    	}
-		    	}
-		  	})  
-		    .when('/register', {
-		    	templateUrl: 'partials/register.html', 
-		    	controller: 'RegisterCtrl'
-		    })
-		    .when('/sound-patterns', {
-		    	templateUrl: 'partials/sound-patterns.html', 
-		    	controller: 'SoundPatternsCtrl',
-		    	resolve: {
-		    		patterns: ['PatternsLoader', function(PatternsLoader){
-		    			return PatternsLoader();
-		    		}],
-		    		myinfoz: ['me', function(me) {
+				}
+				})  
+			.when('/register', {
+				templateUrl: 'partials/register.html', 
+				controller: 'RegisterCtrl'
+			})
+			.when('/sound-patterns', {
+				templateUrl: 'partials/sound-patterns.html', 
+				controller: 'SoundPatternsCtrl',
+				resolve: {
+					patterns: ['PatternsLoader', function(PatternsLoader){
+						return PatternsLoader();
+					}],
+					myinfoz: ['me', function(me) {
 						return me();
 					}]
-		    	}
-		    }).when('/sound-patterns/:user', {
-		    	templateUrl: 'partials/sound-patterns.html', 
-		    	controller: 'SoundPatternsCtrl',
-		    	resolve: {
-		    		patterns: ['PatternsLoader', 
-		    		function(PatternsLoader){
-		    			return PatternsLoader();
-		    		}]
-		    	}
-		    })
-		    .when('/sound-patterns/:user/:id', {
-		    	templateUrl: 'partials/sound-patterns.html', 
-		    	controller: 'SoundPatternsCtrl',
-		    	resolve: {
-		    		patterns: ['PatternsLoader', 
-		    		function(PatternsLoader){
-		    			return PatternsLoader();
-		    		}]
-		    	}
-		    })
+				}
+			})
+			.when('/sound-patterns/:user', {
+				templateUrl: 'partials/sound-patterns.html', 
+				controller: 'SoundPatternsCtrl',
+				resolve: {
+					patterns: ['PatternsLoader', 
+					function(PatternsLoader){
+						return PatternsLoader();
+					}]
+				}
+			})
+			.when('/sound-patterns/:user/:id', {
+				templateUrl: 'partials/sound-patterns.html', 
+				controller: 'SoundPatternsCtrl',
+				resolve: {
+					patterns: ['PatternsLoader', 
+					function(PatternsLoader){
+						return PatternsLoader();
+					}]
+				}
+			})
 			.when('/home', {
 				templateUrl: 'partials/me.html',
 				controller: 'HomeCtrl', 
@@ -145,6 +173,15 @@ require([
 				resolve: {
 					user: ['UserLoader', function(UserLoader) {
 						return UserLoader();
+					}]
+				}
+			})
+			.when('/upload', {
+				templateUrl: 'partials/upload.html', 
+				controller: 'UploadCtrl', 
+				resolve: {
+					myinfoz: ['me', function(me) {
+						return me();
 					}]
 				}
 			})
@@ -171,8 +208,18 @@ require([
 
 		}]);
 
-		app.run(['$window', 'auth', '$location', 'socket', 'doobio', '$rootScope',function($window, auth, 
-			$location, socket, doobio, $rootScope){
+		app.run([
+		'$window', 'socket', '$rootScope', 'me', 'doobio', '$http', 
+		function($window, socket, $rootScope, me, doobio, $http){
+
+			// var promise = me();
+			// promise.then(function (_me) {
+			// 	$rootScope.me = _me;
+			// }, function(error, status){
+			// 	if (status == 401) {
+			// 		$http.post('/login').success().error(function(){})
+			// 	}
+			// });
 
 			$window.addEventListener("beforeunload", function (e) {
 			  if ($rootScope.username && doobio.instances[$rootScope.username] && doobio.instances[$rootScope.username].isBroadcasting) {
@@ -181,16 +228,13 @@ require([
 					event: 'user:broadcast:stop'
 				});
 			  }
-			  // auth.destroy();
 			});
-
 
 		}]);
 
 		domReady(function() {
-      		angular.bootstrap(document, ['hm']);
-
-      		$('html').addClass('ng-app: hm');
+      		angular.bootstrap(document, ['doob']);
+      		$('html').addClass('ng-app: doob');
       	});
 	}
 );

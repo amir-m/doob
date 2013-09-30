@@ -161,7 +161,7 @@ module.exports = function(io, socket, session, store, models) {
   var forward = function (data) {
     socket.broadcast.to(data.subscriber).emit(data.event, data);
     if (data.event != 'new:aduio:Sound') 
-      models.projects.update(data, session);
+      models.projects.updateSoundPattern(data, session);
   };
 
   var changeTempo = function (data) {
@@ -175,8 +175,6 @@ module.exports = function(io, socket, session, store, models) {
   };
 
   var saveSP = function(data) {
-
-    console.log(data);
 
     models.projects.newSoundPattern(data, session, function(error, sp){
 
@@ -209,7 +207,7 @@ module.exports = function(io, socket, session, store, models) {
   };
 
   var removeSoundPattern = function(data) {
-    // console.log(data)
+    console.log(data)
     models.projects.SoundPattern.update({_id: data.message.id}, {$set: {
       updated: new Date().getTime(),
       active: false
@@ -224,19 +222,29 @@ module.exports = function(io, socket, session, store, models) {
   };
 
   var newSoundPatternComment = function(data) {
-    // console.log(data)
-    models.projects.SoundPattern.update({_id: data.patternId}, {$push: {
-      comments: {
-        timestamp: data.timestamp,
-        commenter: data.commenter,
-        comment: data.comment
-      }
-    }}, function(error){
-      if (error) console.log(error);
-      console.log('finissssssh')
-    });
+    
+    models.projects.newSoundPatternComment(data);
+    socket.broadcast.to(data.data.id).emit(data.event, data);
 
   };
+
+  var joinRoom = function(data) {
+    socket.join(data.room);
+  };
+
+  var leaveRoom = function(data) {
+    socket.leave(data.room);
+  };
+
+  var newSPLike = function(data) {
+    models.projects.newSPLike(data, function (error) {
+      if (error) return console.log(error);
+      console.log('|||||||||||||||||||')
+      console.log(data)
+      socket.broadcast.to(data.data.resource).emit(data.event, data);
+    });
+  };
+
 
   return {
     'disconnect': disconnect,
@@ -246,14 +254,18 @@ module.exports = function(io, socket, session, store, models) {
     'user:unsubscribe': userUnsubscribe,
     'sync:response': syncRes,
     'new:aduio:Sound': forward,
+    'new:sequencer:SoundPattern': saveSP,
+    'new:soundPattern:comment': newSoundPatternComment,
+    'new:soundPattern:like': newSPLike,
+    'fork:sequencer:SoundPattern': models.projects.forkSoundPattern,
     'update:sequencer:SoundPattern:newTrack': forward,
     'update:sequencer:SoundPattern:toggleNote': forward,
     'update:sequencer:SoundPattern:removeTrack': forward,
     'update:sequencer:SoundPattern:changeTempo': changeTempo,
     'update:sequencer:SoundPattern:changeSteps': changeSteps,
-    'new:sequencer:SoundPattern': saveSP,
     'fetch:SoundPatterns:request': fetchSoundPatterns,
     'remove:sequencer:SoundPattern': removeSoundPattern,
-    'new:soundPattern:comment': newSoundPatternComment,
+    'join': joinRoom,
+    'leave': leaveRoom,
   };
 };

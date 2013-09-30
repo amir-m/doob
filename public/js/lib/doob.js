@@ -129,35 +129,39 @@ define([''], function(){
                     
                     delete self.dummyNodes[track];
 
-                    for (var i in pattern.tracks) 
-                        for (var j in pattern.tracks[i])
-                            if (j.indexOf("$") != -1)
-                                delete pattern.tracks[i][j];
+                    // for (var i in pattern.tracks) 
+                    //     for (var j in pattern.tracks[i])
+                    //         if (j.indexOf("$") != -1)
+                    //             delete pattern.tracks[i][j];
 
 
-                    if (pub) self.publish(ev, {
-                        pattern: pattern.name,
-                        id: pattern.id,
-                        track: track,
-                        tracks: pattern.tracks
-                    }, self.name);
+                    // if (pub) self.publish(ev, {
+                    //     pattern: pattern.name,
+                    //     id: pattern.id,
+                    //     track: track,
+                    //     tracks: pattern.tracks
+                    // }, self.name);
                 },
                 'update:sequencer:SoundPattern:newTrack' : function(ev, pattern, track, pub) {
                     
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].tracks =
                         pattern.tracks;
 
-                    for (var i in pattern.tracks) 
-                        for (var j in pattern.tracks[i])
-                            if (j.indexOf("$") != -1)
-                                delete pattern.tracks[i][j];
+                    // for (var i in pattern.tracks) 
+                    //     for (var j in pattern.tracks[i]) {
+                    //         console.log(j)
+                    //         if (j.indexOf("$") != -1) {
+                    //             delete pattern.tracks[i][j];
+                    //             console.log(pattern.tracks[i][j])
+                    //         }
+                    //     }
 
-                    if (pub) self.publish(ev, {
-                        pattern: pattern.name,
-                        id: pattern.id,
-                        track: track,
-                        tracks: pattern.tracks
-                    }, self.name);
+                    // // if (pub) self.publish(ev, {
+                    // //     pattern: pattern.name,
+                    // //     id: pattern.id,
+                    // //     track: track,
+                    // //     tracks: pattern.tracks
+                    // // }, self.name);
                 },
                 'update:sequencer:SoundPattern:changeTempo': function(ev, pattern, pub){
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].tempo = pattern.tempo;
@@ -182,19 +186,19 @@ define([''], function(){
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].tracks =
                         pattern.tracks;
 
-                    for (var i in pattern.tracks) 
-                        for (var j in pattern.tracks[i])
-                            if (j.indexOf("$") != -1)
-                                delete pattern.tracks[i][j];                                    
+                    // for (var i in pattern.tracks) 
+                    //     for (var j in pattern.tracks[i])
+                    //         if (j.indexOf("$") != -1)
+                    //             delete pattern.tracks[i][j];                                    
                             
 
-                    if (pub) self.publish(ev, {
-                        pattern: pattern.name,
-                        track: track,
-                        id: pattern.id,
-                        note: note,
-                        tracks: pattern.tracks
-                    }, self.name);
+                    // if (pub) self.publish(ev, {
+                    //     pattern: pattern.name,
+                    //     track: track,
+                    //     id: pattern.id,
+                    //     note: note,
+                    //     tracks: pattern.tracks
+                    // }, self.name);
                 }, 
                 'set:sequencer:SoundPattern:id': function(ev, pattern, pub) {
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].id =
@@ -460,10 +464,10 @@ define([''], function(){
 
         this.removeAsset = function(name, id, pub) {
             delete this.assets[name];
-            if (pub) this.publish("remove:sequencer:SoundPattern", {
-                id: id,
-                name: name
-            }, this.name);
+            // if (pub) this.publish("remove:sequencer:SoundPattern", {
+            //     id: id,
+            //     name: name
+            // }, this.name);
         }
     };
 });

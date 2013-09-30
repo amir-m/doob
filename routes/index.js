@@ -156,6 +156,21 @@ module.exports = function(models, sessionMaxAge, async){
 	var id = function(req, res, next) {
 		
 		if (!validateSession(req)) return res.send(401);
+
+		if (req.query.count) {
+
+			var c = parseInt(req.query.count);
+
+			if (isNaN(c)) return res.send(400);
+
+			var r = ")]}',\n", ids = [];
+			
+			for (var i = 0; i < c; ++i)
+				ids.push(models.User.objectId());
+
+			return res.send(r + JSON.stringify(ids));
+			 
+		}
 		
 		return res.send(models.User.objectId());
 	};

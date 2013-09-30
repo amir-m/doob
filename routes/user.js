@@ -386,44 +386,77 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 		if (!validateSession(req)) return res.send(401);
 
-		var requestor = {
-			ip: req.ip,
-			date: new Date(),
-			timestamp: (new Date()).getTime(),
-			host: req.host,
-			path: req.path,
-			params: req.params,
-			OS: req.useragent.OS,
-			browser: req.useragent.Browser,
-			browserVersion: req.useragent.Version,
-			platform: req.useragent.Platform
-		};
-
-		
-
 		res.set('Content-Type', 'application/json');
 
-		
+		if (req.query.likefork) {
 
-		// console.log(req.query)
+			models.projects.Like.findOne({
+				liker: req.session.username, 
+				resource: req.query.likefork},
+			function (error, result) {
+
+				if (error) return res.send(500);
+
+				var r = {
+					like: false,
+					forked: false
+				};
 				
-		// no parameter: the user only need username
-		// if (c == 0) {
-		// 	// send the username
-		// 	return res.send(")]}',\n" + JSON.stringify({username: req.session.username}));
-		// }
+				if (result) r.like = true;
 
+				models.projects.Fork.findOne({
+					forkedResourceId: req.query.likefork, 
+					forker: req.session.username},
+				function (error, result) {
 
+					if (error) return res.send(500);
+					
+					if (result) {
+						r.forked = true;
+						return res.send(")]}',\n" + JSON.stringify(r));
+					};
+					
+					models.projects.Fork.findOne({
+						resourceId: req.query.likefork, 
+						forker: req.session.username},
+					function (error, result) {
 
-		models.User.me(req.session.uid, requestor, req.query, function(error, _me){
+						if (error) return res.send(500);
+					
+						if (result) {
+							r.forked = true;
+							return res.send(")]}',\n" + JSON.stringify(r));
+						}
+					});
 
-			if (error) return res.send(error);
+				});
+			});
+		}
 
-			req.session.cookie.expires = new Date(Date.now() + sessionMaxAge);
-			req.session.cookie.maxAge = sessionMaxAge;
+		else {
+			var requestor = {
+				ip: req.ip,
+				date: new Date(),
+				timestamp: (new Date()).getTime(),
+				host: req.host,
+				path: req.path,
+				params: req.params,
+				OS: req.useragent.OS,
+				browser: req.useragent.Browser,
+				browserVersion: req.useragent.Version,
+				platform: req.useragent.Platform
+			};
 
-			res.send(")]}',\n" + JSON.stringify(_me));
-		});
+			models.User.me(req.session.uid, requestor, req.query, function(error, _me){
+
+				if (error) return res.send(error);
+
+				req.session.cookie.expires = new Date(Date.now() + sessionMaxAge);
+				req.session.cookie.maxAge = sessionMaxAge;
+
+				res.send(")]}',\n" + JSON.stringify(_me));
+			});
+		}
 	};
 
 	var getUser = function(req, res, next) {
@@ -668,8 +701,18 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 
 	}; 
 
+	function upload (req, res, next) {
+		
+		if (!validateSession(req)) return res.send(401);
+
+		var r = ")]}',\n" + JSON.stringify(req.body);
+
+		return res.send(r);
+	};
+
 
 	function validateSession(req) {
+
 		if (!req.session || !req.session.uid || !req.session.username) {
 			return false;
 		}
@@ -690,6 +733,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		getSettings: getSettings,
 		putSettings: putSettings,
 		changepassword: changepassword,
-		changeEmail: changeEmail
+		changeEmail: changeEmail,
+		upload: upload
 	}
 };

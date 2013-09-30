@@ -248,10 +248,10 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 		
 		
 		var emit = function(event, message) {
-			// if (message.broadcaster && message.subscriber 
-			// 	&& message.broadcaster == message.subscriber) return;
-			// console.log(message)
+
 			if (!message.timestamp) message.timestamp = new Date().getTime();
+			if (!message.event) message.event = event;
+
 			socket.emit(event, message);
 		};
 
@@ -329,11 +329,13 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 	        request.responseType = 'arraybuffer';
 
 	        request.onload = function() {
+	           
 
 	            if (config.loading && typeof config.loading === 'function') config.loading();
 
 	            	instances[instanceNames[0]].env.context.decodeAudioData(request.response, 
 	            	function(buffer){
+
 
 	                loadedAssets[config.url] = buffer;
 
@@ -397,8 +399,32 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 				}
 			},
 			sequencer: {
-     //            'new:sequencer:SoundPattern': function(ev, message, name) {
-					
+
+     //            'update:sequencer:SoundPattern:toggleNote': function(ev, message, name) {
+
+					// // if (instances[name].isBroadcasting) {
+					// 	emit(ev, {
+					// 		event: ev,
+					// 		broadcaster: $rootScope.username,
+					// 		subscriber: name,
+					// 		message: message
+					// 	});
+					// // }
+
+     //            },
+     //            'update:sequencer:SoundPattern:newTrack': function(ev, message, name) {
+
+					// // if (instances[name].isBroadcasting) {
+					// 	emit(ev, {
+					// 		event: ev,
+					// 		broadcaster: $rootScope.username,
+					// 		subscriber: name,
+					// 		message: message
+					// 	});
+					// // }
+     //            },
+     //            'update:sequencer:SoundPattern:removeTrack': function(ev, message, name) {
+
 					// // if (instances[name].isBroadcasting) {
 					// 	emit(ev, {
 					// 		event: ev,
@@ -409,41 +435,6 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 					// // }
 
      //            }, 
-                'update:sequencer:SoundPattern:toggleNote': function(ev, message, name) {
-
-					// if (instances[name].isBroadcasting) {
-						emit(ev, {
-							event: ev,
-							broadcaster: $rootScope.username,
-							subscriber: name,
-							message: message
-						});
-					// }
-
-                },
-                'update:sequencer:SoundPattern:newTrack': function(ev, message, name) {
-
-					// if (instances[name].isBroadcasting) {
-						emit(ev, {
-							event: ev,
-							broadcaster: $rootScope.username,
-							subscriber: name,
-							message: message
-						});
-					// }
-                },
-                'update:sequencer:SoundPattern:removeTrack': function(ev, message, name) {
-
-					// if (instances[name].isBroadcasting) {
-						emit(ev, {
-							event: ev,
-							broadcaster: $rootScope.username,
-							subscriber: name,
-							message: message
-						});
-					// }
-
-                }, 
                 'update:sequencer:SoundPattern:changeTempo': function(ev, message, name){
                 	emit(ev, {
                 		event: ev,
@@ -522,9 +513,11 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     		};
 
     		this.soundPattern = function(sp, pub) {
+
     			var delay = $q.defer();
 
-    			sp = self.sequencer.SoundPattern(sp, pub);
+    			sp = self.sequencer.SoundPattern(sp);
+
     			if (!sp.id) attachID(self.env.assets[sp.name], self, function(error){
     				if (!error) _createPatternInfo();
     				else delay.reject(error);
@@ -536,14 +529,12 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     				self.patterns[sp.id] = {
 						_id: sp.id,
     					name: sp.name,
+    					username: $rootScope.username,
     					created: new Date().getTime(),
     					updated: new Date().getTime(),
-    					soundsCount: 0,
     					content: sp,								
-						likesCount: 0,
-						forksCount: 0, 
-						forks: {},
-						comments: []
+						comments: [],
+						likesCount: 0
     				}
 
     				delay.resolve(self.patterns[sp.id]);
@@ -560,12 +551,153 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     			return delay.promise;
     		};
 
+    		this.forkPattern = function (_sp) {
+
+    			var delay = $q.defer();
+
+    			sp = self.sequencer.SoundPattern(_sp.content);
+
+				self.patterns[sp.id] = {
+					_id: sp.id,
+					name: _sp.name,
+					forkedFrom: _sp.forkedFrom,
+					isForked: true,
+					created: new Date().getTime(),
+					updated: new Date().getTime(),
+					content: sp,								
+					comments: [],
+					likesCount: 0,
+					username: $rootScope.username,
+				}
+
+				delay.resolve(self.patterns[sp.id]);
+
+				console.log(self.patterns[sp.id])
+
+				emit('fork:sequencer:SoundPattern', {
+					event: 'fork:sequencer:SoundPattern',
+					broadcaster: $rootScope.username,
+					timestamp: self.patterns[sp.id].created,
+					subscriber: $rootScope.username,
+					forkedFrom: self.patterns[sp.id].forkedFrom,
+					message: {
+						content: sp.exportable()
+					}
+				});
+    			
+
+    			return delay.promise;
+    		};
+
     		this.effect = function(fx, pub) {
     			fx = self.effects.Reverb(fx, pub);
     			if (!fx.id) attachID(self.env.assets[fx.name], self);
 
     			return self.env.assets[fx.name];
     		};
+
+    		this.newTrack = function(sound, pid, updated, pub) {
+
+    			var delay = $q.defer();
+
+				var promise = requestID();
+
+				promise.then(function (id) {
+					self.env.ids[pid].newTrack(sound, id, true);
+					delay.resolve();
+					
+					self.patterns[pid].updated = updated;
+
+					var tracks = {};
+
+					for (var i in self.patterns[pid].content.tracks) {
+						tracks[i] = {};
+                        for (var j in self.patterns[pid].content.tracks[i]) {
+                            if (j.indexOf("$") == -1) {
+                                tracks[i][j] = self.patterns[pid].content.tracks[i][j];
+                            }
+                        }
+					}
+
+					if (pub)
+	                    emit('update:sequencer:SoundPattern:newTrack', {
+	                    	broadcaster: $rootScope.username,
+							subscriber: self.name,
+		                    timestamp: updated,
+	                        message: {
+		                        id: pid,
+		                        tracks: tracks,
+		                    }
+	                    });
+
+				}, function (error) {
+					delay.reject(error);
+				});
+
+				return delay.promise;
+    		};
+
+    		this.removeTrack = function(trackid, pid, updated, pub) {
+
+    			self.env.ids[pid].removeTrack(trackid);
+
+    			self.patterns[pid].updated = updated;
+
+				var tracks = {};
+
+				for (var i in self.patterns[pid].content.tracks) {
+					tracks[i] = {};
+                    for (var j in self.patterns[pid].content.tracks[i]) {
+                        if (j.indexOf("$") == -1) {
+                            tracks[i][j] = self.patterns[pid].content.tracks[i][j];
+                        }
+                    }
+				}
+
+				if (pub)
+                    emit('update:sequencer:SoundPattern:removeTrack', {
+                    	broadcaster: $rootScope.username,
+						subscriber: self.name,
+	                    timestamp: updated,
+                        message: {
+	                        id: pid,
+	                        tracks: tracks,
+	                    }
+                    });
+    		
+    		};
+
+    		this.toggleNote = function(i, trackid, pid, updated, pub) {
+    			
+    			self.env.ids[pid].toggleNote(i, trackid);
+
+    			self.patterns[pid].updated = updated;
+
+				var tracks = {};
+
+				for (var i in self.patterns[pid].content.tracks) {
+					tracks[i] = {};
+                    for (var j in self.patterns[pid].content.tracks[i]) {
+                        if (j.indexOf("$") == -1) {
+                            tracks[i][j] = self.patterns[pid].content.tracks[i][j];
+                        }
+                    }
+				}
+
+				if (pub)
+                    emit('update:sequencer:SoundPattern:removeTrack', {
+                    	broadcaster: $rootScope.username,
+						subscriber: self.name,
+	                    timestamp: updated,
+                        message: {
+	                        id: pid,
+	                        tracks: tracks,
+	                    }
+                    });
+    		};
+
+
+
 
     		// subscribe doobio to all events of this doob
     		for (var i in handlers) 
@@ -589,10 +721,18 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     		instanceNames.push(this.name);
     	}
 
-    	
+    	var requestID = function() {
+			var delay = $q.defer();
 
-        // console.log();
-		
+			$http.get('/id').success(function(id){
+				delay.resolve(id);
+			}).error(function(data){
+				delay.reject(data);
+			});
+
+			return delay.promise;
+		};
+    	
 		return {
 			get: function(name){
 				// console.log(instances[name].env)
@@ -620,6 +760,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 				return new doob(name);
 			},
 			playInline: function(instance, sound) {
+				
 				if (typeof instance == 'string') {
 
 					_audio(instances[instance].env).playSound({
@@ -705,17 +846,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 					});	
 				}
 			},
-			requestID: function(){
-				var delay = $q.defer();
-
-				$http.get('/id').success(function(id){
-					delay.resolve(id);
-				}).error(function(data){
-					delay.reject(data);
-				});
-
-				return delay.promise;
-			}
+			requestID: requestID
 		};
 	}]);
 	

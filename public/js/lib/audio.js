@@ -79,13 +79,12 @@ define([], function () {
 				// dispatchEvent[stop]..			
 			};
 
-			var duplicateSound = function(sound, duplicateName){
+			var duplicateSound = function(sound, trackid){
 				var config = {};
 				for (var prop in doob.assets[sound])
 					if (doob.assets[sound].hasOwnProperty(prop))
 						config[prop] = doob.assets[sound][prop];
 
-				config.name = duplicateName;
 				config.isDummy = true;
 				
 				delete config['gain'];
@@ -93,12 +92,12 @@ define([], function () {
 
 
 
-				doob.dummyNodes[duplicateName] = Sound(config);
+				doob.dummyNodes[trackid] = Sound(config);
 				
 				// remove the dummy name!
 				// doob.sounds.splice(doob.sounds.indexOf(duplicateName), 1);
 
-				return doob.dummyNodes[duplicateName];
+				return doob.dummyNodes[trackid];
 			}
 
 			var Sound = function (sound, pub) {

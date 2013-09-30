@@ -33,43 +33,16 @@ module.exports = function(mongoose, async, logins, models) {
 			id: String,
 			name: String
 		},
-		soundPatterns: Number,
-
-		invitations: Number
+		soundPatterns: {type: Number, default: 0},
+		invitations: {type: Number, default: 0},
+		audioFilesCount: {type: Number, default: 0},
+		forkingCount: {type: Number, default: 0},
+		forkedCount: {type: Number, default: 0},
+		accType: {type: Number, default: 1},
+		quota: {type: Number, default: 10 * (1024*1024*1024)}
 
 	});
 
-	// SettingsSchema = new mongoose.Schema({
-	// 	_id: {type: String, required: true, unique: true},
-	// 	userid: String,
-	// 	username: String,
-	// 	// usernameLowerCase: String,
-	// 	updated: Number,
-	// 	notifications: {
-	// 		description: {type: String, default: 'Whenever any of the following events happens, we will notify you by sending you an email. Here, you can change the notification settings.'},
-	// 		messages: {
-	// 			cat: {type: String, default: 'User Interactions'},
-	// 			description: {type: String, default: 'When you receive a new private messages.'},
-	// 			val: {type: Boolean, default: true}
-	// 		},
-	// 		new_follower: {
-	// 			cat: {type: String, default: 'User Interactions'},
-	// 			description: {type: String, default: 'When you have a new follower.'},
-	// 			val: {type: Boolean, default: true}
-	// 		},
-	// 		new_sound_patterns: {
-	// 			cat: {type: String, default: 'Sound Patterns'},
-	// 			description: {type: String, default: 'When people you follow create new sound patterns.'},
-	// 			val: {type: Boolean, default: true}
-	// 		},
-	// 		sound_patterns_updates: {
-	// 			cat: {type: String, default: 'Sound Patterns'},
-	// 			description: {type: String, default: 'When a sound pattern which you follow is modified by other people.'},
-	// 			val: {type: Boolean, default: true}
-	// 		}
-	// 	}
-	// });
-	
 	SettingsSchema = new mongoose.Schema({
 		_id: {type: String, required: true, unique: true},
 		userid: String,
@@ -414,7 +387,6 @@ module.exports = function(mongoose, async, logins, models) {
 
 			if (!user) return callback(401);
 
-
 			callback(null, user);
 		});
 	};
@@ -511,99 +483,33 @@ module.exports = function(mongoose, async, logins, models) {
 	};
 
 	var insertActivity = function(id, actv, broadcaster) {
-		// console.log('followers_idfollowers_idfollowers_idfollowers_idfollowers_id')
-		// console.log(id)
+		
 		User.findById({_id: id}, {followers: 1}, function(error, user){
 
 			var t = [];
 
-			for (i in user.followers) //t.push(followers.followers[i]._id);
-				if (user.followers[i]._id)// && user.followers[i]._id != id)
-				t.push(user.followers[i]._id)
+			for (var i = 0; i < user.followers.length; ++i) 
+				if (user.followers[i]._id)
+					t.push(user.followers[i]._id)
+				
 
-			// User.find({_id: {$in: t}}, {username:1}, function(e, r){
-			// 	console.log('sdsdfsdsdfsfsdfsdasdadasdasdasdsadadadas')
-			// 	console.log(r)
-			// })
-
-			// console.log(t)
-			User.update({_id: {$in: t}}, { $push: { activities: {
-				id: actv._id,
-				text: actv.text,
-				vars: actv.vars,
-				username: actv.username,
-				timestamp: actv.timestamp
-			} } }, {multi: true}, function(error, result){
-				console.log(result)
-			});
-
-			// if (error) callback(error);
-
-			// if (!u) return console.log('invalid activity: couldn`t find the user with'+
-			// 	'session.uid!');
-
-			// if (broadcaster != u.username) 
-			// 	return console.log('A user is broadcasting a message,'+
-			// 		' while it`s name and id doesn`t match!'.error);
-
-			// var followers_id = [];
-
-			// // save the activity to all followers of the broadcaster
-			// console.log('followers_idfollowers_idfollowers_idfollowers_idfollowers_id')
-			// for (var i in u.followers) {
-
-			// 	console.log(u.followers[i])
-			// 	followers_id.push(u.followers[i]._id);
-			// }
-			// 			console.log('followers_idfollowers_idfollowers_idfollowers_idfollowers_id')
-
-
-			// // _saveActivity(u, function(){
-			// // 	var followers_id = [];
-
-			// // 	// save the activity to all followers of the broadcaster
-			// // 	for (var i in u.followers)
-			// // 		followers_id.push(u.followers[i]._id);
-
-			// // 							console.log('followers_id')
-			// // 							console.log(followers_id)
-
-			// // 	// find the followers of the user
-			// // 	User.find({_id: {$in: followers_id}}, function(error, flwz){
-			// // 		for (var i in flwz)
-
-			// // 			console.log('flwz')
-			// // 			console.log(flwz)
-
-			// // 			// save the activity to all followers
-			// // 			// _saveActivity(flwz[i]);
-			// // 	});
-			// // });
-
-			// function _saveActivity(user, callback) {
-			// 	user.activities.push({
-			// 		id: actv._id,
-			// 		text: actv.text,
-			// 		vars: actv.vars,
-			// 		timestamp: actv.timestamp
-			// 	});
-
-			// 	// keep the last 15 activities.
-			// 	user.activities.splice(0, user.activities.length - 15);
-
-			// 	user.markModified('activities');
-			// 	user.save(function(error) {
-			// 		if (error) {
-			// 			console.log('error saving activity in User!'.error);
-			// 			console.log(error);
-			// 			return;
-			// 		}
-			// 		if (callback) callback();
-
-			// 	});
-			// };
-
-			
+			User.find({_id: {$in: t}}, function (error, followers) {
+				if (error) throw error;
+				for (var i = 0; i < followers.length; ++i) {
+					followers[i].activities.push({
+						id: actv._id,
+						text: actv.text,
+						vars: actv.vars,
+						username: actv.username,
+						timestamp: actv.timestamp
+					});
+					followers[i].activities.splice(0, followers[i].activities.length - 15);
+					followers[i].markModified('activities');
+					followers[i].save(function (error) {
+						if (error) throw error;
+					});
+				}
+			});	
 			
 		});
 	};

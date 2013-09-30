@@ -75,7 +75,11 @@ define(['services/services'], function(services){
 						p['id'] = patterns[i]._id;
 						
 						if (!doobio.instances[patterns[i].username].env.assets[patterns[i].name])
-							new doobio.instances[patterns[i].username].sequencer.SoundPattern(p, false);
+							var sp = new doobio.instances[patterns[i].username].sequencer.SoundPattern(p, false);
+
+						
+						doobio.instances[patterns[i].username].patterns[patterns[i]._id] = patterns[i];
+
 
 					}	
 

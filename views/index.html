@@ -2,6 +2,7 @@
 
 	<head>
     <meta name="fragment" content="!" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <!-- 
     <script src="http://localhost:8080/socket.io/socket.io.js"></script>
      -->
@@ -38,8 +39,8 @@
               </li>
 
               <li>
-                <form class="navbar-search pull-left dropdown-toggle" data-toggle="dropdown">
-                  <input type="text" class="search-query search-query-nav" placeholder="Search" 
+                <form class="navbar-search pull-left dropdown-toggle" data-toggle="dropdown" style="top:2">
+                  <input type="text" class="search-query-nav" placeholder="Search" 
                   search style="height:30px" id="q">
                   <div class="search-results" id="srchrslt" stop-event="click">
                     <span style="margin-right:20">
@@ -162,7 +163,7 @@
 
 		<div ng-view class="view"></div>
 
-    
+
 
     <div class="navbar navbar-fixed-bottom" ng-class="navBarClass()">
       <div class="navbar-inner">
@@ -179,6 +180,7 @@
               <img src="/public/img/loader.gif">
             </a>
           </li>
+          
           <li class="alert alert-error" id="btmerrmsg" style="display:none; position:fixed;position: fixed;margin: 0;padding-bottom: 100%;border-radius: 0;width: 100%;"><b>Oh snap! </b>{{notificationMessage}}
           </li>
           <li class="alert alert-success" id="btmscsmsg" style="display:none; position:fixed;position: fixed;margin: 0;padding-bottom: 100%;border-radius: 0;width: 100%;"><b>{{notificationMessage}}</b>

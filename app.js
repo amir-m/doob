@@ -5,10 +5,7 @@ var fs = require('fs');
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-// var server = require('https').createServer({
-//   key: fs.readFileSync('key.pem'),
-//   cert: fs.readFileSync('cert.pem')
-// }, app);
+
 var mongoose = require('mongoose');
 var redis = require('redis');
 
@@ -30,7 +27,6 @@ else {
   var sub = redis.createClient();
 }
 
-// var redisClient = redis.createClient();
 var RedisStore = require('connect-redis')(express);
 var connect = require('connect');
 var sessionStore = new RedisStore({client: redisClient});
@@ -39,10 +35,11 @@ var colors = require('colors');
 var io = require('socket.io').listen(server);
 var cookieParser = express.cookieParser('revolution!');
 var SessionSockets = require('session.socket.io');
-// var broadcaster = redis.createClient(), subscriber = redis.createClient();
 // var nodemailer = require('nodemailer');
 var async = require('async');
 var useragent = require('express-useragent');
+var AWS = require('aws-sdk');
+
 //                  m  * s  * ms
 // var sessionMaxAge = 00 * 00 * 1000;
 //                  m  * s  * ms
@@ -69,13 +66,26 @@ var models = {
 models.User = require('./models/User')(mongoose, async, models.logins, models);
 models.activities = require('./models/activities')(mongoose, models, async);
 models.projects = require('./models/projects')(mongoose, models, async);
+models.Audio = require('./models/audio')(mongoose, async, models);
 
 var emails = {
   invites: require('./emails/invites')(app)
 }
 
+AWS.config.loadFromPath('./aws.json');
+// // AWS.config.update({region: 'us-standard'});
 
+// var s3 = new AWS.S3();
 
+// s3.listBuckets(function(error, data) {
+//   if (error) {
+//     console.log(error); // error is Response.error
+//   } else {
+//     console.log(data); // data is Response.data
+//   }
+// });
+
+// console.log()
 
 // development only
 if ('development' == app.get('env')) {
@@ -85,12 +95,14 @@ if ('development' == app.get('env')) {
 var routes = {
   index: require('./routes/index')(models, sessionMaxAge, async),
   user: require('./routes/user')(fs, redis, redisClient, models, io, sessionMaxAge, cookieMaxAge, emails),
-  project: require('./routes/project')(fs, models, sessionMaxAge)
+  project: require('./routes/project')(fs, models, sessionMaxAge),
+
+// TODO: set AWS related variables on the heroku, not loading them from the file.
+
+  audio: require('./routes/audio')(models, AWS.config.credentials.accessKeyId, AWS.config.credentials.secretAccessKey)
 };
 
 require('./router')(routes, app);
-
-
 
 var joinRoom = function(username, socket, store){
 

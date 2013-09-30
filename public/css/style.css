@@ -462,11 +462,12 @@ body {
   font-style: italic;
   border-right: 1px solid rgb(214,214,214); 
   padding: 5px;
-  
+  text-decoration: none;
 }
 
 .comment {
   padding: 10px;
+  
 }
 
 .comment-text {
@@ -621,14 +622,14 @@ body {
   margin-top: 1px;
 }
 .search-results {
-  border-radius: 20;
+  border-radius: 5;
   box-shadow: rgba(82, 168, 236, 0.6) 0px 0px 8px 0px;
   min-height: 10px;
   max-height: 398;
   overflow: hidden;
   overflow-y: auto;
   position: fixed;
-  width: 280;
+  width: 278;
   padding: 10;
   margin-top: 0;
   background-color: white;
@@ -636,6 +637,17 @@ body {
   display: none;
   border: 1px solid rgba(82, 168, 236, 0.6);
 }
+
+.file-selector-label{
+  display: block;
+  height:50px;
+  cursor: pointer;
+  padding:0;
+  width: 250px; 
+  background-color: gray;
+  position: relative;
+}
+
 
 .search-results a {
   color: #4F074F;
