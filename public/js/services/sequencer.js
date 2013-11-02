@@ -13,8 +13,6 @@ define(['services/services', 'lib/sequencer'], function(services, sequencer){
 				for (var i in this.subscribers[ev])
 					this.subscribers[ev][i](options);
 			}
-			// console.log(ev)
-			// if (ev != 'all') return;
 			for (var i in this.subscribers['all'])
 					this.subscribers['all'][i](ev, options);
 		};

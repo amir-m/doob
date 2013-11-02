@@ -15,27 +15,26 @@ module.exports = function(app) {
 		from: "notifications@mail.doob.io", // sender address
 		to: "amir@doob.io", // list of receivers
 		subject: "Test Email" // Subject line
-		// html: 
 	};
-	// smtpTransport.sendMail(mailOptions, function(error, response){
-	//    if(error){
-	//        console.log(error);
-	//    }else{
-	//        console.log("Message sent: " + response.message);
-	//    }
-	// });
+	smtpTransport.sendMail(mailOptions, function(error, response){
+	   if(error){
+	       console.log(error);
+	   }else{
+	       console.log("Message sent: " + response.message);
+	   }
+	});
 
-	// app.render('sendinvite', {from: 'Amir', to: 'Friend'}, function(error, html){
-	// 	mailOptions['html'] = html;
-		// smtpTransport.sendMail(mailOptions, function(error, response){
-		//    if(error){
-		//        console.log(error);
-		//    }else{
-		//        console.log("Message sent: " + response.message);
-		//    }
-		// });
-	// console.log(html)
-	// });
+	app.render('sendinvite', {from: 'Amir', to: 'Friend'}, function(error, html){
+		mailOptions['html'] = html;
+		smtpTransport.sendMail(mailOptions, function(error, response){
+		   if(error){
+		       console.log(error);
+		   }else{
+		       console.log("Message sent: " + response.message);
+		   }
+		});
+	console.log(html)
+	});
 	
 	var send = function(_from, _to, _email) {
 		var mailOptions = {
@@ -48,13 +47,13 @@ module.exports = function(app) {
 			console.log(html);
 		})
 
-		// smtpTransport.sendMail(mailOptions, function(error, response){
-		//    if(error){
-		//        console.log(error);
-		//    }else{
-		//        console.log("Message sent: " + response.message);
-		//    }
-		// });
+		smtpTransport.sendMail(mailOptions, function(error, response){
+		   if(error){
+		       console.log(error);
+		   }else{
+		       console.log("Message sent: " + response.message);
+		   }
+		});
 	}
 
 	return {

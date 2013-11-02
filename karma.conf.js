@@ -4,19 +4,13 @@
 module.exports = function(config) {
   config.set({
 
-    // base path, that will be used to resolve files and exclude
     basePath: '',
 
 
-    // frameworks to use
     frameworks: ['jasmine', 'requirejs'],
 
 
-    // list of files / patterns to load in the browser
     files: [
-        // JASMINE,
-        // {pattern: 'public/js/lib/**/*.js', included: false},
-        // 'public/js/lib/jquery.js',
 
 
         'public/js/lib/require.js',
@@ -33,38 +27,7 @@ module.exports = function(config) {
 
         
 
-        // {pattern: 'public/js/*.js', included: false},
-        // {pattern: 'tests/unit/*Spec.js', included: false},
-        // {pattern: 'tests/unit/services/*Spec.js', included: false},
-        // {pattern: 'tests/unit/controllers/*Spec.js', included: false},
-        // {pattern: 'tests/unit/directives/*Spec.js', included: false},
-        // 'public/js/app-test.js',
-        // {pattern: 'test/*.js', included: false},
-        // 'public/js/main.js',
-        // 'public/js/lib/angular-mocks.js',
-        // 'public/js/lib/angular-resource.js',
-        // // 'public/js/lib/angular-cookies.js',
-        // // 'public/js/lib/domready.js',
-        // 'public/js/lib/ui-bootstrap-tpls-0.5.0.js',
-        // 'public/js/lib/doob.js',
-        // 'public/js/lib/io.js',
-        // 'public/js/lib/effects.js',
-        // 'public/js/lib/audio.js',
-        // 'public/js/lib/sequencer.js',
         
-        // 'public/js/controllers/*.js',
-        // 'public/js/services/*.js',
-        // 'public/js/directives/*.js',
-        // 'public/js/app.js',
-        // 'public/js/*',
-        // 'views/index.html',
-        // 'test/app.js',
-        // 'app-test.js',
-//      'public/test/*Spec.js',
-//      'public/test/**/*Spec.js',
-//      'public/test/**/*Spec.js',
-//      'public/test/*.Spec.js',
-//      'public/test/*.Spec.js'
     ],
 
 
@@ -126,12 +89,5 @@ module.exports = function(config) {
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
     singleRun: false,
-
-    // plugins: [
-    //     'karma-requirejs',
-    //     'karma-jasmine',
-    //     'karma-html2js-preprocessor',
-    //     'karma-spec-reporter',
-    // ]
   });
 };

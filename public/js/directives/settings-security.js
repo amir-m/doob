@@ -7,9 +7,9 @@ define(['directives/directives'], function(directives){
 		return {
 	
 			templateUrl: 'partials/template/doob/settings-security.html',
-			// require: '^soundPatterns',
+			require: '^soundPatterns',
 			restrict: 'E',
-			// replace: true,
+			replace: true,
 			
 			link: function(scope, element, attrs) {
 
@@ -58,9 +58,6 @@ define(['directives/directives'], function(directives){
 						scope.$emit("error:message", reason);
 
 					});
-
-				// console.log(scope.chngemailpass)
-				// console.log(scope.newemail)
 				};
 			}
 		}

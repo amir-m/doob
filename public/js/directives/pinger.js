@@ -4,9 +4,6 @@ define(['directives/directives'], function(directives){
 
         return {
             restrict: 'A',
-            // scope: {
-            //     ev: '='
-            // },
             link: function (scope, element, attr) {
                 
                 element.bind('click', function (e) {

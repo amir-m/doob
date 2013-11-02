@@ -1,7 +1,7 @@
 module.exports = function(mongoose, async, logins, models) {
 
 	var bcrypt = require('bcrypt');
-	// var logins = require('../models/logins')(mongoose);
+	var logins = require('../models/logins')(mongoose);
 
 
 	// defining schemas
@@ -26,14 +26,12 @@ module.exports = function(mongoose, async, logins, models) {
 		embedPlayCount: {type: Number, default: 0},
 		uniquePlayCount: {type: Number, default: 0},
 		skipCount: {type: Number, default: 0}
-		// remixCount, soundPatternCount
+		remixCount, soundPatternCount
 	});
 
 	
 
 	AudioSchema.set('autoIndex', false);
-	// AudioSchema.index({
-	// });
 
 	// models
 	var Audio = mongoose.model('Audio', AudioSchema);

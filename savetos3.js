@@ -5,28 +5,8 @@ var folders = ['clap', 'hat', 'impulses', 'kick', 'snare', 'tom'];
 
 AWS.config.loadFromPath('./aws.json');
 
-var s3 = new AWS.S3();
-
-// s3.putObject({
-//   Bucket: 'doob',
-//   Key: 'Clap/',
-//   ACL: "bucket-owner-full-control"  
-// }, function (error, data) {
-  
-//   if (error) throw error;
-
-//   console.log(data)
-
-  
-// });
-// s3.listObjects({Bucket: 'doob'}, function (error, data) {
-// 	console.log(error)  
-// 	if (data) {
-// 		for (var i in data.Contents)
-// 			console.log(data.Contents[i].Key);
-// 	}
-// });
-
+var s3 = new AWS.S3(); 
+ 
 for (var j = 0; j < folders.length; ++j) {
 
 	

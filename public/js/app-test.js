@@ -7,14 +7,3 @@ define(['angular', 'angularResource', 'angularCookies', 'uiBootstrap', 'controll
 	
 	return app;
 });
-
-
-// define(['angular'], function(angular){
-
-
-// 	var app = angular.module('hm', []);
-	
-// 	return app;
-// });
-
-

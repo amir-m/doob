@@ -14,7 +14,6 @@ define(['services/services'], function(services){
 				$rootScope.$broadcast("me:done", m);
 				$http.get('/user/' + $route.current.params.user)
 				.success(function(user) {
-					// console.log(user);
 					delay.resolve(user);
 				}).error(function(err) {
 					delay.reject(err);

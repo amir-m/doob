@@ -13,8 +13,6 @@ define(['services/services', 'lib/io'], function(services, io){
 				for (var i in this.subscribers[ev])
 					this.subscribers[ev][i](options);
 			}
-			// console.log(ev)
-			// if (ev != 'all') return;
 			for (var i in this.subscribers['all'])
 					this.subscribers['all'][i](ev, options);
 		};

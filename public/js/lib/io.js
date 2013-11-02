@@ -14,7 +14,6 @@ define([], function () {
                     for (var i in subscribers[ev])
                         subscribers[ev][i].apply(ev, args);
                 }
-                // console.log(ev)
                 if (ev == 'all') return;
                 for (var i in subscribers['all'])
                         subscribers['all'][i].apply(ev, args);
@@ -65,21 +64,21 @@ define([], function () {
                     }
                 };
                 
-                // properties.asset.value.gain.value = properties.value;
+                properties.asset.value.gain.value = properties.value;
                 properties.asset.value._node = properties.name.value;
                 properties.connectable.value = properties.asset.value;
 
                 Object.defineProperties(this, properties);
                 this.constructor = 'Gain';
 
-                // this.value(config && config.value || 1, 'dontpublish');
+                this.value(config && config.value || 1, 'dontpublish');
 
                 this.asset.connect(this.destination);
 
-                //doob.addAsset(this);
+                doob.addAsset(this);
                 publish('new:io:Gain', this);
-                // doob.assets[this.name] = this;
-                // doob.assetsToJSON[this.name] = this.toJSON();
+                doob.assets[this.name] = this;
+                doob.assetsToJSON[this.name] = this.toJSON();
 
             };
             Gain.prototype.value = function(value, flag) {
@@ -110,7 +109,6 @@ define([], function () {
 
             var Graph = function(config) {
                 var self = this;
-                // console.log(config)
                 if (!config || !config.node) 
                     throw 'io.Graph : Invalid source.';
 
@@ -161,11 +159,11 @@ define([], function () {
 
                     publish('new:io:Graph', this);
 
-                    // if(!doob.graphs[this.name]) doob.graphs.push(this.name);
+                    if(!doob.graphs[this.name]) doob.graphs.push(this.name);
 
-                    // doob.assets[this.name] = this;
-                    // doob.assetsToJSON[this.name] = this.toJSON();
-                    // doob.graphs[this.name] = this;
+                    doob.assets[this.name] = this;
+                    doob.assetsToJSON[this.name] = this.toJSON();
+                    doob.graphs[this.name] = this;
                 }
                 // Invoked as a factory function.
                 else {
@@ -175,9 +173,9 @@ define([], function () {
 
                     publish('new:io:Graph', o);
                     
-                    // if(!doob.graphs[o.name]) doob.graphs.push(o.name);
-                    // doob.assets[o.name] = o;
-                    // doob.assetsToJSON[o.name] = o.toJSON();
+                    if(!doob.graphs[o.name]) doob.graphs.push(o.name);
+                    doob.assets[o.name] = o;
+                    doob.assetsToJSON[o.name] = o.toJSON();
                     
                     return o;
                 }           
@@ -195,43 +193,6 @@ define([], function () {
                     })
 
                 return this;
-                // this.destination = this.destination.asset || this.destination;
-                // this.sources = this.source.asset || this.source;
-                // if (!this.source || !this.source.connect) {
-                //     throw 'Graph.connect : Invalid source.'; 
-                // }
-                // if (!this.destination) 
-                //     throw 'Graph.connect : Invalid destination.';
-                // // Interchangeable call...
-                // if (node) return this.addSend(node);
-                // // If there's no send, just connect to the destination.
-                // if (!this.send) {
-                //     this.source.connect(this.destination);
-                //     return this;
-                // }
-                // // If there's only a single effect on the send, connect to it's asset.
-                // if (Object.prototype.toString.call(this.send) !== '[object Array]') {
-                //     this.source.connect(this.send.asset ? this.send.asset : this.send);
-                //     this.source.connect(this.destination);
-                //     return this;
-                // }
-                // if (this.send.length == 1) {
-                //     this.source.connect(this.send[0].asset ? this.send[0].asset : this.send[0]);
-                //     this.source.connect(this.destination);
-                //     return this;                
-                // }
-                // for (var i = 0; i < this.send.length; ++i) {
-                //     if (this.send[i] instanceof Graph) {
-                //         this.source.connect(this.send[i].source);
-                //     } else if (this.send[i] instanceof Chain) {
-                //         for (var j = 0; j < this.send[i].nodes.length; ++j)
-                //             this.source.connect(this.send[i].nodes[j]);
-                //     } else {
-                //         this.source.connect(this.send[i].asset ? this.send[i].asset : this.send[i]);
-                //     }
-                // };
-                // this.source.connect(this.destination);
-                // return this;
             };
 
             Graph.prototype.disconnect = function() {
@@ -250,10 +211,8 @@ define([], function () {
 
             Graph.prototype.addSend = function(node) {
 
-                // bad argument, argument has no graph, argument has no connectable resource
                 if (!node || !node.graph || !node.graph.connectable) return this;
 
-                // argument has already been added
                 if (this.send.indexOf(node.graph.name) != -1) return this;
                 
                 // connect this graph to the argument
@@ -420,7 +379,7 @@ define([], function () {
                 if (this.insertNode.node instanceof Chain && node) {
                     var insertChain = this.insertNode.node;
                     insertChain.remove(node);
-                    // this.insertNode.disconnect();
+                    this.insertNode.disconnect();
                     this.insert(insertChain);
                     return this;
                 }
@@ -495,7 +454,6 @@ define([], function () {
 
             Chain.prototype.connect = function() {
 
-                console.log(this)
 
                 // connect to the destination
                 this.source.connect(this.destination);
@@ -559,7 +517,6 @@ define([], function () {
                 var nodeType = nodeType || node instanceof Graph ? 1: (node instanceof Chain?
                     2: (Object.prototype.toString.call(node) != '[object Array]'? 3 : 4));
 
-                console.log(nodeType)
                 switch(nodeType) {
                         // Graph
                         case 1: 
@@ -677,14 +634,12 @@ define([], function () {
                         };
                     },
                     deleteConnectable: function(args) {
-                        console.log('io.deleteConnectable has been called!');
-                        console.log(args);
                         if (connections[args[1]]) delete connections[args[1]];
                         return;
                     }
                 }
             }());
-            // doob.subscribe('delete-asset', find.deleteConnectable);
+            doob.subscribe('delete-asset', find.deleteConnectable);
             return {
                 Graph: Graph,
                 Chain: Chain,

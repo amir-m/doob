@@ -4,28 +4,28 @@ module.exports = function(io, socket, session, store, models) {
 * handleres files!
 */
 
-  // var follow = function(toBefolloewd, followingBy){
-  //   models.User.follower(toBefolloewd, followingBy, function(res){
-  //     // if (res == 500) // handle
-  //   });
+  var follow = function(toBefolloewd, followingBy){
+    models.User.follower(toBefolloewd, followingBy, function(res){
+      // if (res == 500) // handle
+    });
 
-  //   redisClient.sismember('connected', toBefolloewd, function(err, reply){
-  //     // if toBefollowed is online, join her room
-  //     if (reply) socket.join(toBefolloewd);
-  //   })
-  // };
+    redisClient.sismember('connected', toBefolloewd, function(err, reply){
+      // if toBefollowed is online, join her room
+      if (reply) socket.join(toBefolloewd);
+    })
+  };
 
-  // var unFollow = function(toBeUnfolloewd, unFollowingBy){
-  //   models.User.unFollow(toBeUnfolloewd, unFollowingBy, function(res){
-  //     // if (res == 500) // handle
-  //   });
+  var unFollow = function(toBeUnfolloewd, unFollowingBy){
+    models.User.unFollow(toBeUnfolloewd, unFollowingBy, function(res){
+      // if (res == 500) // handle
+    });
 
-  //   // redisClient.sismember('connected', toBeUnfolloewd, function(err, user){
-  //     // if toBeUnfollowed is online, leave her room
-  //     // if (user) 
-  //       socket.leave(toBefolloewd);
-  //   // })
-  // };
+    redisClient.sismember('connected', toBeUnfolloewd, function(err, user){
+      if toBeUnfollowed is online, leave her room
+      if (user) 
+        socket.leave(toBefolloewd);
+    })
+  };
   
   var disconnect = function(){
     console.log('disconnecting: %s: %s, %s', socket.id, session.username, 
@@ -37,7 +37,6 @@ module.exports = function(io, socket, session, store, models) {
 
     delete io.sockets.sockets[session.username];
 
-    // remove the user from broadcasters list.
     store.srem('broadcasters', session.username, function(error){
       if (error) console.log(error)
     });
@@ -116,13 +115,13 @@ module.exports = function(io, socket, session, store, models) {
 
     // tell everyone that the user's now broadcasting
     io.sockets.emit('user:activity', data.broadcaster + ' is now broadcasting!');
-    // models.Users.activity({
-    //   type: 'user:broadcast:start',
-    //   broadcaster: data.broadcaster,
-    // });
+    models.Users.activity({
+      type: 'user:broadcast:start',
+      broadcaster: data.broadcaster,
+    });
     
     // send the production session's data to all subscribers.
-    // io.sockets.in(data.username).emit('user:broadcast:entire:session', data.doob);
+    io.sockets.in(data.username).emit('user:broadcast:entire:session', data.doob);
     socket.broadcast.to(data.broadcaster).emit(data.event, data);
 
     console.log('%s: %s just started to broadcast..', data.broadcaster, data.broadcaster);
@@ -137,7 +136,7 @@ module.exports = function(io, socket, session, store, models) {
     io.sockets.emit('user:activity', data.broadcaster + ' is not broadcasting anymore!');
     
     // send the production session's data to all subscribers.
-    // io.sockets.in(data.username).emit('user:broadcast:entire:session', data.doob);
+    io.sockets.in(data.username).emit('user:broadcast:entire:session', data.doob);
     socket.broadcast.to(data.broadcaster).emit('user:broadcast:stop', data);
 
     console.log('%s stopped broadcasting...', data.broadcaster);

@@ -26,10 +26,6 @@ define(['directives/directives'], function(directives){
 
 						scope.mappings[pattern.id].updated = updated;					
 
-						console.log(updated);
-						console.log(scope.mappings[pattern.id].updated);
-
-
 						if (scope.$$phase != '$apply' && scope.$$phase != '$digest') {
 							scope.$apply();
 						}

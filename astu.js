@@ -4,7 +4,7 @@
 var mongoose = require('mongoose');
 
 if (process.env.MONGOLAB_URI)
-  var mg = process.env.MONGOLAB_URI;//require("url").parse(process.env.MONGOLAB_URI);
+  var mg = process.env.MONGOLAB_URI;
 else
   var mg = "mongodb://localhost/doob";
 
@@ -12,27 +12,7 @@ var users = require('./models/User')(mongoose);
 
 mongoose.connect(mg, function(err){
     if (err) throw err;
-    console.log('connected to mongoDB: %s', mg);
-
-    // var x = {
-    // 	resource: {
-    // 		name: "A_CLAP_1",
-    // 		type: "sound",
-    // 		url: "/public/wav/CLAP/A_CLAP_1.wav"
-    // 	}
-    // };
-
-    // var s = new models.Sound(x);
-
-    // s.save(function(err) {
-    // 	if (err) throw err;
-    // 	console.log('finished!');
-
-    	// models.Sound.find({}, function(err, docs){
-    	// 	console.log(docs)
-    	// })
-    // });
-    
+    console.log('connected to mongoDB: %s', mg); 
     users.User.find({}, function(err, docs){
         console.log(docs.length);
         for (var i = 0; i < docs.length; ++i) {
@@ -45,11 +25,6 @@ mongoose.connect(mg, function(err){
             s.save();
         }
     });
-
-    // users.Settings.find({}, function(err, docs){
-    //         console.log(docs)
-    //     });
-	
 });
 
 

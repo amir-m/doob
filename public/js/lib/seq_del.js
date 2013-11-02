@@ -1,8 +1,6 @@
 define([], function(){
 
 	return function(doob, io, audio) {
-		// var io = _io(doob);
-		// var audio = _audio(doob);
 		return (function invocation(){
 
 			var subscribers = {
@@ -228,165 +226,76 @@ define([], function(){
 
 				config.sounds = properties.patternSounds.value;
 
-
-
-				// console.log(doob.assets);
-
 				// Invoked as a constructor.
-				// if (this instanceof SoundPattern) {
-					var o = Object.create(SoundPattern.prototype, properties); 
+				var o = Object.create(SoundPattern.prototype, properties); 
 
-					// Object.defineProperties(this, properties);
-					// config.graph ? _createRoutings(this, config.graph) : _createRoutings(this);
-					o.io = (function(self){
-						var soundObjects = {};
-						var graphs = [];
-						if (config.sounds && 
-							Object.prototype.toString.call(config.sounds) === '[object Array]') {
-							for (var i = 0, l = config.sounds.length; i < l; ++i) {
-								if (!doob.assets[config.sounds[i]]) {
+				Object.defineProperties(this, properties);
+				config.graph ? _createRoutings(this, config.graph) : _createRoutings(this);
+				o.io = (function(self){
+					var soundObjects = {};
+					var graphs = [];
+					if (config.sounds && 
+						Object.prototype.toString.call(config.sounds) === '[object Array]') {
+						for (var i = 0, l = config.sounds.length; i < l; ++i) {
+							if (!doob.assets[config.sounds[i]]) {
+								soundObjects = {};
+								throw 'The sound: ' + config.sounds[i] + 
+								' does not exist. Did you forget to create it first?';
+							}
+							var graph = io.Graph({
+
+								source: new io.Gain({name: self.name+'_'+config.sounds[i]+'_gain'}),
+								send: self.graph,
+								destination: doob.assets[config.sounds[i]].graph.source,
+								node: config.name
+							});
+							graph.insert(self.graph);
+							graph.addSend(self.graph);
+							graph.connect();
+							graphs.push(graph);
+							soundObjects[config.sounds[i]] = {
+								sound: doob.assets[config.sounds[i]], 
+								graph: graph
+							};
+						}
+					}
+					return {
+						get sounds() {return soundObjects},
+						set sounds(s) {
+							if (Object.prototype.toString.call(s) !== '[object Array]')
+								throw 'Sounds can only be set to an array of sounds.';
+							for (var i = 0, l = s.length; i < l; ++i) {
+								if (!doob.assets[s[i]]) {
 									soundObjects = {};
 									throw 'The sound: ' + config.sounds[i] + 
 									' does not exist. Did you forget to create it first?';
 								}
-								var graph = io.Graph({
+								console.log('yes');
 
+								var graph = io.Graph({
 									source: new io.Gain({name: self.name+'_'+config.sounds[i]+'_gain'}),
-									//send: self.graph,
+									send: self.graph,
 									destination: doob.assets[config.sounds[i]].graph.source,
-									node: config.name
+									node: self.name,
+									belongsTo: self.name
 								});
-								// graph.insert(self.graph);
-								graph.addSend(self.graph);
+								graph.insert(self.graph)
 								graph.connect();
 								graphs.push(graph);
-								soundObjects[config.sounds[i]] = {
-									sound: doob.assets[config.sounds[i]], 
+								soundObjects[config.sounds[i]] = {sound: doob.assets[config.sounds[i]], 
 									graph: graph
-								};
+								};							
 							}
-						}
-						return {
-							get sounds() {return soundObjects},
-							set sounds(s) {
-								if (Object.prototype.toString.call(s) !== '[object Array]')
-									throw 'Sounds can only be set to an array of sounds.';
-								for (var i = 0, l = s.length; i < l; ++i) {
-									if (!doob.assets[s[i]]) {
-										soundObjects = {};
-										throw 'The sound: ' + config.sounds[i] + 
-										' does not exist. Did you forget to create it first?';
-									}
-									console.log('yes');
+						},
+						graphs: graphs
+					}
+				}(o));
+				
+				publish('new:sequencer:SoundPattern', o);
 
-									var graph = io.Graph({
-										source: new io.Gain({name: self.name+'_'+config.sounds[i]+'_gain'}),
-										//send: self.graph,
-										destination: doob.assets[config.sounds[i]].graph.source,
-										node: self.name,
-										belongsTo: self.name
-									});
-									graph.insert(self.graph)
-									graph.connect();
-									graphs.push(graph);
-									soundObjects[config.sounds[i]] = {sound: doob.assets[config.sounds[i]], 
-										graph: graph
-									};							
-								}
-							},
-							graphs: graphs
-						}
-					}(o));
+				if (callback) callback(o);
+				return o;
 
-					// console.log(doob.name);
-
-					// console.log(o);
-					
-					publish('new:sequencer:SoundPattern', o);
-
-					if (callback) callback(o);
-					return o;
-
-				// {// }
-								// Invoked as a factory function.
-								// else {
-								// 	var o = Object.create(SoundPattern.prototype, properties); 
-								// 	config.graph ? _createRoutings(o, config.graph) : _createRoutings(o);
-								// 	console.log(o);
-								// 	o.io = (function(){
-								// 		var soundObjects = {};
-								// 		var graphs = [];
-								// 		if (config.sounds && 
-								// 			Object.prototype.toString.call(config.sounds) === '[object Array]') {
-								// 			for (var i = 0, l = config.sounds.length; i < l; ++i) {
-								// 				if (!doob.assets[config.sounds[i]]) {
-								// 					soundObjects = {};
-								// 					return {'SoundPattern' : 'The sound: ' + config.sounds[i] + 
-								// 					' does not exist. Did you forget to create it first?'};
-								// 				}
-								// 				console.log('yes');
-								// 				var graph = io.Graph({
-								// 					source: new io.Gain({name: self.name+'_'+config.sounds[i]+'_gain'}),
-								// 					// send: o.graph,
-								// 					destination: doob.assets[config.sounds[i]].graph.source,
-								// 					node: config.name
-								// 				});
-								// 				graph.connect();
-								// 				graphs.push(graph);
-								// 				soundObjects[config.sounds[i]] = {sound: doob.assets[config.sounds[i]], 
-								// 					graph: graph
-								// 				};
-								// 			}
-								// 		}
-								// 		return {
-								// 			get sounds() {return soundObjects},
-								// 			set sounds(s) {
-								// 				if (Object.prototype.toString.call(s) !== '[object Array]')
-								// 					return;
-								// 				for (var i = 0, l = s.length; i < l; ++i) {
-								// 					if (!doob.assets[s[i]]) {
-								// 						soundObjects = {};
-								// 						throw {'doob.context.destination' : 'The sound: ' + s[i] + 
-								// 						' does not exist. Did you forget to create it first?'};
-								// 					}
-								// 					var graph = io.Graph({
-								// 						source: new io.Gain({name: self.name+'_'+config.sounds[i]+'_gain'}),
-								// 						node: self.name,
-								// 						// send: o.graph,
-								// 						destination: doob.assets[config.sounds[i]].graph.source
-								// 					});
-								// 					graph.connect();
-								// 					graphs.push(graph);
-								// 					soundObjects[config.sounds[i]] = {sound: doob.assets[config.sounds[i]], 
-								// 						graph: graph
-								// 					};							
-								// 				}
-								// 			},
-								// 			graphs: graphs
-								// 		}
-								// 	}());
-								// 	doob.soundPatterns.push(o.name);
-								// 	doob.assets[o.name] = o;
-								// 	return o;
-								// }}
-
-				// function _createRoutings(self, graph) {
-
-				// 	if (graph) {
-				// 		self.graph = graph;
-				// 	} else {
-				// 		var dest = (config && config.graph && config.graph.destination) ? 
-				// 		config.graph.destination : doob.masterGain;
-				// 		self.graph = new io.Graph({
-				// 			source: properties.gain.value, 
-				// 			connectable: properties.gain.value.connectable, 
-				// 			destination: dest,
-				// 			node: config.name
-				// 		}).connect();						
-				// 	}
-				// 	// console.log(self);
-				// // TODO: Insert this graph to all sound's graph.
-				// };
 			};
 			SoundPattern.prototype.play = function(mode) {
 				if (this.playbackState == 1) return;
@@ -407,16 +316,14 @@ define([], function(){
 				// if the note is on, make it off (remove it)!
 				if (track.pattern.indexOf(note) != -1) {
 					track.pattern.splice(track.pattern.indexOf(note), 1);
-					// this.soundPatterns[track.dummyName].splice(
-					// 	this.soundPatterns[track.dummyName].indexOf(note), 1);
+					this.soundPatterns[track.dummyName].splice(
+						this.soundPatterns[track.dummyName].indexOf(note), 1);
 				}
 				// the note is off, turn it on (add it)!
 				else {
-					// this.tracks[note.soundName].pattern.push(note.note);	
+					this.tracks[note.soundName].pattern.push(note.note);	
 					this.soundPatterns[track.dummyName].push(note);
 				}
-				// console.log(this.soundPatterns[track.dummyName])
-				// console.log(track.pattern)
 			};
 
 			SoundPattern.prototype.removeSound = function(track) {
@@ -504,60 +411,7 @@ define([], function(){
 
 					}
 				}
-			};
-			// SoundPattern.prototype.enQ = function(loop) {
-				
-			// 	if (!this.soundPatterns) return;
-
-			// 	var self = this;
-
-			// 	this.playbackState = 1;
-
-			// 	schedule(loop ? 1 : this.bars);
-				
-			// 	function schedule(bars) {
-			// 		for (var i = 0; i < 1; ++i) {
-
-			// 			for (var sound in self.soundPatterns) {
-
-			// 				var indvSoundMappings = null;
-							
-			// 				for (var j = 0; j < self.tracks[sound].pattern.length; ++j) {
-			// 					if (self.soundPatterns[sound][j] < 1 
-			// 						|| self.soundPatterns[sound][j] > self.steps) continue;
-
-			// 					var source = audio.createSource({
-			// 						destination: doob.assets[sound].graph.connectable, 
-			// 						buffer: doob.assets[sound].buffer
-			// 					});
-							
-			// 					var t = (i * self.barTime) + 
-			// 					(self.soundPatterns[sound][j] * self.fourthNoteTime + (doob.context.currentTime));
-			// 					source.start ? source.start(t) : source.noteOn(t);
-			// 					self.lastScheduledSound = doob.context.currentTime + self.barTime;
-			// 					self.patternSources.push(source);
-			// 					indvSoundMappings = {};
-			// 					indvSoundMappings[self.soundPatterns[sound][j]] = source;
-			// 				}
-			// 				if (indvSoundMappings) self.soundPatternSources[sound] = indvSoundMappings;
-			// 			}
-			// 		}
-			// 		if (loop && self.playbackState != 0) {
-			// 			self.scheduledBars++; 
-
-			// 			// doob.context.callbackAtTime(function() {
-			// 			// 	schedule(1);
-			// 			// 	self.cleanPlayedSources();
-			// 			// }, self.barTime * 1000);
-			// 			intvl = setTimeout(function() {
-			// 				schedule(1);
-			// 				self.cleanPlayedSources();
-			// 			}, self.barTime * 1000);
-			// 		}
-			// 	};
-			// 	return this;
-			// };
-			SoundPattern.prototype.enQ = function(loop) {
+			};																									SoundPattern.prototype.enQ = function(loop) {
 				
 				if (!this.tracks) return;
 
@@ -597,10 +451,6 @@ define([], function(){
 					if (loop && self.playbackState != 0) {
 						self.scheduledBars++; 
 
-						// doob.context.callbackAtTime(function() {
-						// 	schedule(1);
-						// 	self.cleanPlayedSources();
-						// }, self.barTime * 1000);
 						intvl = setTimeout(function() {
 							schedule(1);
 							self.cleanPlayedSources();
@@ -647,35 +497,7 @@ define([], function(){
 					}
 				}
 			};
-			// SoundPattern.prototype.toggleNote = function (options) {
-			// 	var e = options.domNode || null;
-			// 	var i = typeof options.index === 'undefined' ? null : options.index;
-			// 	var j = typeof options.soundIndex === 'undefined' ? null : options.soundIndex;
-			// 	if (e == null || i == null || j == null)
-			// 		return false; //THROW Proper Error
-			// 	if (typeof this.soundPatterns[j][i] === 'undefined' || this.soundPatterns[j][i] == false) {
-			// 		this.soundPatterns[j][i] = true;
-			// 		if (this.played) {
-			// 			var time = (this.playStartTime + i * this.fourthNoteTime);				
-			// 			if (time > doob.context.currentTime) {
-			// 				this.soundSources[j][i] = playSound(this.sounds[j], time);
-			// 				this.patternSources.push(this.soundSources[j][i]);
-			// 			}					
-			// 		}
-			// 	e.setAttribute('class', 'btn btn-large btn-success'); // Remove this. Bind it to the model...
-			// 	}
-			// 	else {
-			// 		if(this.soundSources[j][i])
-			// 			this.soundSources[j][i].stop(0);
-			// 		this.soundPatterns[j][i] = false;
-			// 		e.setAttribute('class', 'btn btn-large');
 
-			// 	}
-			// 	if (options.broadcast) {
-			// 		options.broadcast = false;
-			// 		emitEvent('toggleNote', options);
-			// 	}	
-			// };
 			SoundPattern.prototype.resetTiming = function(tempo) {
 				this.tempo = tempo;
 				this.sixteenthNoteTime = ((60) / this.tempo) / 1;
@@ -702,7 +524,6 @@ define([], function(){
 					nodetype: 'SoundPattern',
 					name: this.name,
 					tracks: this.tracks,
-					// soundPatterns: this.soundPatterns,
 					graph: this.graph,
 					gain: this.gain,
 					tempo: this.tempo,
@@ -711,8 +532,6 @@ define([], function(){
 					sounds: this.sounds,
 					soundPatterns: this.soundPatterns
 				};
-
-				// for (var i in this.)
 
 				return obj;
 			};	

@@ -8,7 +8,7 @@ require.config({
 		jquery: 'lib/jquery',
 		jqueryui: 'lib/jqueryui',
 		domready: 'lib/domready',
-		// wavesurfer: 'lib/wavesurfer.min',
+		wavesurfer: 'lib/wavesurfer.min',
 		uiBootstrap: 'lib/ui-bootstrap-tpls-0.5.0',
 		doob: 'lib/doob',
 		io: 'lib/io',
@@ -26,7 +26,7 @@ require.config({
 		},
 		'angularResource': { deps: ['angular'] },
 		'angularCookies': { deps: ['angular'] },
-		// 'wavesurfer': { exports: 'WaveSurfer' },
+		'wavesurfer': { exports: 'WaveSurfer' },
 		'soundManager': { exports: 'soundManager' },
 		'uiBootstrap': { deps: ['angular'] }
 	}
@@ -37,7 +37,7 @@ require([
 	'angular',
 	'app', 
 	'domready',
-	// 'wavesurfer',
+	'wavesurfer',
 	'soundManager',
 	'socketio',
 	'jqueryui',
@@ -95,30 +95,30 @@ require([
 		app.config(
 		['$routeProvider', '$httpProvider', 
 		function($routeProvider, $httpProvider) {
-			// $httpProvider.responseInterceptors.push(
-			// 	['$q', function($q) {
-			// 		return function(promise) {
-			// 			return promise.then(function (response) {
+			$httpProvider.responseInterceptors.push(
+				['$q', function($q) {
+					return function(promise) {
+						return promise.then(function (response) {
 
-			// 				return response;
+							return response;
 
-			// 			}, function (response) {
-			// 				console.log(response.status)
-			// 				if (response.status == 401) {
-			// 					// $.ajax({
-			// 					// 	type: "POST",
-			// 					// 	url: "/login"
-			// 					// }).done(function (data) {
-			// 					// 	console.log(data)
-			// 					// })
-			// 						return response;
-			// 				}
-			// 				else return response;
+						}, function (response) {
+							console.log(response.status)
+							if (response.status == 401) {
+								// $.ajax({
+								// 	type: "POST",
+								// 	url: "/login"
+								// }).done(function (data) {
+								// 	console.log(data)
+								// })
+									return response;
+							}
+							else return response;
 							
-			// 			});	
-			// 		}
-			// 	}
-			// ]);
+						});	
+					}
+				}
+			]);
 			$routeProvider.
 			when('/login', {
 				templateUrl: 'partials/login.html', 
@@ -224,15 +224,6 @@ require([
 		app.run([
 		'$window', 'socket', '$rootScope', 'me', 'doobio', '$http', 
 		function($window, socket, $rootScope, me, doobio, $http){
-
-			// var promise = me();
-			// promise.then(function (_me) {
-			// 	$rootScope.me = _me;
-			// }, function(error, status){
-			// 	if (status == 401) {
-			// 		$http.post('/login').success().error(function(){})
-			// 	}
-			// });
 
 			$window.addEventListener("beforeunload", function (e) {
 			  if ($rootScope.username && doobio.instances[$rootScope.username] && doobio.instances[$rootScope.username].isBroadcasting) {

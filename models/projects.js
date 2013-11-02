@@ -55,10 +55,10 @@ module.exports = function(mongoose, models, async) {
 	CommentSchema.set('autoIndex', false);
 	LikeSchema.set('autoIndex', false);
 	ForkSchema.set('autoIndex', false);
-	// SoundPatternSchema.index({
-	// 	name: 1,
-	// 	username: 1
-	// });
+	SoundPatternSchema.index({
+		name: 1,
+		username: 1
+	});
 
 	// models
 	var SoundPattern = mongoose.model('SoundPattern', SoundPatternSchema);
@@ -83,7 +83,7 @@ module.exports = function(mongoose, models, async) {
 			username: session.username,
 			created: data.timestamp ? data.timestamp : new Date().getTime(),
 			updated: data.timestamp ? data.timestamp : new Date().getTime(),
-			// soundsCount: soundsCount,
+			soundsCount: soundsCount,
 			content: {
 				tempo: pattern.tempo,
 				steps: pattern.steps,
@@ -100,9 +100,9 @@ module.exports = function(mongoose, models, async) {
 				});
 			},
 			function(sp, callback) {
-				// models.User.saveSoundPattern(sp, function(error, username) {
-				// 	callback(error, sp);
-				// });
+				models.User.saveSoundPattern(sp, function(error, username) {
+					callback(error, sp);
+				});
 				models.User.User.update({_id: session.uid}, {$inc: {soundPatterns: 1}},
 					function(error){
 						callback(error, sp);
@@ -110,7 +110,6 @@ module.exports = function(mongoose, models, async) {
 
 			}
 		], function(error, sp) {
-			// console.log(sp)
 			if (callbackFn) callbackFn(error, sp);
 		});
 	};
@@ -207,8 +206,6 @@ module.exports = function(mongoose, models, async) {
 
 	var changeTempo = function(data, session) {
 		var pattern = data.message;
-		// for (var i in pattern.tracks)
-		// console.log(pattern)
 		SoundPattern.update(
 			{ _id: pattern.id }, { $set: { 
 				'content.tempo': pattern.tempo,
@@ -221,8 +218,6 @@ module.exports = function(mongoose, models, async) {
 
 	var changeSteps = function(data, session) {
 		var pattern = data.message;
-		// for (var i in pattern.tracks)
-		// console.log(pattern)
 		SoundPattern.update(
 			{ _id: pattern.id }, { $set: { 
 				'content.steps': pattern.steps,
@@ -241,7 +236,6 @@ module.exports = function(mongoose, models, async) {
 	};
 
 	var newSoundPatternComment = function(data) {
-    // console.log(data)
 	    var id = data._id ? data._id : _objectId();
 
 	    Comment.create({

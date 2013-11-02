@@ -26,17 +26,8 @@ module.exports = function(app, express, connect, path, cookieParser, useragent,
   }));
   app.use(useragent.express());
 
-  // app.use(function(req, res, next){
-  //   // redirect all non-https trafic to https..
-  //   // if (req.protocol != 'https') return res.redirect(host + req.url);
-  //   console.log(req.useragent);
-  //   next();
-  // });
-
-
   app.use(app.router);
 
-  // Using color themes.
   colors.setTheme({
     silly: 'rainbow',
     input: 'grey',
@@ -52,7 +43,7 @@ module.exports = function(app, express, connect, path, cookieParser, useragent,
 
   io.configure(function(){
     io.set('log level', 1);
-    io.set("transports", ["xhr-polling"]);// "websocket"
+    io.set("transports", ["xhr-polling", "websockets"]);
   });
 
 
@@ -61,7 +52,7 @@ module.exports = function(app, express, connect, path, cookieParser, useragent,
   });
 
   if (process.env.MONGOLAB_URI)
-    var mg = process.env.MONGOLAB_URI;//require("url").parse(process.env.MONGOLAB_URI);
+    var mg = process.env.MONGOLAB_URI;
   else
     var mg = "mongodb://localhost/doob";
 

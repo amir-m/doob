@@ -2,17 +2,13 @@ define(['services/services'], function(services){
 
 	services.factory('auth',  ['$rootScope', '$http', '$location', '$q', 
 		'socket', '$cookies', 'doobio',
-			function ($rootScope, $http, $location, $q, socket, $cookies, doobio){
-			// socket.disconnect(false);
+		function ($rootScope, $http, $location, $q, socket, $cookies, doobio){
 
 		    function _getMe (param) {
 
 		        var delay = $q.defer();
  		        var param = param || {};
 
-		        // for (var i in param)
-		        // 	if ($cookies[param[i]]) delay.resolve($cookies[param[i]]);
-			    
 		    	$http({
 		    		cache: false,
 		    		method: 'GET',
@@ -75,12 +71,9 @@ define(['services/services'], function(services){
 
 				   					$rootScope.username = data.username;
 				   					$cookies.username = data.username;
-				   					// $location.path(path);
 				   					delay.resolve($rootScope.username);
-				   				}, function(){
-				   					// console.log('..... `authenticate` _getMe FAILED');
-				   					// console.log('..... HANDLE IT .....');
-				   					// console.log('..... `authenticate` _getMe FAILED');
+				   				}, function(error){
+				   					delay.reject(error)
 				   				});
 				   			}
 			   			}
@@ -92,24 +85,18 @@ define(['services/services'], function(services){
 			   			$rootScope.username = null;
 			   			$cookies.username = null;
 		   				
-		   				// console.log('..... `authenticate` _login');
 		   				var promise = _login();
 
 		   				promise.then(function(username){
-		   					// success
-		   					// console.log('..... `authenticate` _login succeed');
 		   					socket.connect(true);
 		   					$rootScope.username = username;
 		   					$cookies.username = username;
 		   					delay.resolve($rootScope.username);
 		   				}, function(error){
-		   					// error
-		   					// console.log('..... `authenticate` _login failed');
 							delay.reject(error);
 		   				});
 		   			}
 	   				else {
-	   					// console.log('..... `authenticate` ping failed with other status');
 	   					delay.reject();
 	   				}
 
@@ -181,13 +168,11 @@ define(['services/services'], function(services){
 		    		$location.path('/home');
 		    		if (callback) return callback(res);
 		    	}).error(function(error, status){
-		    		// console.log(error)
 		    		if (status == 400 && callback) return callback(status);
 		    	});;
 		    };
 
 		    var logout = function(scope){
-	            // $location.path('/login');
 
 	            $http.post('/logout').success(function(res) {
 
@@ -198,13 +183,11 @@ define(['services/services'], function(services){
 	            	$location.path('/login');
 
 	            }).error(function(){
-	            	// console.log('logout: error');
 	            	$cookies.username = null;
 	            	$rootScope.username = null;
 	            	$location.path('/login');
 	            });
 	            
-	            // $rootScope.$digest();
 	        };
 
 	        var destroy = function(){

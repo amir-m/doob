@@ -90,7 +90,7 @@ define(['directives/directives'], function(directives){
 
 						};
 
-						// prepareUpload(payloads, totalSize, files);
+						prepareUpload(payloads, totalSize, files);
 						/*
 						* Account type is unlimited
 						*/
@@ -142,7 +142,6 @@ define(['directives/directives'], function(directives){
 							var form = new FormData();
 
 							form.append('key', "user/"+scope.username+'/'+payloads[i].id);
-							// form.append('key', "user/"+scope.username+'/${filename}');
 							form.append('AWSAccessKeyId', credentials[i].s3Key);
 							form.append('acl', "public-read");
 							form.append('policy', credentials[i].s3PolicyBase64);
@@ -172,8 +171,6 @@ define(['directives/directives'], function(directives){
 							    	uploadCanceled(e, i);
 							    }, false);
 
-							    // xhr[i].open('POST', '/test'); 
-							    // console.log(credentials[i].postURL)
 							    xhr[i].open('POST', credentials[i].postURL);   
 							    xhr[i].setRequestHeader("Access-Control-Allow-Origin","*");
 
@@ -210,7 +207,6 @@ define(['directives/directives'], function(directives){
 					queue.splice(queue.indexOf(index), 1);
 					
 					var uploadedSound = soundManager.createSound({
-						// url: url,
 						url: 'https://s3.amazonaws.com/doob/user/'+scope.username+'/'+payload.id,
 						id: payload.id,
 						whileloading: function() {
@@ -221,16 +217,12 @@ define(['directives/directives'], function(directives){
 							var p = auth.authenticate();
 							p.then();
 							apply();
-							// console.log(this.duration, this.durationEstimate)
 						}
 					});
 
-					// uploadedSound.whileloading({
-					// });
 
 					uploadedSound.load({
 						onload: function(success) {
-							// console.log('PUT /upload');
 
 							if (!success) {
 								console.log('couldn`t load your sound ');
@@ -238,7 +230,6 @@ define(['directives/directives'], function(directives){
 							}
 							
 							payload['duration'] = uploadedSound.duration;
-							// console.log(payload);
 
 							if ((scope.me.quota - uploadedSound.duration) < 0) {
 								

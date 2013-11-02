@@ -41,25 +41,6 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 			});
 		});	
 
-		// socket.on('sync:request', function(message){
-		// 	console.log('sync request received from %s to %s', 
-		// 		message.subscriber, message.broadcaster);
-
-		// 	// this is a bad sync request.
-		// 	if (message.subscriber == $rootScope.username || 
-		// 		message.broadcaster != $rootScope.username)
-		// 		return;
-
-		// 	if (!instances[message.broadcaster].isBroadcasting) return;
-
-		// 	emit("sync:response", {
-		// 		event: 'sync:response',
-		// 		broadcaster: message.broadcaster,
-		// 		subscriber: message.subscriber,
-		// 		doob: instances[message.broadcaster].env.exportables
-		// 	});
-		// });	
-
 		socket.on('sync:response', function(message){
 			console.log('sync response received: from %s to %s', 
 				message.subscriber, message.broadcaster);
@@ -68,7 +49,6 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 			if (message.subscriber != $rootScope.username || 
 				message.broadcaster == $rootScope.username)
 				return;
-			// regenerate(message);
 
 		});	
 		
@@ -170,7 +150,6 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 		socket.on('update:sequencer:SoundPattern:removeTrack', function(message){
 
 			// TODO LOGGING...
-			// console.log(message)
 
 			// if the broadcaster is the same as this user, or if the broadcaster's instance 
 			// has not yet been created, it's probably a wrong message.
@@ -242,11 +221,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 				instances[message.broadcaster].isBroadcasting = true;
 			}
 
-			// regenerate(message);	
-		});
-
-		// doob related messages.
-		
+		});		
 		
 		var emit = function(event, message) {
 
@@ -369,73 +344,16 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 			},
 			audio: {
 				'new:aduio:Sound': function(ev, exportable, name) {
-						
-						emit(ev, {
-							event: ev,
-							broadcaster: $rootScope.username,
-							subscriber: name,
-							message: exportable
-						});
-					// }
-				}
-			},
-			io: {
-				'new:io:Graph': function(ev, exportable, name) {
-					// console.log('handler.io.new:io:Graph');
-				}
-				, 
-				'new:io:Gain': function(ev) {
-					// console.log('handler.io.new:io:Gain');
-				},
-				'update:io:Graph:addSend': function(ev, node, name) {
-                    // console.log('handler.io.update:io:Graph:addSend');   
-                }
-			}, 
-			effects: {
-				'new:effects:impulse': function(ev, exportable, name) {
-					// console.log('handler.effects.new:effects:impulse');
-				},
-				'new:effects:Reverb': function(ev, exportable, name) {
-					// console.log('handler.effects.new:effects:Reverb');
+					
+					emit(ev, {
+						event: ev,
+						broadcaster: $rootScope.username,
+						subscriber: name,
+						message: exportable
+					});
 				}
 			},
 			sequencer: {
-
-     //            'update:sequencer:SoundPattern:toggleNote': function(ev, message, name) {
-
-					// // if (instances[name].isBroadcasting) {
-					// 	emit(ev, {
-					// 		event: ev,
-					// 		broadcaster: $rootScope.username,
-					// 		subscriber: name,
-					// 		message: message
-					// 	});
-					// // }
-
-     //            },
-     //            'update:sequencer:SoundPattern:newTrack': function(ev, message, name) {
-
-					// // if (instances[name].isBroadcasting) {
-					// 	emit(ev, {
-					// 		event: ev,
-					// 		broadcaster: $rootScope.username,
-					// 		subscriber: name,
-					// 		message: message
-					// 	});
-					// // }
-     //            },
-     //            'update:sequencer:SoundPattern:removeTrack': function(ev, message, name) {
-
-					// // if (instances[name].isBroadcasting) {
-					// 	emit(ev, {
-					// 		event: ev,
-					// 		broadcaster: $rootScope.username,
-					// 		subscriber: name,
-					// 		message: message
-					// 	});
-					// // }
-
-     //            }, 
                 'update:sequencer:SoundPattern:changeTempo': function(ev, message, name){
                 	emit(ev, {
                 		event: ev,
@@ -454,14 +372,12 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
                 },
                 'set:sequencer:SoundPattern:id': function(ev, message, name) {
 
-					// if (instances[name].isBroadcasting) {
-						emit(ev, {
-							event: ev,
-							broadcaster: $rootScope.username,
-							subscriber: name,
-							message: message
-						});
-					// }
+					emit(ev, {
+						event: ev,
+						broadcaster: $rootScope.username,
+						subscriber: name,
+						message: message
+					});
 
                 }, 
 				"remove:sequencer:SoundPattern": function(ev, message, name) {
@@ -481,7 +397,6 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 				doob.env.assets[resource.name].id = id;
 				doob.env.ids[id] = doob.env.assets[resource.name];
 				if (callback) callback(null);
-				// console.log(self.env.assets[sound.name].id)
 				
 			}).error(function(data, status){
 				if (callback) callback(data); 
@@ -697,9 +612,6 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
                     });
     		};
 
-
-
-
     		// subscribe doobio to all events of this doob
     		for (var i in handlers) 
     			for (var j in this.env.handlers[i])
@@ -711,12 +623,6 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     			for (var j in this.env.handlers[i])
     				if (this.env.handlers[i][j])
     					this[i].subscribe(j, this.env.handlers[i][j]);
-
-
-    		// subscribe this doob to all events of this doob's io events
-    		// for (var i in this.env.handlers.io) 
-    		// 	this.io.subscribe(i, this.env.handlers.io[i]);
-
 
     		instances[name] = this;
     		instanceNames.push(this.name);
@@ -736,7 +642,6 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
     	
 		return {
 			get: function(name){
-				// console.log(instances[name].env)
 				return instances[name] ? instances[name].env : null;
 			}, 
 			instances: instances,
@@ -751,8 +656,6 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 						dummyNodes: instances[name].env.dummyNodes
 					}
 				};
-				// obj = JSON.stringify(obj);
-				// console.log(instances[name].env.loadedAssets);
 				socket.emit('user:broadcast:entire:session', obj);
 			},
 			create: function(name){
@@ -782,8 +685,6 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 			get sounds() {
 
 				var s = new Array();
-
-				// console.log(instances)
 
 				for (var i in instances) {
 					s = s.concat(instances[i].env.sounds);

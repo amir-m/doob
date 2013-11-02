@@ -5,9 +5,6 @@ define(['directives/directives'], function(directives){
 
         return {
             restrict: 'A',
-            // scope: {
-            //     ev: '='
-            // },
             link: function (scope, element, attr) {
 
 
@@ -57,7 +54,7 @@ define(['directives/directives'], function(directives){
             
 
                 element.bind('blur', function (e) {
-                    // e.stopPropagation();
+                    e.stopPropagation();
                     $('#noresults').hide();
                     $('#srchrslt').slideUp(200);
                     $('#q').val('');

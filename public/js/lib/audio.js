@@ -5,7 +5,6 @@ define([], function () {
 		return (function invocation(doob, io){
 
 			var sourceQueue = {},
-				// soundBank = {},
 				events = ['new:aduio:Sound'],
 				subscribers = {
 					all: []
@@ -15,13 +14,10 @@ define([], function () {
 
 		        var args = arguments;
 
-		        // console.log(args)
-
 		        if (subscribers[ev]) {
 		            for (var i in subscribers[ev])
 		                subscribers[ev][i].apply(ev, args);
 		        }
-		        // console.log(ev)
 		        if (ev == 'all') return;
 		        for (var i in subscribers['all'])
 		                subscribers['all'][i].apply(ev, args);
@@ -46,7 +42,6 @@ define([], function () {
 		    };
 
 			var createSource = function(config) {
-				// console.log(sound)
 				if (!config || !config.buffer || !config.destination) 
 					throw 'audio.createSource : Not enough arguments.';
 				var source = doob.context.createBufferSource();
@@ -76,7 +71,6 @@ define([], function () {
 					for (var i = 0, l = sourceQueue[sound.name].length; i < l; ++i)
 						sourceQueue[sound.name][i].stop(0);
 				}
-				// dispatchEvent[stop]..			
 			};
 
 			var duplicateSound = function(sound, trackid){
@@ -94,9 +88,6 @@ define([], function () {
 
 				doob.dummyNodes[trackid] = Sound(config);
 				
-				// remove the dummy name!
-				// doob.sounds.splice(doob.sounds.indexOf(duplicateName), 1);
-
 				return doob.dummyNodes[trackid];
 			}
 
@@ -108,8 +99,6 @@ define([], function () {
 					throw 'audio.Sound : Invalid Sound arguments.';
 				}
 				sound.name = sound.name || doob.uniqueNames.Sound;
-
-				// if (doob.sounds.indexOf(sound.name) != -1) return doob.sounds[sound.name];
 
 				var properties = {
 					// Queues for onload, onloadind, onload, onfinishplaying & onstop events.
@@ -174,42 +163,10 @@ define([], function () {
 
 					properties.graph.value = new io.Graph(graphConfig);
 							
-				// Invoked as a constructor.
-				if (this instanceof Sound) {
-					Object.defineProperties(this, properties);
-					// this.constructor = 'Sound';
-					// this.subscribers = {
-					// 	'all': []
-					// };
-
-					// subscribe('new:aduio:Sound', doob.handlers['new:aduio:Sound']);
-
-					// publish('new:aduio:Sound', this);
-
-
-					// // soundBank[this.name] = this;
-					// sourceQueue[this.name] = [];
-					// doob.assets[sound.name] = this;	
-					// doob.assetsToJSON[this.name] = this.toJSON();
-					// doob.sounds.push(this.name);
-
-					
-
-					// this.load();
-
-					// soundBank[this.name] = o;
-					this.constructor = 'Sound';
-
-					publish('new:aduio:Sound', this, pub);
-
-					sourceQueue[this.name] = [];
-					
-					this.load();
 				}
 				// Invoked as a factory function.
 				else {
 					var o = Object.create(Sound.prototype, properties); 
-					// soundBank[this.name] = o;
 					o.constructor = 'Sound';
 
 					publish('new:aduio:Sound', o, pub);
@@ -268,7 +225,6 @@ define([], function () {
 		            for (var i in this.subscribers[ev])
 		                this.subscribers[ev][i](ev, options, doob);
 		        }
-		        // console.log(ev)
 		        if (ev == 'all') return;
 		        for (var i in this.subscribers['all'])
 		                this.subscribers['all'][i](ev, options, doob);
@@ -291,13 +247,11 @@ define([], function () {
 		        this.subscribers[ev].splice(this.subscribers[ev].indexOf(subscriber), 1);
 		    };
 
-			// sessionManager.makePublisher([Sound]);
 			return {
 				Sound: Sound,
 				createSource: createSource,
 				playSound: playSound,
 				sourceQueue: sourceQueue,
-				// soundBank: soundBank,
 				events: events,
 				duplicateSound: duplicateSound,
 				subscribers: subscribers,

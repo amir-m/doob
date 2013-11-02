@@ -7,8 +7,6 @@ define(['services/services'], function(services){
 
 			var delay = $q.defer(), user; 
 
-			// delay.reject('We couldn`t fetch sound patterns of ' + user + '!');			
-
 			var authenticateUser = auth.authenticate();
 
 			authenticateUser.then(fetch, authFailed);
@@ -82,8 +80,6 @@ define(['services/services'], function(services){
 
 
 					}	
-
-					// console.log(patterns)
 					
 					delay.resolve(patterns);
 				}

@@ -1,7 +1,7 @@
 module.exports = function(mongoose, async, logins, models) {
 
 	var bcrypt = require('bcrypt');
-	// var logins = require('../models/logins')(mongoose);
+	var logins = require('../models/logins')(mongoose);
 
 
 	// defining schemas
@@ -46,7 +46,7 @@ module.exports = function(mongoose, async, logins, models) {
 	SettingsSchema = new mongoose.Schema({
 		_id: {type: String, required: true, unique: true},
 		userid: String,
-		// usernameLowerCase: String,
+		usernameLowerCase: String,
 		updated: Number,
 		notifications: {
 			messages: {type: Boolean, default: true},
@@ -140,7 +140,6 @@ module.exports = function(mongoose, async, logins, models) {
 					if (err) {
 						console.log('models.User.create callbackFn error:'.error);
 						callback(err)
-						// return callbackFn({error: err});
 					} else {
 						console.log('models.User.create: a user succesfully registered.'.info);
 						user.logins.push(r);
@@ -162,7 +161,6 @@ module.exports = function(mongoose, async, logins, models) {
 					if (err) {
 						console.log('models.User.create setting saving error:'.error);
 						callback(err)
-						// return callbackFn({error: err});
 					} else {
 						console.log('models.User.create: settings for the user created.'.info);
 						callback(null, {success: true, id: user._id});
@@ -366,13 +364,11 @@ module.exports = function(mongoose, async, logins, models) {
 
 		if (!callback) return;
 
-		// fields['password'] = 0;
-
 		var c = 0, f = {};
 
 		for (var i in fields) {
 			++c;
-			// if (c > 0) break;
+			if (c > 0) break;
 			if (i != 'password' && i != '_id') f[i] = fields[i];
 		}
 
@@ -393,7 +389,7 @@ module.exports = function(mongoose, async, logins, models) {
 
 	var follow = function(me, userIwantToFollow, callbackFn) {
 		
-		// i want to follow another user
+		// follow another user
 
 		if (!me || !userIwantToFollow) return callbackFn(404);
 
@@ -428,7 +424,7 @@ module.exports = function(mongoose, async, logins, models) {
 
 	var unFollow = function(me, userIwantToUnfollow, callback) {
 
-		// i want to stop following another user (userIwantToUnfollow)
+		// stop following another user (userIwantToUnfollow)
 
 		if (!me || !userIwantToUnfollow) return callbackFn(404);
 
@@ -478,28 +474,23 @@ module.exports = function(mongoose, async, logins, models) {
 					
 					models.Audio.Audio.find({username: name.toLowerCase()})
 					.sort({timestamp: -1})
-					// .where('username', name)
+					.where('username', name)
 					.limit(20)
 					.lean()
 					.exec(function (error, result) {
 						
 						if (error) return console.log(error);
-						// console.log(result)
 						user.audio = result;
 						user.audioSkip = 20;
-						// console.log(user)
 						callback(user);
 					});
 
-				// models.Audio.Audio
-				// .where('username', name)
-				// .count(function (error, c) {
-					
-				// 	if (error) return console.log(error);
-				// 	user.audioCount = c;
-
-					
-				// });
+				models.Audio.Audio
+				.where('username', name)
+				.count(function (error, c) {
+					if (error) return console.log(error);
+					user.audioCount = c;
+				});
 				
 
 			});

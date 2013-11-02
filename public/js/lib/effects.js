@@ -55,16 +55,16 @@ define([], function(){
 							buffer: buffer
 						});
 
-						// doob.reverbImpulses[config.name] = {
-						// 	url: config.url,
-						// 	buffer: buffer
-						// };
-						// doob.assetsToJSON[config.name] = {
-						// 	nodetype: 'reverbImpulse',
-						// 	name: config.name,
-						// 	url: config.url
-						// };
-						// doob.[config.url] = buffer;
+						doob.reverbImpulses[config.name] = {
+							url: config.url,
+							buffer: buffer
+						};
+						doob.assetsToJSON[config.name] = {
+							nodetype: 'reverbImpulse',
+							name: config.name,
+							url: config.url
+						};
+						doob.[config.url] = buffer;
 						
 						if (config.callback && typeof config.callback === 'function') 
 							config.callback(buffer);
@@ -74,7 +74,6 @@ define([], function(){
 
 			function Reverb(config){
 				
-				//if (!config || config.impulse || config.impulse.url || config.impulse.name)
 				var rev = doob.context.createConvolver(), id, impulse, asset;
 
 				if (config && config.buffer) {
@@ -103,7 +102,7 @@ define([], function(){
 						url: config.impulse.url,
 						name: config.impulse.name,
 						load: function(buffer){
-							// doob.loadedAssets[config.impulse.url] = buffer;
+							doob.loadedAssets[config.impulse.url] = buffer;
 							rev.buffer = buffer;
 							if (config.callback && typeof config.callback === 'function')
 								config.callback(buffer);
@@ -126,31 +125,28 @@ define([], function(){
 					throw 'doob.effectAssets.Reverb: Invalid id.';
 
 				// The io.Graph is included with the config.
-				// if (config && config.graph) {
-				// 	config.graph.source = this.asset;
-				// 	config.graph.connectable = this.connectable;
-				// 	this.graph = config.graph;
+				if (config && config.graph) {
+					config.graph.source = this.asset;
+					config.graph.connectable = this.connectable;
+					this.graph = config.graph;
 			
-				// } else {
-				// 	this.graph = new io.Graph({
-				// 		node: id,
-				// 		source: this.asset,
-				// 		connectable: this.asset,
-				// 		destination: doob.masterGain
-				// 	});
-				// }
+				} else {
+					this.graph = new io.Graph({
+						node: id,
+						source: this.asset,
+						connectable: this.asset,
+						destination: doob.masterGain
+					});
+				}
 
-				
+				this.constructor = 'Reverb';
 
-				// this.constructor = 'Reverb';
-
-
-				// Object.defineProperty(this, 'name', {
-				// 	enumerable: true,
-				// 	configurable: false,
-				// 	writable: false,
-				// 	value: id
-				// });
+				Object.defineProperty(this, 'name', {
+					enumerable: true,
+					configurable: false,
+					writable: false,
+					value: id
+				});
 				var _impulse = impulse;
 
 				var prop = {
@@ -189,25 +185,25 @@ define([], function(){
 
 				if (this instanceof Reverb) {
 					Object.defineProperties(this, prop);
-					// this.graph.connect();
+					this.graph.connect();
 
 					publish('new:effects:Reverb', this);
 					
 				}
 				else {
 					var o = Object.defineProperties(Reverb.prototype, prop);
-					// o.graph.connect();
-					// doob.assets[o.name] = o;
-					// doob.assetsToJSON[o.name] = o.toJSON();
+					o.graph.connect();
+					doob.assets[o.name] = o;
+					doob.assetsToJSON[o.name] = o.toJSON();
 					publish('new:effects:Reverb', o);
 					return o;
 				}
 
-				// doob.effect.publish('new-reverb', 
-				// {
-				// 	name: 'new-reverb',
-				// 	dispatcher: self.toJSON()
-				// });
+				doob.effect.publish('new-reverb', 
+				{
+					name: 'new-reverb',
+					dispatcher: self.toJSON()
+				});
 			};
 
 			Reverb.prototype.changeImpulse = function(impulse) {
@@ -266,8 +262,6 @@ define([], function(){
 				if (this.name == reverb.name) return true;
 				return false;
 			};
-
-			// sessionManager.makePublisher([Reverb, Delay, Biquad]);
 			return {
 				Reverb: Reverb,
 				loadReverbImpulse: loadReverbImpulse,

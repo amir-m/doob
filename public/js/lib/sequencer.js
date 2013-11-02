@@ -1,8 +1,6 @@
 define([], function(){
 
 	return function(doob, io, audio) {
-		// var io = _io(doob);
-		// var audio = _audio(doob);
 		return (function invocation(){
 
 			var subscribers = {
@@ -239,15 +237,6 @@ define([], function(){
 				delete this.tracks[track];
 				console.log(this.tracks[track])
 
-				// var dummyName = track.dummyName || track;
-
-				// for (var i in this.tracks) {
-				// 	if (dummyName == this.tracks[i].dummyName) {
-				// 		delete this.tracks[i];
-				// 		break;
-				// 	}
-				// }
-
 				publish('update:sequencer:SoundPattern:removeTrack', this, track);
 			};
 
@@ -273,7 +262,6 @@ define([], function(){
 			SoundPattern.prototype.renameTrack = function(s, id, pub) {
 
 				var name = s + '_' + this.name;
-				// console.log(doob.assets)
 					if (doob.assets[name]) 
 						name = doob.uniqueNames.Sound + '_' + this.name;
 
@@ -382,7 +370,7 @@ define([], function(){
 					nodetype: 'SoundPattern',
 					name: this.name,
 					tracks: this.tracks,
-					// soundPatterns: this.soundPatterns,
+					soundPatterns: this.soundPatterns,
 					graph: this.graph,
 					gain: this.gain,
 					tempo: this.tempo,
@@ -420,10 +408,6 @@ define([], function(){
 				this.fourthNoteTime = (60 / this.tempo / 4);
 				this.secondNoteTime = (60 / this.tempo / 8);
 				this.barTime = this.fourthNoteTime * this.steps;
-
-				// var fourth = this.fourthNoteTime || (60 / (this.tempo || doob.tempo) / 4);
-				// 			steps = this.steps || 32;
-				// 			return fourth * steps;
 
 				publish('update:sequencer:SoundPattern:changeTempo', this, tempo, pub);
 

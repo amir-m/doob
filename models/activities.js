@@ -34,8 +34,6 @@ module.exports = function(mongoose, models, async) {
 			if (error) console.log('error saving activity!'.error);
 			models.User.insertActivity(session.uid, a, data.broadcaster);
 		});
-
-		// console.log(data.event);
 	}
 
 	return {
@@ -48,10 +46,10 @@ module.exports = function(mongoose, models, async) {
 		'update:sequencer:SoundPattern:newTrack': handleActivity,
 		'update:sequencer:SoundPattern:changeTempo': handleActivity,
 		'update:sequencer:SoundPattern:changeSteps': handleActivity
-		// 'user:subscribe': handleActivity,
-		// 'user:unsubscribe': handleActivity, // Maybe NOT!
-		// 'new:aduio:Sound': handleActivity, 
-		// 'update:sequencer:SoundPattern:newTrack': handleActivity,
-		// 'update:sequencer:SoundPattern:removeTrack': handleActivity,
+		'user:subscribe': handleActivity,
+		'user:unsubscribe': handleActivity,
+		'new:aduio:Sound': handleActivity, 
+		'update:sequencer:SoundPattern:newTrack': handleActivity,
+		'update:sequencer:SoundPattern:removeTrack': handleActivity,
 	};
 };

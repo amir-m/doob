@@ -100,10 +100,10 @@ function(controllers){
 			if ($routeParams.id in $scope.mappings) {
 				$scope.instanceName = $scope.mappings[$routeParams.id].username;
 				$scope.patternInfo = $scope.mappings[$routeParams.id];
-				// $scope.pattern = $scope.mappings[$routeParams.id].content;
+				$scope.pattern = $scope.mappings[$routeParams.id].content;
 				$scope.pattern = doobio.instances[$scope.instanceName].env.ids[$routeParams.id]
-				// $scope.pattern['id'] = $routeParams.id;
-				// $scope.pattern['name'] = $scope.mappings[$tctrouteParams.id].name;
+				$scope.pattern['id'] = $routeParams.id;
+				$scope.pattern['name'] = $scope.mappings[$tctrouteParams.id].name;
 			}
 
 			/** if the pattern is present in the local instances, fetch it from the server
@@ -111,7 +111,7 @@ function(controllers){
 			else {
 				var promise = PatternLoader();
 				promise.then(function(pattern){
-					// $scope.viewEdit(pattern[0], pattern[0].username)
+					$scope.viewEdit(pattern[0], pattern[0].username)
 					$scope.instanceName = pattern[0].username;
 					$scope.patternInfo = pattern[0];
 					$scope.pattern = pattern[0].content;
@@ -124,22 +124,20 @@ function(controllers){
 
 		$scope.doob = doobio;
 
-		// $scope.addSoundToPattern = function(sound, soundInstanceName) {
+		$scope.addSoundToPattern = function(sound, soundInstanceName) {
 			
-		// 	// console.log('sound: %s, instanceName: %s, $scope.pattern: %s, $scope.instanceName', 
-		// 	// 	sound, soundInstanceName, $scope.pattern.name, $scope.instanceName);
-		// 	if (!doobio.instances[$scope.instanceName].env.assets[sound]) {
-		// 		new doobio.instances[$scope.instanceName].audio.Sound({
-		// 			name: sound,
-		// 			url: doobio.instances[soundInstanceName].env.assets[sound].url
-		// 		}, true);
-		// 	}
-		// 	$scope.patternInfo.updated = new Date().getTime();
-		// 	doobio.instances[soundInstanceName].env.assets[$scope.patternInfo.name].newTrack(sound, true);
+			if (!doobio.instances[$scope.instanceName].env.assets[sound]) {
+				new doobio.instances[$scope.instanceName].audio.Sound({
+					name: sound,
+					url: doobio.instances[soundInstanceName].env.assets[sound].url
+				}, true);
+			}
+			$scope.patternInfo.updated = new Date().getTime();
+			doobio.instances[soundInstanceName].env.assets[$scope.patternInfo.name].newTrack(sound, true);
 
-		// 	if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
-		// 		$scope.$apply();
-		// }; 
+			if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
+				$scope.$apply();
+		}; 
 
 		
 
@@ -151,14 +149,7 @@ function(controllers){
 			ev.preventDefault();
 		};
 		$scope.drag = function (sound, instanceName) {
-			// console.log(sound)
-			// console.log(instanceName)
-			// $scope.addSoundToPattern(sound, instanceName)
-		};
-		
-
-		$scope.reArrange = function () {
-			// console.log('reArrange the biatch!')
+			$scope.addSoundToPattern(sound, instanceName)
 		};
 		
 
@@ -222,25 +213,23 @@ function(controllers){
 			if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
 				$scope.$apply();
 
-			// if (!$scope.mappings[soundPattern.id].iLikeIt) {
+			if (!$scope.mappings[soundPattern.id].iLikeIt) {
 
-			// 	$http.get('/me?like='+soundPattern.id).success(function (data) {
-			// 		console.log(data);
-			// 		$scope.mappings[soundPattern.id].iLikeIt = data.like;
-			// 	}).error(function (error, status) {
-			// 		console.log(error);
-			// 		console.log(status);
-			// 	});
+				$http.get('/me?like='+soundPattern.id).success(function (data) {
+					console.log(data);
+					$scope.mappings[soundPattern.id].iLikeIt = data.like;
+				}).error(function (error, status) {
+					console.log(error);
+					console.log(status);
+				});
 
-			// }
+			}
 			
 			if (!$scope.mappings[soundPattern.id]) return;
 
 			if (!$scope.mappings[soundPattern.id].iLikeIt || 
 				!$scope.mappings[soundPattern.id].iForkedIt) {
-				// console.log(soundPattern.id);
 				$http.get('/me?likefork='+soundPattern.id).success(function (data) {
-					// console.log(data);
 					$scope.mappings[soundPattern.id].iLikeIt = data.like;
 					$scope.mappings[soundPattern.id].iForkedIt = data.forked;
 				}).error(function (error, status) {

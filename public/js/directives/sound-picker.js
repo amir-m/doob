@@ -44,7 +44,7 @@ define(['directives/directives'], function(directives){
 				scope.load = function() {
 
 					var soundPromise = scope.loadSoundCategoryList();
-					// scope.soundList = loadSoundList();
+					scope.soundList = loadSoundList();
 					soundPromise.then(function(list){
 						scope.soundList = list[0];
 						scope.listBindToSound = list[1];

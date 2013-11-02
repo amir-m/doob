@@ -5,7 +5,6 @@ function(services){
 	[
 	function() {
 		return function(container, assetUrl) {
-			// console.log(container);
 			var options = {
 				container: container,
 				waveColor: 'gray',
@@ -13,7 +12,7 @@ function(services){
 				loaderColor: 'purple',
 				cursorColor: 'navy',
 				markerWidth: 2,
-				renderer: 'Canvas' // 
+				renderer: 'Canvas'  
 			};
 			var wavesurfer = Object.create(WaveSurfer);
 			wavesurfer.init(options);

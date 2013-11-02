@@ -1,27 +1,26 @@
 {
   "name": "doob.io",
-  "version": "0.0.5",
+  "version": "0.0.9",
   "private": true,
   "scripts": {
     "start": "node app.js"
   },
+  "contact": "amir@doob.io",
   "dependencies": {
-    "express": "*",
+    "express": "3.4.0",
     "jade": "*",
-    "mongoose": "*",
-    "connect": "*",
-    "redis": "*",
-    "connect-redis": "*",
+    "mongoose": "3.6.20",
+    "connect": "2.9.0",
+    "redis": "0.8.4",
+    "connect-redis": "1.4.5",
     "colors": "*",
     "path": "*",
-    "jasmine-node": "*",
-    "mongoose-validator": "*",
-    "socket.io": "*",
-    "session.socket.io": "*",
-    "nodemailer": "*",
-    "bcrypt": "*",
-    "async": "*",
-    "express-useragent": "*",
-    "aws-sdk": "*"
+    "socket.io": "0.9.16",
+    "session.socket.io": "0.1.6",
+    "nodemailer": "0.5.2",
+    "bcrypt": "0.7.7",
+    "async": "0.2.9",
+    "express-useragent": "0.0.7",
+    "aws-sdk": "1.6.0"
   }
 }

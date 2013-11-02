@@ -1,12 +1,9 @@
 var services = angular.module('hm.services', ['ngResource']);
 
-// console.log(services)
-
 
 services.factory('Auth', ['$http', '$location', '$q', function($http, $location, $q){
     var myInfo = null;
     function _getMe (callback) {
-        // $http.get('/me', {headers: {'Content-Type': 'application/json'}}).
         $http({
             cache: false,
             method: 'GET',
@@ -29,11 +26,6 @@ services.factory('Auth', ['$http', '$location', '$q', function($http, $location,
             if (me) delay.resolve(true);
             else delay.reject(false);
         });
-        // _getMe(function() {
-        //   delay.resolve(true);
-        // }, function() {
-        //   delay.reject(false);
-        // });
         return delay.promise;
     }
     var auth = {
@@ -80,7 +72,6 @@ services.factory('Auth', ['$http', '$location', '$q', function($http, $location,
                 });;
         },
         logout: function(){
-            // $location.path('/login');
             $http.get('/logout').success(function(res) {
                 myInfo = null;
                 $location.path('/login');
@@ -116,7 +107,6 @@ services.factory('socket', function ($rootScope, $http, Auth) {
     socket.on('connection', function () {
         console.log('connected to the socket server.');
 
-        // register my name to the socket server
         socket.emit('register:me', Auth.username);
     });
 
@@ -163,15 +153,3 @@ services.factory('socket', function ($rootScope, $http, Auth) {
         }
     };
 });
-
-
-// doob provides general services for other audio processors services.
-// services.factory('doob', function(){
-
-// });
-
-// // io provides modular audio routing services for all audio nodes.
-// services.factory('io', function(doob){
-
-// });
-

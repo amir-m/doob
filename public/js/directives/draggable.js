@@ -7,8 +7,8 @@ define(['directives/directives'], function(directives){
 			link: function(scope, element, attrs) {
 
 				$(element).draggable({
-					// revert: 'invalid',
-					// helper: 'clone',
+					revert: 'invalid',
+					helper: 'clone',
 					start: function(){
 						$( element ).css('cursor', '-webkit-grabbing');
 					}, 

@@ -5,47 +5,42 @@ define(['directives/directives'], function(directives){
 		return {
 	
 			templateUrl: 'partials/template/doob/general/pattern-note.html',
-			// require: '^trackPatterns',
 			restrict: 'E',
 			replace: true,
-			// scope: {
-			// 	track: "=",
-			// 	pattern: "="
-			// },
 			link: function(scope, element, attrs) {
 
 				
 				
 				scope.on = "btn btn-pattern btn-success";
 				scope.off = "btn btn-pattern";
-				// var onClass = "btn btn-pattern btn-success", offClass = "btn btn-pattern";
-				// var onIcon = "music", offIcon = "";
-				// var on = false, p;
+				var onClass = "btn btn-pattern btn-success", offClass = "btn btn-pattern";
+				var onIcon = "music", offIcon = "";
+				var on = false, p;
 				
-				// scope.onOff = offClass;
-				// scope.icon = offIcon;
+				scope.onOff = offClass;
+				scope.icon = offIcon;
 
 				
-				// p = scope.$parent.patternSound.pattern;
-				// p = scope.track.pattern;
+				p = scope.$parent.patternSound.pattern;
+				p = scope.track.pattern;
 				
 				
 				
 
-				// if (scope.patternSound.pattern.indexOf((scope.$index + 1)) != -1) {
-					// on = true;
-					// scope.onOff = onClass;
-					// scope.icon = onIcon;
-				// }
+				if (scope.patternSound.pattern.indexOf((scope.$index + 1)) != -1) {
+					on = true;
+					scope.onOff = onClass;
+					scope.icon = onIcon;
+				}
 				scope.toggleNote = function(i) {
 
 					console.log(scope.$index + 1);
 					
 					scope.pattern.toggleNote(scope.$parent.$index + 1, 
 						scope.patternSound, true);
-					// on = !on;
-					// scope.onOff = on ? onClass : offClass;
-					// scope.icon = on ? onIcon : offIcon;
+					on = !on;
+					scope.onOff = on ? onClass : offClass;
+					scope.icon = on ? onIcon : offIcon;
 				};
 			}
 		}

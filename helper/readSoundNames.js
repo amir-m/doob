@@ -3,19 +3,9 @@ var walk = require('walk'), fs = require('fs'), walker, folders = [],
 
 walker = walk.walk(base);
 
-// walker.on("file", function (root, fileStats, next) {
-//     // fs.readFile(fileStats.name, function () {
-//     //   // doStuff
-//     // });
-//     console.log(fileStats);
-//     next();
-// });
-
 walker.on("directories", function (root, dirStatsArray, next) {
 	for (var i = 0; i < dirStatsArray.length; ++i)
-		// console.log(dirStatsArray[i].name);
 		folders.push(dirStatsArray[i].name);
-		
     next();
 });
 
@@ -76,62 +66,62 @@ function readFilenames(folderNameIndex) {
 }
 
 
-// var walk = require('walk'), fs = require('fs'), walker, folders = [], 
-//     fileWalker, base = '/apps/hm/public/wav/', index = 0, url = '/public/wav/';
+ var walk = require('walk'), fs = require('fs'), walker, folders = [], 
+     fileWalker, base = '/apps/hm/public/wav/', index = 0, url = '/public/wav/';
 
-// walker = walk.walk(base);
+ walker = walk.walk(base);
 
-// // walker.on("file", function (root, fileStats, next) {
-// //     // fs.readFile(fileStats.name, function () {
-// //     //   // doStuff
-// //     // });
-// //     console.log(fileStats);
-// //     next();
-// // });
+  walker.on("file", function (root, fileStats, next) {
+       fs.readFile(fileStats.name, function () {
+          doStuff
+       });
+      console.log(fileStats);
+      next();
+  });
 
-// walker.on("directories", function (root, dirStatsArray, next) {
-//     for (var i = 0; i < dirStatsArray.length; ++i)
-//         // console.log(dirStatsArray[i].name);
-//         folders.push(dirStatsArray[i].name);
+ walker.on("directories", function (root, dirStatsArray, next) {
+     for (var i = 0; i < dirStatsArray.length; ++i)
+          console.log(dirStatsArray[i].name);
+         folders.push(dirStatsArray[i].name);
         
-//     next();
-// });
+     next();
+ });
 
-// walker.on("end", function () {
-//     console.log("finish with directories");
-//     console.log(folders)
-//     readFilenames(0);
-// });
+ walker.on("end", function () {
+     console.log("finish with directories");
+     console.log(folders)
+     readFilenames(0);
+ });
 
-// function readFilenames(folderNameIndex) {
+ function readFilenames(folderNameIndex) {
     
-//     if (folderNameIndex == folders.length) {
-//         console.log('finished!');
-//         return;
-//     }
+     if (folderNameIndex == folders.length) {
+         console.log('finished!');
+         return;
+     }
 
-//     fileWalker = walk.walk(base+folders[folderNameIndex]);
+     fileWalker = walk.walk(base+folders[folderNameIndex]);
 
-//     var pre = '},\n{\n"category": "'+folders[folderNameIndex]+'",\n';
+     var pre = '},\n{\n"category": "'+folders[folderNameIndex]+'",\n';
 
-//     fileWalker.on("file", function (root, fileStats, next) {
+     fileWalker.on("file", function (root, fileStats, next) {
 
-//         var append = pre + '"resource":\t{\n' + 
-//         '\t"name": "' + ((fileStats.name).toString().split('.'))[0] + '",\n' +
-//             '\t"soundtype": "' + (folders[folderNameIndex] == 'impulses' ? 'impulse' : 'sound') + '",\n' +
-//             '\t"url": "' + url + folders[folderNameIndex]+'/'+fileStats.name + '"\n' +
-//             '\t}\n';
+         var append = pre + '"resource":\t{\n' + 
+         '\t"name": "' + ((fileStats.name).toString().split('.'))[0] + '",\n' +
+             '\t"soundtype": "' + (folders[folderNameIndex] == 'impulses' ? 'impulse' : 'sound') + '",\n' +
+             '\t"url": "' + url + folders[folderNameIndex]+'/'+fileStats.name + '"\n' +
+             '\t}\n';
 
-//         fs.appendFile('/apps/hm/helper/sounds.js', append, function(error) {
-//             if (error) throw error;
-//             next();
-//         });
-//     });
+         fs.appendFile('/apps/hm/helper/sounds.js', append, function(error) {
+             if (error) throw error;
+             next();
+         });
+     });
 
-//     fileWalker.on("end", function () {
+     fileWalker.on("end", function () {
     
-//         console.log('finished reading %s', base+folders[folderNameIndex]);
-//         readFilenames(++index);
-//     });
-// }
+         console.log('finished reading %s', base+folders[folderNameIndex]);
+         readFilenames(++index);
+     });
+ }
 

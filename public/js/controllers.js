@@ -1,5 +1,3 @@
-// hm.controller('LoginCtrl', LoginCtrl);
-
 function LoginCtrl($scope, $location, Auth) {
 
 	var promise = Auth.authenticate();
@@ -11,15 +9,6 @@ function LoginCtrl($scope, $location, Auth) {
 	$scope.err = null;
 	$scope.lrm = true;
 	$scope.rrm = true;
-
-	// socket.on('login:reject', function(data){
-	// 	console.log('sh*t, someone was quicker than you and took %s already!', $scope.lu);
-	// });
-
-	// socket.on('login:accept', function(data){
-	// 	console.log('Yes you\'re already registered! welcome %s!', $scope.lu);
-	// 	socket.emit('fetch:users');
-	// });
 
 	$scope.login = function(){
 		Auth.login($scope.lu, $scope.lp, function(status){
@@ -81,8 +70,6 @@ function HomeCtrl ($scope, $location, $rootScope, Auth, socket, doob) {
 	// events will be triggered multiple times...
 	if ($scope.$parent == $rootScope) {
 		
-		// console.log('$scope.$parent == $rootScope')
-
 	// real time events
 		socket.on('new:subscriber', function(data){
 			if ($scope.subscribers.indexOf(data.username) == -1) {
@@ -105,5 +92,3 @@ function HomeCtrl ($scope, $location, $rootScope, Auth, socket, doob) {
 		});
 	}
 };
-
-// HomeCtrl.$inject = ['$scope', '$http', '$location, Auth'];

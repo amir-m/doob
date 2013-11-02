@@ -6,11 +6,7 @@ define([''], function(){
             audio: {
                 'new:aduio:Sound': function(ev, sound, pub){
 
-                    if (!sound) return console.log('bad event!!!');
-
-                    // var ex = sound.exportable();
-                    // var path = ex.path;
-                    // path = path.split(':'); //independents:sounds
+                    if (!sound) return; 
             
                     if (!sound.isDummy) {
                         self.exportables.independents.sounds[sound.name] = {
@@ -47,11 +43,6 @@ define([''], function(){
 
                     self.assets[gain.name] = gain;
                     self.assetsToJSON[gain.name] = gain.toJSON();
-                    // self.exportables.dependents.gains[gain.name] = {
-                    //     name: gain.name,
-                    //     belongsTo: gain.belongsTo
-                    // };
-
                     self.publish('new:io:Gain', gain.toJSON(), self.name);
                 }, 
                 'update:io:Graph:addSend': function(ev, graph) {
@@ -90,7 +81,7 @@ define([''], function(){
                     self.assets[reverb.name] = reverb;
                     
                     if (reverb.id) self.ids[reverb.id] = reverb;
-                    else console.log('.........reverbd has no id.......');
+                    else 
 
                     self.assetsToJSON[reverb.name] = reverb.toJSON();
                     self.publish(ev, reverb.toJSON(), self.name);
@@ -113,11 +104,6 @@ define([''], function(){
 
                     self.exportables.independents.sequencers.soundPatterns[pattern.name] = pattern.exportable();
 
-                    
-                    // if (pub) self.publish(ev, 
-                    // self.exportables.independents.sequencers.soundPatterns[pattern.name], 
-                    // self.name);
-
                     if (pub) self.publish(ev, {
                         pattern: pattern.exportable()
                     }, self.name);
@@ -129,39 +115,23 @@ define([''], function(){
                     
                     delete self.dummyNodes[track];
 
-                    // for (var i in pattern.tracks) 
-                    //     for (var j in pattern.tracks[i])
-                    //         if (j.indexOf("$") != -1)
-                    //             delete pattern.tracks[i][j];
+                    for (var i in pattern.tracks) 
+                        for (var j in pattern.tracks[i])
+                            if (j.indexOf("$") != -1)
+                                delete pattern.tracks[i][j];
 
 
-                    // if (pub) self.publish(ev, {
-                    //     pattern: pattern.name,
-                    //     id: pattern.id,
-                    //     track: track,
-                    //     tracks: pattern.tracks
-                    // }, self.name);
+                    if (pub) self.publish(ev, {
+                        pattern: pattern.name,
+                        id: pattern.id,
+                        track: track,
+                        tracks: pattern.tracks
+                    }, self.name);
                 },
                 'update:sequencer:SoundPattern:newTrack' : function(ev, pattern, track, pub) {
                     
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].tracks =
                         pattern.tracks;
-
-                    // for (var i in pattern.tracks) 
-                    //     for (var j in pattern.tracks[i]) {
-                    //         console.log(j)
-                    //         if (j.indexOf("$") != -1) {
-                    //             delete pattern.tracks[i][j];
-                    //             console.log(pattern.tracks[i][j])
-                    //         }
-                    //     }
-
-                    // // if (pub) self.publish(ev, {
-                    // //     pattern: pattern.name,
-                    // //     id: pattern.id,
-                    // //     track: track,
-                    // //     tracks: pattern.tracks
-                    // // }, self.name);
                 },
                 'update:sequencer:SoundPattern:changeTempo': function(ev, pattern, pub){
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].tempo = pattern.tempo;
@@ -185,20 +155,6 @@ define([''], function(){
                     
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].tracks =
                         pattern.tracks;
-
-                    // for (var i in pattern.tracks) 
-                    //     for (var j in pattern.tracks[i])
-                    //         if (j.indexOf("$") != -1)
-                    //             delete pattern.tracks[i][j];                                    
-                            
-
-                    // if (pub) self.publish(ev, {
-                    //     pattern: pattern.name,
-                    //     track: track,
-                    //     id: pattern.id,
-                    //     note: note,
-                    //     tracks: pattern.tracks
-                    // }, self.name);
                 }, 
                 'set:sequencer:SoundPattern:id': function(ev, pattern, pub) {
                     self.exportables.independents.sequencers.soundPatterns[pattern.name].id =
@@ -405,14 +361,11 @@ define([''], function(){
             this.masterGain._node = "doobMasterGain";
         }
         catch(e) {
-            console.log(e);
             throw 'doob can\'t be running in your browser. Sorry!';
         }
-        // this.uniqueNames = uniqueNames;
         this.soundProvider = function() {
             return 'remote';
         };
-        // this.contains = contains;
 
         this.publish = function(ev, options) {
 
@@ -424,7 +377,6 @@ define([''], function(){
                     this.subscribers[ev][i].apply(ev, args);
                 }
             }
-            // console.log(ev)
             if (ev == 'all') return;
             for (var i in this.subscribers['all'])
                     this.subscribers['all'][i].apply(ev, args);
@@ -455,8 +407,7 @@ define([''], function(){
         };
 
         this.uniqueNames = _uniqueNames(this);
-        // (function invocation(self){
-        // }(this));
+
         
         this.contains = _contains();
 
@@ -464,10 +415,6 @@ define([''], function(){
 
         this.removeAsset = function(name, id, pub) {
             delete this.assets[name];
-            // if (pub) this.publish("remove:sequencer:SoundPattern", {
-            //     id: id,
-            //     name: name
-            // }, this.name);
         }
     };
 });

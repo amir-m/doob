@@ -20,19 +20,16 @@ define(['controllers/controllers'],
 				
 				var map = {
 					"security": "<settings-security></settings-security>",
-					// "security": "settings-security"
 					"notifications": "<settings-notifications></settings-notifications>"
 				};
 
 				if (setting in map) {
 
-					// var settingScope = angular.element('#stngscnt').scope();
+					var settingScope = angular.element('#stngscnt').scope();
 
-					// angular.element('#stngscnt').scope = $scope.$new();
+					angular.element('#stngscnt').scope = $scope.$new();
 
-					// var settingScope = angular.element('#stngscnt').scope();
-
-					// console.log(settingScope) $scope.$new()
+					var settingScope = angular.element('#stngscnt').scope();
 
 					$('#stngscnt').empty();
 					$('#stngscnt').append($compile(map[setting])($scope.$new()));
@@ -62,13 +59,13 @@ define(['controllers/controllers'],
 				});
 			}
 
-			// var me = me();
+			var me = me();
 
-			// me.then(function(m){
-			// 	$scope.$emit('me:done', m);
-			// }, function(reason){
-			// 	$scope.$emit('error:message', reason);
-			// });
+			me.then(function(m){
+				$scope.$emit('me:done', m);
+			}, function(reason){
+				$scope.$emit('error:message', reason);
+			});
 
 
 		}]);

@@ -314,7 +314,7 @@ define(['lib/doob.js', 'lib/io.js'], function(doob, io){
 			if (this.name == biquad.name) return true;
 			return false;
 		};
-		// sessionManager.makePublisher([Reverb, Delay, Biquad]);
+		sessionManager.makePublisher([Reverb, Delay, Biquad]);
 		return {
 			Reverb: Reverb,
 			Delay: Delay,
@@ -325,12 +325,12 @@ define(['lib/doob.js', 'lib/io.js'], function(doob, io){
 		};
 	}());
 
-	// makePublisher(doob.effect);
+	makePublisher(doob.effect);
 
 	var evs = doob.effect.events;
 
 	for (var i in evs){
-		// subsribe doob to all effect events.
+		subsribe doob to all effect events.
 		doob.effect.subscribe(doob.eventHandlers[evs[i]]);
 	}
 

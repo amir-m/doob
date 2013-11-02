@@ -21,11 +21,6 @@ define(['filters/filters'], function(filters){
 			seconds = (input/1000) % 60;
 			milliseconds = input % 1000;
 
-			// hours = Math.floor(input / (60*60));
-			// minutues = Math.floor((input - (hours*60*60)) / 60);
-			// seconds = input % 60;
-			// milliseconds = (input * 1000) % 1000;
-
 			h = hours == 0 ? 0 : hours < 10 ? 1 : 2;
 			m = minutues == 0 ? 0 : minutues < 10 ? 1 : 2;
 			s = seconds == 0 ? 0 : seconds < 10 ? 1 : 2;
@@ -69,11 +64,6 @@ define(['filters/filters'], function(filters){
 			minutues = Math.floor(((input/1000) - (hours*60*60)) / 60);
 			seconds = (input/1000) % 60;
 			milliseconds = ((input/1000) * 1000) % 1000;
-
-			// hours = Math.floor(input / (60*60));
-			// minutues = Math.floor((input - (hours*60*60)) / 60);
-			// seconds = input % 60;
-			// milliseconds = (input * 1000) % 1000;
 
 			h = hours == 0 ? 0 : hours == 1 ? 1 : 2;
 			m = minutues == 0 ? 0 : minutues == 1 ? 1 : 2;

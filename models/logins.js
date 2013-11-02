@@ -38,10 +38,10 @@ module.exports = function(mongoose, async) {
 
 	var SuccessfulLogins = mongoose.model('SuccessfulLogins', SuccessfulLoginsSchema);
 
-	// it returns times number of latest badLogins e.g. times = 10, it returns last 10 badlogins
+	// returns times number of latest badLogins e.g. times = 10, returns last 10 badlogins
 	var badLogins = function(user_id, times, callbackFn) {};
 
-	// it returns times number of latest successfulLogins 
+	// returns times number of latest successfulLogins 
 	var successfulLogins = function(user_id, times, callbackFn) {};
 
 	// creates a new badLogin document.

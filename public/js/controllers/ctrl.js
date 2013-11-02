@@ -5,10 +5,9 @@ define(['controllers/controllers'],
 			'$http','socket', '$timeout', '$q', 'me', 'doobio',
 			function ($scope, $location, $rootScope, auth, $http, socket, $timeout, $q, me, doobio) {
 				
-				// if ($rootScope.me) {
-				// 	$scope.me = $rootScope.me;
-				// 	// $rootScope.me = null;
-				// }
+				if ($rootScope.me) {
+					$scope.me = $rootScope.me;
+				}
 
 				$rootScope.$on('$routeChangeError', function(event, current, previous, rejection){
 					
@@ -19,12 +18,12 @@ define(['controllers/controllers'],
 					$scope.notificationMessage = rejection;
 				});
 
-				// $rootScope.$on('$routeChangeStart', function(event, current, previous, rejection){
-				// 	$("#btmnavbar").slideUp();
-				// 	$("#btmnavbarHide").hide();
-				// 	$("#btmerrmsg").hide();
-				// 	$("#btmloaderimg").show();
-				// });
+				$rootScope.$on('$routeChangeStart', function(event, current, previous, rejection){
+					$("#btmnavbar").slideUp();
+					$("#btmnavbarHide").hide();
+					$("#btmerrmsg").hide();
+					$("#btmloaderimg").show();
+				});
 
 				$rootScope.$on('$routeChangeSuccess', function(event, current, previous, rejection){
 					
@@ -93,7 +92,7 @@ define(['controllers/controllers'],
 				});
 
 				$rootScope.$on('clear:message', function(){
-					// $scope.notificationMessage = '';
+					$scope.notificationMessage = '';
 					$("#btmnavbarHide").show();
 					$("#btmnavbar").slideUp();
 					$("#btmscsmsg").fadeOut();
@@ -113,11 +112,11 @@ define(['controllers/controllers'],
 				$scope.isBroadcasting = false;
 				$scope.loadedSoundCategoryList = null;
 				$scope.categoryListBindToSound = [];
-				// $scope.notificationMessage = "";
+				$scope.notificationMessage = "";
 
 				$scope.hideNav = function() {
 					$("#btmnavbar").slideUp();
-					// $scope.notificationMessage = '';
+					$scope.notificationMessage = '';
 				};
 
 
@@ -131,7 +130,7 @@ define(['controllers/controllers'],
 
 				$scope.broadcast = function() {
 					$scope.isBroadcasting = !$scope.isBroadcasting;
-					// doobio.toggleBroadcast($rootScope.username);
+					doobio.toggleBroadcast($rootScope.username);
 				};
 
 				$scope.gotoSP = function(name, id) {
@@ -194,15 +193,14 @@ define(['controllers/controllers'],
 								if (data[i].category != 'impulses') {
 									$scope.loadedSoundCategoryList.push(data[i].category);
 									$scope.categoryListBindToSound[i] = [];
-									// scope.categoryListBindToSound[data[i].category] = data[i].sounds;
-									// scope.categoryListBindToSound.push(data[i].sounds.name);
-								// scope.loadedList[i] = true;
+									scope.categoryListBindToSound[data[i].category] = data[i].sounds;
+									scope.categoryListBindToSound.push(data[i].sounds.name);
+								scope.loadedList[i] = true;
 								for (var j = 0; j < data[i].sounds.length; ++j)
 									$scope.categoryListBindToSound[i].push(data[i].sounds[j]);
 								}
 							}
 
-							// console.log($scope.categoryListBindToSound)
 							delay.resolve([$scope.loadedSoundCategoryList, $scope.categoryListBindToSound]);
 						}).error(function(data, status) {
 							console.log(data);
@@ -212,7 +210,6 @@ define(['controllers/controllers'],
 
 
 					return delay.promise;
-					// return $scope.loadedSoundCategoryList;
 				}
 
 

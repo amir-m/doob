@@ -9,8 +9,6 @@ define(['services/services'], function(services){
 
 				var promise = auth.authenticate();
 
-				// delay.reject();
-
 				function success() {
 
 					if ($rootScope.me) 
@@ -39,8 +37,6 @@ define(['services/services'], function(services){
 
 					}, function(er, status){
 						
-						// p = auth.authenticate();
-						// p.then
 						if (status == 401) {
 							$http.post('/login').success(function(){
 								success();

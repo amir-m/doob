@@ -35,8 +35,8 @@ define(['directives/directives'], function(directives){
 					scope.patternInfo.updated = updated
 					doobio.instances[scope.instanceName].toggleNote(i, track, scope.pattern.id, updated, true);
 
-					// scope.patternInfo.updated = new Date().getTime();
-					// doobio.instances[scope.instanceName].env.assets[scope.pattern.name].toggleNote(i, patternSound, true);
+					scope.patternInfo.updated = new Date().getTime();
+					doobio.instances[scope.instanceName].env.assets[scope.pattern.name].toggleNote(i, patternSound, true);
 
 				};
 
@@ -45,7 +45,6 @@ define(['directives/directives'], function(directives){
 					doobio.instances[instanceName].env.assets[p.name].tempo = p.tempo
 					doobio.instances[instanceName].env.assets[p.name].steps = p.steps
 					doobio.instances[instanceName].env.assets[p.name].play(flag);
-					// console.log(doobio.instances[instanceName].env.assets[p.name]);
 				};
 
 				scope.stop = function(instanceName, p, flag){
@@ -87,9 +86,6 @@ define(['directives/directives'], function(directives){
 				scope.forkThis = function () {
 
 					if (scope.patternInfo.username == $rootScope.username) return;
-
-					// check if the pattern is already forked.
-
 
 					var sp = {};
 
@@ -135,11 +131,6 @@ define(['directives/directives'], function(directives){
 					
  					return scope.patternInfo.isForked ? "Forked" : "Created";
 				};
-
-
-				// console.log(scope.instanceName)
-				
-				// scope.patternSounds = scope.pattern.sounds;
 			}
 		}
 	}]);

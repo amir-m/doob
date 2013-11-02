@@ -103,8 +103,6 @@ function(controllers) {
 			if ($rootScope.username) return 'visible';
 
 			return 'invisible';
-
-			// return 'visible';
 		}
 
 
@@ -112,12 +110,6 @@ function(controllers) {
 			auth.logout(this);
 			$scope.isBroadcasting = false;
 		}
-		
-		
-
-		// (function(){
-		
-		
-
+	
 	}]);
 });

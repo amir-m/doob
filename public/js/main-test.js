@@ -44,7 +44,7 @@ require.config({
 require([
     'angular',
     'angular-mocks',
-    // 'socketio',
+    'socketio',
     'uiBootstrap',
     'controllers/home-ctrl',
     'controllers/login-ctrl',

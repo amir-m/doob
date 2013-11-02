@@ -7,9 +7,7 @@ define(['directives/directives'], function(directives){
 		return {
 	
 			templateUrl: 'partials/template/doob/settings-notifications.html',
-			restrict: 'E',
-			// replace: false,
-			
+			restrict: 'E',			
 			link: function(scope, element, attrs) {
 			}
 		}

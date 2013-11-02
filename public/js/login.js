@@ -25,9 +25,6 @@ var login = function () {
 		}
 	});
 
-	// console.log(u.value);
-	// console.log(p.value);
-
 	return false;
 };
 

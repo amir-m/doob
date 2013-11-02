@@ -49,8 +49,6 @@ module.exports = function(mongoose, async) {
 	};
 
 	var validate = function(user_id, series_id, token, requestor, callbackFn){
-				// console.log(session.series.token)
-				// console.log(session.uid)
 
 		if (!user_id || !series_id || !token || !callbackFn) return;
 
@@ -101,9 +99,6 @@ module.exports = function(mongoose, async) {
 					console.log(error);
 					return callbackFn(500);
 				}
-				// console.log('||||||||||||||||||||||||||||||||||||||||||||')
-				// console.log(session.series.token)
-				// console.log(session.uid)
 				callbackFn(null, {token: session.series.token, uid: session.uid});
 
 			});
