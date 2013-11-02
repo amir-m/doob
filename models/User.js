@@ -463,17 +463,45 @@ module.exports = function(mongoose, async, logins, models) {
 
 	var getUser = function(name, callback) {
 		User.findOne({usernameLowerCase: name.toLowerCase()}, 
-			{username: 1, followers: 1, following: 1, soundPatterns: 1, _id: 1
-			}
-		, function(error, user) {
+			{username: 1, followers: 1, following: 1, soundPatterns: 1, audioFilesCount: 1})
+		.lean()
+		.exec(function(error, user) {
+			
 			if (error) {
 				console.log(error);
 				return callback(error);
 			}
+
 			models.activities.Activity.find({userId: user._id}, function(e, a){
+				
 				if (e) console.log(e)
-				user.activities = a;
-				callback(user);
+					
+					models.Audio.Audio.find({username: name.toLowerCase()})
+					.sort({timestamp: -1})
+					// .where('username', name)
+					.limit(20)
+					.lean()
+					.exec(function (error, result) {
+						
+						if (error) return console.log(error);
+						// console.log(result)
+						user.audio = result;
+						user.audioSkip = 20;
+						// console.log(user)
+						callback(user);
+					});
+
+				// models.Audio.Audio
+				// .where('username', name)
+				// .count(function (error, c) {
+					
+				// 	if (error) return console.log(error);
+				// 	user.audioCount = c;
+
+					
+				// });
+				
+
 			});
 		});
 	};

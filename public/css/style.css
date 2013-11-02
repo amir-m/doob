@@ -408,12 +408,19 @@
 
 body {
 	background-color: #DCDCDC;
-  -webkit-touch-callout: none;
+  /*-webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  user-select: none;
+  user-select: none;*/
+}
+
+.top-navbar-icons {
+  color: rgb(153, 153, 153);
+}
+.top-navbar-icons:hover {
+  color: rgb(255, 255, 255);
 }
 
 .invisible-bottom-bar {

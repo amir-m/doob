@@ -1,23 +1,59 @@
 define(['controllers/controllers'], 
 	function(controllers){
 
-		controllers.controller('UserCtrl', ['$scope', '$location', '$rootScope',
-		 	'user', '$http', 'socket', 'me', 
-			function ($scope, $location, $rootScope, user, $http, socket, me) {
-				$("#topnav").slideDown(200);
-				$("#btmerrmsg").hide();
-				$("#btmloaderimg").hide();	
+		controllers.controller('UserCtrl', 
+		['$scope', '$location', '$rootScope','user', '$http', 'socket', 'me', '$compile',
+		function ($scope, $location, $rootScope, user, $http, socket, me, $compile) {
 
 				$scope.user = user;
 
-				// var me = me();
+				$scope.append = function (audio) {
+					
+					for (var i = 0; i < audio.length; ++i) {
+						var html = "<li><audio-track id='"+audio[i]._id+"'></audio-track><li>";
+						var scope = $scope.$new();
 
-				// me.then(function(m){
-				// 	$scope.$emit("me:done", m);
-				// }, function(reason){
-				// 	$scope.$emit("error:message", reason);
-				// });
+						scope.audioFile = audio[i];
 
+						/*
+						*	append this pattern to the current sound patterns
+						*/
+						$('#audiostream').append($compile(html)(scope));
+
+						if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest')
+							$scope.$apply();
+					};
+				};
+				
+				$scope.append($scope.user.audio);
+
+				$(window).scroll( function() {
+					if ($(window).scrollTop() == 
+					$(document).height() - $(window).height()) {
+						$scope.fetchNext();
+					}
+				});
+
+				// TODO: add a socket listener for new audio-track events. 
+				// When a new audio track arrives, insert it at the top of the list:
+				// $('#audiostream') insert as first child...
+				// notify the user...
+
+				$scope.fetchNext = function () {
+
+					/** aleary fetched everything... */
+					if ($scope.user.audioFilesCount < $scope.user.audioSkip) return;
+
+					$("#btmloaderimg").show();	
+					$http.get('/user/'+$rootScope.username+'/audio?skip='+$scope.user.audioSkip)
+					.success(function (data) {
+						$("#btmloaderimg").hide();
+						$scope.user.audioSkip = data.skip;
+						$scope.append(data.audio);	
+					}).error(function (er) {
+						console.log(er)
+					});
+				};
 
 				$scope.show = function() {
 					console.log($scope.user)
@@ -56,7 +92,7 @@ define(['controllers/controllers'],
 						to: user.username,
 						timestamp: new Date().getTime()
 					});
-				}
+				};
 
 				$scope.broadcast = function() {
 					$scope.isBroadcasting = !$scope.isBroadcasting;
@@ -65,19 +101,19 @@ define(['controllers/controllers'],
 
 				$scope.followButtonText = function(user) {
 					return (user in $scope.me._following) ? 'Following' : 'Follow';
-				}
+				};
 
 				$scope.iFollow = function(user) {
 					return (user in $scope.me._following);
-				}
+				};
 
 				$scope.subscribeButtonText = function(user) {
 					return ($scope.me.subscribedTo.indexOf(user) != -1) ? 'Subscribed' : 'Subscribe';
-				}
+				};
 
 				$scope.iSubscribe = function(user) {
 					return ($scope.me.subscribedTo.indexOf(user) != -1);
-				}
+				};
 
 				$scope.sendInvite = function(ev) {
 
@@ -88,7 +124,7 @@ define(['controllers/controllers'],
 						name: $scope._inviteName,
 						timestamp: new Date().getTime()
 					}).success(function(){}).error(function(error){console.log(error)});
-				}
+				};
 
 			}]);
 });

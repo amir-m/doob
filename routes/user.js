@@ -22,6 +22,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 	// Scenario 2.
 	var login = function(req, res, next) {
 		// return res.redirect('#/register/17763763829');
+		console.log(req.headers)
 		var requestor = {
 			ip: req.ip,
 			date: new Date(),
@@ -465,8 +466,27 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 			return res.send(401);
 
 		models.User.getUser(req.param('name'), function(user){
+
 			if (!user) return res.send(400);
-			res.send(user)
+				
+			
+
+			return res.send(user)
+
+			// var audios = models.Audio.Audio.find({username: req.param('name')});
+
+			// console.log(audios.count())
+
+			// , function (error, audios) {
+				
+			// 	if (error) {
+			// 		console.log(error);
+			// 		// return res.send(500);
+			// 	};
+				
+			// 	// user['audio'] = audios;
+				
+			// });
 		});
 	};
 
@@ -710,6 +730,29 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		return res.send(r);
 	};
 
+	function getAudio (req, res, next) {
+
+		if (!req.param('name')) return res.send(400);
+
+		var skip = 0, r = {};
+		
+		if (req.query.skip && !isNaN(parseInt(req.query.skip))) 
+			skip = parseInt(req.query.skip);
+
+		models.Audio.Audio.find({username: req.param('name')})
+		.sort({timestamp: -1})
+		.limit(20)
+		.skip(skip)
+		.lean()
+		.exec(function (error, result) {
+			if (error) return res.send(500);
+			r['skip'] = skip + 20;
+			r['audio'] = result;
+			return res.send(r);
+		});
+
+	};
+
 
 	function validateSession(req) {
 
@@ -734,6 +777,7 @@ module.exports = function(fs, redis, store, models, io, sessionMaxAge, cookieMax
 		putSettings: putSettings,
 		changepassword: changepassword,
 		changeEmail: changeEmail,
-		upload: upload
+		upload: upload,
+		getAudio: getAudio
 	}
 };

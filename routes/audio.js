@@ -1,11 +1,12 @@
-module.exports = function (models, accessKeyId, secretAccessKey) { 
+module.exports = function (models, accessKeyId, secretAccessKey, AWS) { 
 
 	var crypto = require( "crypto" ),
 		bucketName = 'doob',
 		maxFileSize = 2 * 1024 * 1024 * 1024, // 2GB
-		minFileSize = 0; 
+		minFileSize = 0,
+		s3 = new AWS.S3();
 
-	var createS3Policy = function(mimetype, username) {
+	var createS3Policy = function(mimetype, username, id) {
 		var s3Policy = {
 			"expiration": new Date(new Date().getTime() + 1000 * 60 * 5).toISOString(),
 			"conditions": [
@@ -29,7 +30,8 @@ module.exports = function (models, accessKeyId, secretAccessKey) {
 			s3Key: accessKeyId,
 			// s3Redirect: "http://example.com/uploadsuccess",
 			s3Policy: s3Policy,
-			postURL: 'https://'+bucketName+'.s3.amazonaws.com/'
+			postURL: 'https://'+bucketName+'.s3.amazonaws.com/',
+			publicUrl: "https://s3.amazonaws.com/doob/user/"+username+"/"+id
 		};
 
 		return s3Credentials;
@@ -42,7 +44,7 @@ module.exports = function (models, accessKeyId, secretAccessKey) {
 		var response = [];
 
 		for (var i in req.body) {
-			response.push(createS3Policy(req.body[i].contentType, req.username));
+			response.push(createS3Policy(req.body[i].contentType, req.session.username, req.body[i].id));
 		}
 
 		return res.send(")]}',\n" + JSON.stringify(response));
@@ -50,8 +52,8 @@ module.exports = function (models, accessKeyId, secretAccessKey) {
 
 	function test (req, res, next) {
 
-		console.log(req.query)
-		console.log(req.body)
+		// console.log(req.query)
+		// console.log(req.body)
 		// console.log(req.files)
 
 		return res.send(200);
@@ -65,33 +67,91 @@ module.exports = function (models, accessKeyId, secretAccessKey) {
 		/** get user's sound counts */ 
 		models.User.User.findById({_id: req.session.uid}, {audioFilesCount: 1, quota: 1}, 
 		function(error, user){
+		
 			if (error) throw error; // push the request to queue for later use.
+
+			if ((user.quota - req.body.duration) < 0) return res.send(402);
+		
 			models.Audio.Audio.create({
 				_id: req.body.id,
-				name: req.body.name ? req.body.name : req.body.fileName,
-				username: req.session.username,
+				name: req.body.name ? req.body.name : req.body.fileName.substr(0, req.body.fileName.length-4),
+				username: req.session.username.toLowerCase(),
 				userid: req.session.uid,
+				timestamp: parseInt(req.body.timestamp),
 				fileName: req.body.fileName,
-				bufferLink: 'https://s3.amazonaws.com/doob/user/'+req.session.username+'/'+req.body.id,
-				link: 'http://doob.io/'+req.session.username+'/'+user.audioFilesCount,
+				bufferLink: 'https://s3.amazonaws.com/doob/user/'+
+					req.session.username.toLowerCase()+'/'+req.body.id,
+				link: '/'+req.session.username.toLowerCase()+'/'+user.audioFilesCount,
 				bytes: req.body.actualSize,
 				fileSize: req.body.fileSize,
-				fileExtension: req.body.fileName.split(".")[req.body.fileName.split(".").length - 1]
-			}, function (error){	
+				fileExtension: req.body.fileName.split(".")[req.body.fileName.split(".").length - 1],
+				duration: req.body.duration
+
+			}, function (error, audio){	
+				
 				if (error) throw error; // push the request to queue for later use.
 				// $inc audioFilesCount
 				// push to activities...
-				models.User.User.update({_id: req.session.uid}, {$inc: {quota: -req.body.actualSize}}, function (error){	
+				models.User.User.update({_id: req.session.uid}, {$inc: {quota: -req.body.duration}}, function (error){	
+					
 					if (error) throw error;
+
 				});
 				models.User.User.update({_id: req.session.uid}, {$inc: {audioFilesCount: 1}}, function (error){	
+					
 					if (error) throw error;
+
 				});
 
-				return res.send(200);
+				return res.send(")]}',\n" + JSON.stringify(audio));
 			});
 		});
 
+	};
+
+	function deleteAudio (req, res, next) {
+		
+		if (!validateSession(req)) return res.send(401);
+
+		if (!req.param('id')) return res.send(400);
+
+		models.Audio.Audio.update({_id: req.param('id')}, {$set: {isActive: false}}, 
+		function(error){
+
+			if (error) return res.send(500);
+
+			var key = 'user/' + req.session.username.toLowerCase() + '/' + req.param('id');
+
+			console.log('about to delete object from AWS...'.info);
+			s3.deleteObject({
+				Bucket: 'doob',
+				Key: key
+			}, function (error) {
+
+				if (error) return res.send(500);
+
+				console.log('object deleted from AWS...'.info);
+
+				return res.send(200);
+			});
+
+
+		});
+	};
+
+	function audioFileLink(req, res, next) {
+		
+		models.Audio.Audio.find({link: req.path})
+		.lean()
+		.exec(function(error, audio){
+			if (error) return res.send(500);
+			
+			if (audio.length == 0) return res.send(404);
+
+			delete audio
+
+			return res.send(")]}',\n" + JSON.stringify(audio));
+		});
 		
 	};
 
@@ -108,6 +168,8 @@ module.exports = function (models, accessKeyId, secretAccessKey) {
 	return {
 		upload: upload,
 		test: test,
-		newAudioFile: newAudioFile
+		newAudioFile: newAudioFile,
+		deleteAudio: deleteAudio,
+		audioFileLink: audioFileLink
 	}
 };

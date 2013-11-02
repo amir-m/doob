@@ -1,9 +1,12 @@
 module.exports = function(models, sessionMaxAge, async){
 
 	var index = function(req, res, next){
+		console.log(req.headers)
 		res.set({
 			'Content-type': 'text/html; charset=utf-8'
 		});
+		req.session._idz = 'session';
+		res.cookie('cooki_id', 'cookie', { maxAge: 60*60*1000, httpOnly: true });
 		res.sendfile('views/index.html');
 
 		// res.render('sendinvite', {from: 'Amir', to: 'Ghasem'});
@@ -45,10 +48,7 @@ module.exports = function(models, sessionMaxAge, async){
 		res.sendfile('partials/'+req.params[0]);
 	};
 
-	// Scenario 1.
 	var ping = function(req, res, next){
-
-		// console.log(req)
 
 		if (req.query.authenticate) {
 			
@@ -62,7 +62,6 @@ module.exports = function(models, sessionMaxAge, async){
 			return res.send(200);
 		}
 		
-		// Scenario 1. 1
 		if (req.session && req.session.uid && req.session.username) {
 
 			req.session.cookie.expires = new Date(Date.now() + sessionMaxAge);
@@ -71,8 +70,7 @@ module.exports = function(models, sessionMaxAge, async){
 			return res.send(200);
 		}
 		
-		// Scenario 1. 2
-		return res.send(401);
+		return res.send(202);
 	};
 
 	var destroy = function(req, res, next){

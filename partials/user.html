@@ -25,7 +25,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="well span6" style="position: absolute;left: 300">
+		<!-- <div class="well span6" style="position: absolute;left: 300">
 			<ul class="nav nav-list">
 				<li class="nav-header title">{{user.username}} activities.</li>
 				<li ng-repeat="act in user.activities | orderBy:'timestamp':true">
@@ -44,6 +44,29 @@
 					</div>
 				</li>
 			</ul>
+		</div> -->
+		<div class="well span6" style="position: absolute;left: 300; margin-bottom:10">
+			<ul class="nav nav-list" id="audiostream">
+				<li class="nav-header title">{{user.username}} activities.</li>
+				<!-- <li ng-repeat="audioFile in user.audio | orderBy:'timestamp':true"> -->
+				<!-- <li ng-repeat="audioFile in user.audio">
+
+					<div class="container" style="padding-bottom: 15">
+						<div style="position: absolute; width:30%;">
+							<a href="#/users/{{user.username}}">
+								<i class="icon-user"></i><b>{{user.username}}</b></a>
+						</div>
+						<div style="position: absolute; left:30%; right:5%;">
+							{{audioFile.name}}
+						</div>
+						<div>
+							<br>
+							<span ng-bind="audioFile.timestamp | date: 'MMM d, h:mm:ss a'" class="date"></span>
+						</div>
+					</div>
+				</li> -->
+			</ul>
+			<audio-fetcher>Hool<audio-fetcher>
 		</div>
 		<div class="well span3" style="position:fixed; left: 940">
 			<ul class="nav nav-list">

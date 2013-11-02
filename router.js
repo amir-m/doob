@@ -16,6 +16,8 @@ module.exports = function(routes, app){
 
 	app.get('/user/:name', routes.user.getUser);
 
+	app.get('/user/:name/audio', routes.user.getAudio);
+
 	app.get('/pattern/:user/:id', routes.user.pattern);
 
 	app.get('/pattern/:user', routes.user.patterns);
@@ -25,6 +27,8 @@ module.exports = function(routes, app){
 	app.get('/destroy', routes.index.destroy);
 
 	app.get('/id', routes.index.id);
+
+	app.get('/:user/:number', routes.audio.audioFileLink);
 
 	app.get('/settings', routes.user.getSettings);
 
@@ -53,6 +57,8 @@ module.exports = function(routes, app){
 	app.put('/settings', routes.user.putSettings);
 
 	app.put('/upload', routes.audio.newAudioFile);
+
+	app.delete('/audio/:id', routes.audio.deleteAudio);
 
 	app.get('/', routes.index.index);
 	

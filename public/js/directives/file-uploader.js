@@ -1,27 +1,23 @@
 define(['directives/directives'], function(directives){
 
 	directives.directive('fileUploader', 
-	['$http', '$timeout',
-	function ($http, $timeout) {
+	['$http', '$timeout', '$document', '$filter', 'idService', 'auth',
+	function ($http, $timeout, $document, $filter, idService, auth) {
 	
 		return {
 
 			link: function(scope, element, attrs) {
 
-				scope.progressReports = {}; 
-				var queue = [], payloads;
-				scope.myQuota = function () {
-
-					if (scope.me.quota >= 1024 * 1024 * 1024)
-						return (Math.round(scope.me.quota * 100 / (1024 * 1024 * 1024)) / 100).toString() + 'GB';
-
-					else if (scope.me.quota >= 1024 * 1024)
-						return (Math.round(scope.me.quota * 100 / (1024 * 1024)) / 100).toString() + 'MB';
-
-					else
-						return (Math.round(scope.me.quota * 100 / 1024) / 100).toString() + 'KB';
-
+				var supportedType = {
+					'mp3': 'audio/mp3',
+					'mp4': 'audio/mp4',
+					'm4a': 'audio/x-m4a',
+					'wav': 'audio/wav',
+					'aac': 'audio/aac',
+					'ogg': 'audio/ogg'
 				};
+
+				scope.progressReports = {}; 
 
 				$("#multiplefileuploader").bind('change', fileSelected);
 
@@ -29,111 +25,97 @@ define(['directives/directives'], function(directives){
 					$('#multiplefileuploader').click();
 				});
 
-
 				function fileSelected (event) {
 
 					event.preventDefault();
 
-					var files = $("#multiplefileuploader")[0].files;
-					// console.log($('#au').get(0).duration )
-					// console.log(files[0])
+					var queue = [], payloads = [], noneHTML5 = [], badFiles = [], files, 
+						totalDuration = 0;
 
-					// if (files.length == 1 && files[0]) {
+					files = $("#multiplefileuploader")[0].files;
 
-					// 	$http.get('/id').success(function (id) {
-							
-					// 		var file = files[0];
+					for (var i = 0; i < files.length; ++i) {
 						
-					// 		var fileSize = 0;
-							
-					// 		if (file.size > 1024 * 1024 * 1024)
-					// 			fileSize = (Math.round(file.size * 100 / (1024 * 1024 * 1024)) / 100).toString() + 'GB';
-
-					// 		else if (file.size > 1024 * 1024)
-					// 			fileSize = (Math.round(file.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
-							
-					// 		else
-					// 			fileSize = (Math.round(file.size * 100 / 1024) / 100).toString() + 'KB';						
+						var file = files[i],
+							type = file.name.split(".")[files[i].name.split(".").length - 1].toLowerCase();
 						
-					// 		prepareUpload(file, id, fileSize);
+						if (!(type in supportedType)) {
 
-					// 	}).error(function (error) {
-					// 		scope.$emit("error:message", "Something went wrong! Please try again.");
-					// 	});
-					// }
-					// else if (files.length > 1) {
-						
-						$http.get('/id?count='+files.length).success(function (ids) {
-
-							payloads = [], totalSize = 0;
-
-							for (var i = 0; i < files.length; ++i) {
-								
-								var file = files[i];
-								
-								if (file) {
-									var fileSize = 0;
-									
-									if (file.size > 1024 * 1024 * 1024)
-										fileSize = (Math.round(file.size * 100 / (1024 * 1024 * 1024)) / 100).toString() + 'GB';
-
-									else if (file.size > 1024 * 1024)
-										fileSize = (Math.round(file.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
-									
-									else
-										fileSize = (Math.round(file.size * 100 / 1024) / 100).toString() + 'KB';
-
-								};
-								
-								payloads.push({
-									id: ids[i],
-									fileName: file.name,
-									fileSize: fileSize,
-									actualSize: file.size,
-									contentType: file.type
-								});
-
-								totalSize += file.size;
-							};
-
-							prepareUpload(payloads, totalSize, files);
-
-						}).error(function (error) {
-							scope.$emit("error:message", "Something went wrong! Please try again.");
-						});
-					// }
-				};
-
-				function prepareUpload (payloads, totalSize, files) {
-					
-					/*
-					* Account type is unlimited
-					*/
-					if (scope.me.accType == 10) {
-
-						upload(payloads, totalSize, files);
-
-					} 
-					/*
-					* Account type is either basic or limited. Check the quota.
-					*/
-					else {
-						if ((scope.me.quota - totalSize) < 0) {
-							/*
-							* Choses file is larger than user's quota. 
-							** TODO: 	Save the request for later analysis.
-							*/
-							scope.$emit("error:message", "Unfortunately the upload is larger than your free space. You can get another 5GB for $4.");
+							badFiles.push({
+								fileName: file.name,
+								actualSize: file.size,
+								contentType: file.type,
+								timestamp: new Date().getTime(),
+							});
 						}
 						else {
-
-							upload(payloads, totalSize, files);
-
+							queue.push(i);
 						}
-					}
+						
+					};
+
+					prepareUpload(queue, files, payloads);
+					// reportBadFiles();
+
 				};
 
-				function upload(payloads, totalSize, files) {
+				function prepareUpload (queue, files, payloads) {
+
+					var ids = idService(queue.length);
+					ids.then(function (ids) {
+
+						for (var i = 0; i < queue.length; ++i) {
+							
+							var file = files[queue[i]];
+
+							var fileSize = 0;
+							
+							if (file.size > 1024 * 1024 * 1024)
+								fileSize = (Math.round(file.size * 100 / (1024 * 1024 * 1024)) / 100).toString() + 'GB';
+
+							else if (file.size > 1024 * 1024)
+								fileSize = (Math.round(file.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+							
+							else
+								fileSize = (Math.round(file.size * 100 / 1024) / 100).toString() + 'KB';
+							
+							payloads.push({
+								id: ids[i],
+								fileName: file.name,
+								fileSize: fileSize,
+								actualSize: file.size,
+								contentType: supportedType[file.name.split(".")[files[i].name.split(".").length - 1].toLowerCase()],
+								timestamp: new Date().getTime()
+							});
+
+						};
+
+						// prepareUpload(payloads, totalSize, files);
+						/*
+						* Account type is unlimited
+						*/
+						if (scope.me.accType == 10) {
+
+							upload(payloads, files);
+
+						} 
+						/*
+						* Account type is either basic or limited. Check the quota.
+						*/
+						else {
+
+							upload(payloads, files);
+						}
+
+					}, function () {
+						scope.$emit("error:message", "Something went wrong! Please try again.");
+					});
+					
+				};
+
+				function upload(payloads, files) {
+
+					queue = [];
 
 					$http.post('/upload', payloads).success(function (credentials) {
 						
@@ -150,14 +132,14 @@ define(['directives/directives'], function(directives){
 							scope.progressReports[i] = {
 								fileName: payloads[i].fileName,
 								fileSize: payloads[i].fileSize,
+								duration: 0,
+								size: payloads[i].actualSize,
 								status: 'Processing...',
 								progress: '0%', 
 								id: payloads[i].id
 							};
 						
 							var form = new FormData();
-
-							console.log(payloads[i].id)
 
 							form.append('key', "user/"+scope.username+'/'+payloads[i].id);
 							// form.append('key', "user/"+scope.username+'/${filename}');
@@ -169,25 +151,30 @@ define(['directives/directives'], function(directives){
 							form.append('file', files[i]);
 							
 							(function(i){
+
 							    xhr[i].upload.addEventListener("progress", function (e) {
 							    	$('#'+scope.progressReports[i].id).removeClass();
 							    	uploadProgress(e, i);
 							    }, false);
+
 							    xhr[i].addEventListener("load", function (e) {
 							    	$('#'+scope.progressReports[i].id).removeClass();
-							    	uploadComplete(e, i, payloads[i]);
+							    	uploadComplete(e, i, payloads[i], credentials[i].publicUrl);
 							    }, false);
+
 							    xhr[i].addEventListener("error",  function (e) {
 							    	$('#'+scope.progressReports[i].id).removeClass();
 							    	uploadFailed(e, i);
 							    }, false);
+
 							    xhr[i].addEventListener("abort", function (e) {
 							    	$('#'+scope.progressReports[i].id).removeClass();
 							    	uploadCanceled(e, i);
 							    }, false);
 
-							    xhr[i].open('POST', '/test');  // credentials[i].postURL
-							    // xhr[i].open('POST', credentials[i].postURL);  // 
+							    // xhr[i].open('POST', '/test'); 
+							    // console.log(credentials[i].postURL)
+							    xhr[i].open('POST', credentials[i].postURL);   
 							    xhr[i].setRequestHeader("Access-Control-Allow-Origin","*");
 
 							    xhr[i].send(form);
@@ -203,48 +190,107 @@ define(['directives/directives'], function(directives){
 					});
 				};
 
+				function uploadHtml5FileError() {
+					console.log('error biacht!');
+				};
+
 				function uploadProgress (event, index) {
+					var p = auth.authenticate();
+					p.then();
+
 					$('#'+scope.progressReports[index].id).addClass('info');
-					scope.progressReports[index].status = "Uploading...";
-					scope.progressReports[index].progress = Math.round(event.loaded * 100 / event.total).toString() + '%';
+					scope.progressReports[index].status = "Processing";
+					scope.progressReports[index].progress = Math.round(event.loaded * 50 / event.total).toString() + '%';
+					scope.$emit("info:message", "Processing " + scope.progressReports[index].progress, null, true);
 					apply();
 				};
 
-				function uploadComplete (event, index) {
-					$('#'+scope.progressReports[index].id).addClass('success');
+				function uploadComplete (event, index, payload, url) {
+
 					queue.splice(queue.indexOf(index), 1);
-
-					$http.put('/upload', payloads[index]).success(function() {
-
-						scope.me.quota -= payloads[index].actualSize;
-
-						if (queue.length == 0) {
-							$("#btmloaderimg").hide();
-							scope.$emit("success:message", "Upload completed!", 3000);
-						};
-					}).error(function(){
-
+					
+					var uploadedSound = soundManager.createSound({
+						// url: url,
+						url: 'https://s3.amazonaws.com/doob/user/'+scope.username+'/'+payload.id,
+						id: payload.id,
+						whileloading: function() {
+							$('#'+scope.progressReports[index].id).addClass('info');
+							scope.progressReports[index].status = "Processing";
+							scope.progressReports[index].progress = (50 + Math.round(this.bytesLoaded * 50 / this.bytesTotal)).toString() + '%';
+							scope.$emit("info:message", "Processing " + scope.progressReports[index].progress, null, true);
+							var p = auth.authenticate();
+							p.then();
+							apply();
+							// console.log(this.duration, this.durationEstimate)
+						}
 					});
-					// $timeout(function(){
-					// 	$('#'+scope.progressReports[index].id + " > #columnprogress").hide('slide', {
-					// 		direction: 'left'}, 1000);
-					// 	// $('#'+scope.progressReports[index].id + " > #columnstatus").hide('slide', {direction: 'left'}, 1000);;
-					// }, 1000);
-					// $timeout(function(){
-					// 	// $('#'+scope.progressReports[index].id + " > #columnprogress").hide('slide', {direction: 'left'}, 1000);;
-					// 	$('#'+scope.progressReports[index].id + " > #columnstatus").hide('slide', {
-					// 		direction: 'left'}, 1000);
-						
-					// }, 3000);
-					// $timeout(function(){
-						
-					// }, 5000);
 
-					$('#'+scope.progressReports[index].id + " > #columnshare").show();
+					// uploadedSound.whileloading({
+					// });
 
-					scope.progressReports[index].status = "Uploaded!";
-					scope.progressReports[index].progress = '100%';
-					apply();
+					uploadedSound.load({
+						onload: function(success) {
+							// console.log('PUT /upload');
+
+							if (!success) {
+								console.log('couldn`t load your sound ');
+								return;
+							}
+							
+							payload['duration'] = uploadedSound.duration;
+							// console.log(payload);
+
+							if ((scope.me.quota - uploadedSound.duration) < 0) {
+								
+								$('#'+scope.progressReports[index].id).addClass('danger');
+
+								scope.$emit("error:message", "Quota reached! Please upgrade or buy quota",
+								 3000);
+								$('#startupload').removeAttr('disabled');
+								
+								apply();
+
+								$http.delete('/audio/'+payload.id).success(function(){
+									console.log('quota reached!!');
+									console.log(scope.me.quota, uploadedSound.duration);
+								}).error(function(error, status) {
+									console.log(error, status);
+								});
+
+								return;
+							}
+
+							$http.put('/upload', payload).success(function(audio) {
+
+								scope.me.quota -= payload.duration;
+								scope.me.audioFilesCount++;
+								scope.progressReports[index].duration = payload.duration;
+								$('#'+scope.progressReports[index].id).addClass('danger');
+								queue.splice(queue.indexOf(index), 1);
+
+								if (queue.length == 0) {
+									$("#btmloaderimg").hide();
+									scope.$emit("success:message", "Upload completed!", 3000);
+									$('#startupload').removeAttr('disabled');
+								};
+
+								console.log(audio)
+							}).error(function(data, stat){
+								/** quota reached!*/
+								console.log('error!!');
+								if (stat == 402)
+									console.log('quota reached!!');
+							});
+
+							$('#'+scope.progressReports[index].id + " > #columnshare").show();
+
+							scope.progressReports[index].status = "Uploaded!";
+							scope.progressReports[index].progress = '100%';
+							apply();
+							
+
+						}
+					});
 				};
 
 				function uploadFailed (event, index) {

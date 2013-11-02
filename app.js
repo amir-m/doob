@@ -22,9 +22,9 @@ if (process.env.REDISTOGO_URL) {
 } 
 
 else {
-  var redisClient = redis.createClient();
-  var pub = redis.createClient();
-  var sub = redis.createClient();
+  var redisClient = redis.createClient(6379);
+  var pub = redis.createClient(6379 );
+  var sub = redis.createClient(6379);
 }
 
 var RedisStore = require('connect-redis')(express);
@@ -47,14 +47,12 @@ var sessionMaxAge = 20 * 60 * 1000;
 //                 m * d  * h  * m  * s  * ms    
 var cookieMaxAge = 1 * 30 * 24 * 60 * 60 * 1000;
 
-require('./config')(app, express, connect, path, cookieParser, useragent, 
-  sessionStore, sessionMaxAge, colors, redisClient, io, mongoose);
+var config = require('./config')(app, express, connect, path, cookieParser, useragent, 
+  sessionStore, sessionMaxAge, colors, redisClient, io, mongoose, 
+  SessionSockets);
 
+var sessionSockets = config.sessionSockets;
 // Socket server config and setup.
-var sessionSockets = new SessionSockets(io, sessionStore, cookieParser, 'sessionid');
-
-
-
 
 var models = {
   Session: require('./models/session')(mongoose, async),
@@ -99,7 +97,7 @@ var routes = {
 
 // TODO: set AWS related variables on the heroku, not loading them from the file.
 
-  audio: require('./routes/audio')(models, AWS.config.credentials.accessKeyId, AWS.config.credentials.secretAccessKey)
+  audio: require('./routes/audio')(models, AWS.config.credentials.accessKeyId, AWS.config.credentials.secretAccessKey, AWS)
 };
 
 require('./router')(routes, app);
@@ -136,61 +134,64 @@ var joinRoom = function(username, socket, store){
     });
   };
 
-sessionSockets.on('connection', function(err, socket, session){
+// function configLoaded() {
+    sessionSockets.on('connection', function(err, socket, session){
 
-  if (err) throw err;
+    if (err) throw err;
 
-  if (!session || !session.uid) {
-    socket.disconnect();
-    return;
-  }
-  var events = require('./events/handlers')(io, socket, session, redisClient, models);
-  // var activities = require('./events/activities')(models);
+    if (!session || !session.uid) {
+      socket.disconnect();
+      return;
+    }
+    var events = require('./events/handlers')(io, socket, session, redisClient, models);
+    // var activities = require('./events/activities')(models);
 
-  if (session.username) {
-    // socket.set('username', user.username);
-    if (io.sockets.sockets[session.username]) delete io.sockets.sockets[session.username];
-    io.sockets.sockets[session.username] = socket.id;
-    console.log('connecting: %s to %s'.prompt, session.username, socket.id);
-
-    joinRoom(session.username, socket, redisClient);
-  }
-
-  else
-    models.User.User.findOne({_id: session.uid}, function(error, user){
-      if (error) throw error;
-      if (!user || !user.username) throw 'BAD USER !!!';
-
-      session.username = user.username;
-      session.save();
-      
+    if (session.username) {
+      // socket.set('username', user.username);
       if (io.sockets.sockets[session.username]) delete io.sockets.sockets[session.username];
       io.sockets.sockets[session.username] = socket.id;
       console.log('connecting: %s to %s'.prompt, session.username, socket.id);
 
       joinRoom(session.username, socket, redisClient);
-    });
+    }
 
-  
+    else
+      models.User.User.findOne({_id: session.uid}, function(error, user){
+        if (error) throw error;
+        if (!user || !user.username) throw 'BAD USER !!!';
 
-  for (var i in events) {
-    socket.on(i, events[i]);
-  }
+        session.username = user.username;
+        session.save();
+        
+        if (io.sockets.sockets[session.username]) delete io.sockets.sockets[session.username];
+        io.sockets.sockets[session.username] = socket.id;
+        console.log('connecting: %s to %s'.prompt, session.username, socket.id);
 
-  for (var i in models.activities) {
-    socket.on(i, function(data){
-      // args = arguments;
-      // console.log(args)
-      models.activities[i](data, session)
-    });
-  }
+        joinRoom(session.username, socket, redisClient);
+      });
 
-});
+    
+
+    for (var i in events) {
+      socket.on(i, events[i]);
+    }
+
+    for (var i in models.activities) {
+      socket.on(i, function(data){
+        // args = arguments;
+        // console.log(args)
+        models.activities[i](data, session)
+      });
+    }
+
+  });
 
 
-server.listen(app.get('port'), function(){
-  console.log('Express server listening on port '.prompt + app.get('port'));
-});
+  server.listen(app.get('port'), function(){
+    console.log('Express server listening on port '.prompt + app.get('port'));
+  });
+
+// }
 
 // httpServer.listen(8081, function(){
 //   console.log('Express server listening on port '.prompt + 8081);

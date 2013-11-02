@@ -11,42 +11,91 @@ define(['controllers/controllers'],
 				// }
 
 				$rootScope.$on('$routeChangeError', function(event, current, previous, rejection){
+					
+					$("#btmnavbar").slideDown();
 					$("#btmloaderimg").hide();
+					$("#btmnavbarHide").hide();
 					$("#btmerrmsg").show();
 					$scope.notificationMessage = rejection;
 				});
 
-				$rootScope.$on('$routeChangeStart', function(event, current, previous, rejection){
+				// $rootScope.$on('$routeChangeStart', function(event, current, previous, rejection){
+				// 	$("#btmnavbar").slideUp();
+				// 	$("#btmnavbarHide").hide();
+				// 	$("#btmerrmsg").hide();
+				// 	$("#btmloaderimg").show();
+				// });
+
+				$rootScope.$on('$routeChangeSuccess', function(event, current, previous, rejection){
+					
+					if (previous && previous.$$route && previous.$$route.templateUrl == 'partials/login.html')
+						return;
+					
+					$("#btmnavbar").slideUp();
+					$("#btmnavbarHide").hide();
 					$("#btmerrmsg").hide();
 					$("#btmloaderimg").show();
 				});
 
 				$rootScope.$on('error:message', function(event, message){
 					$scope.notificationMessage = message;
+					$("#btmnavbarHide").show();
+					$("#btmnavbar").slideDown();
 					$("#btmscsmsg").hide();
 					$("#btmerrmsg").show();
+					$("#btminfosmsg").hide();
 					$("#btmloaderimg").hide();
 					if ($rootScope.$$phase != "$apply" && $rootScope.$$phase != "$digest") {
 						$rootScope.$apply();
 					}
 				});
-				$rootScope.$on('success:message', function(event, message, time){
+				$rootScope.$on('success:message', function(event, message, time, dontHide){
 					$scope.notificationMessage = message;
+					$("#btmnavbarHide").show();
+					$("#btmnavbar").slideDown();
 					var time = time || 5000;
 					$("#btmscsmsg").show();
+					$("#btmerrmsg").hide();
+					$("#btminfosmsg").hide();
+					$("#btmloaderimg").hide();
+					
+					if ($rootScope.$$phase != "$apply" && $rootScope.$$phase != "$digest") {
+						$rootScope.$apply();
+					}
+
+					if (dontHide) return;
+
+					$timeout(function(){
+						$("#btmscsmsg").fadeOut();
+						$("#btmnavbar").slideUp();
+					}, time);
+				});
+				
+				$rootScope.$on('info:message', function(event, message, time, dontHide){
+					$scope.notificationMessage = message;
+					$("#btmnavbarHide").show();
+					$("#btmnavbar").slideDown();
+					var time = time || 5000;
+					$("#btminfosmsg").show();
+					$("#btmscsmsg").hide();
 					$("#btmerrmsg").hide();
 					$("#btmloaderimg").hide();
 					if ($rootScope.$$phase != "$apply" && $rootScope.$$phase != "$digest") {
 						$rootScope.$apply();
 					}
 
+					if (dontHide) return;
+
 					$timeout(function(){
-						$("#btmscsmsg").fadeOut();
+						$("#btminfosmsg").fadeOut();
+						$("#btmnavbar").slideUp();
 					}, time);
 				});
 
 				$rootScope.$on('clear:message', function(){
 					// $scope.notificationMessage = '';
+					$("#btmnavbarHide").show();
+					$("#btmnavbar").slideUp();
 					$("#btmscsmsg").fadeOut();
 					$("#btmerrmsg").fadeOut();
 					$("#btmloaderimg").fadeOut();
@@ -65,6 +114,11 @@ define(['controllers/controllers'],
 				$scope.loadedSoundCategoryList = null;
 				$scope.categoryListBindToSound = [];
 				// $scope.notificationMessage = "";
+
+				$scope.hideNav = function() {
+					$("#btmnavbar").slideUp();
+					// $scope.notificationMessage = '';
+				};
 
 
 				$scope.gotoUser = function(name) {

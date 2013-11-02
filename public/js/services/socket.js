@@ -1,11 +1,19 @@
-define(['services/services'], function(services){
+define(['services/services'], 
+function(services){
 	
-	services.factory('socket', function ($rootScope, $http, $q) {
-
+	services.factory('socket', 
+	['$rootScope', '$http', '$q',
+	function ($rootScope, $http, $q) {
 
 		var flag = false;
 
-	    var socket = io.connect('/', {reconnect: false, 'try multiple transports': false});
+		var config = {
+			reconnect: false, 
+			'try multiple transports': false,
+			'sync disconnect on unload': true
+		};
+
+	    var socket = io.connect('/', config);
 
 	    var get = function(){
 
@@ -15,8 +23,20 @@ define(['services/services'], function(services){
 	            cache: false,
 	            method: 'GET',	   
 	            url: '/ping'
-	        }).success(function(){
-	    		delay.resolve(true);
+	        }).success(function(data, status){
+	        	// maybe the session is timed out, try login
+	    		if (status == 202) {
+
+	    			$http.post('/login').success(function(res, status) {
+
+		    			delay.resolve();
+
+		    		}).error(function(error, status){
+		    			console.log("error connecting to the server: %s", error);
+		    			delay.reject();
+		    		});
+	    		}
+	    		else delay.resolve(true);
 	    	}).error(function(data, status){
 	    		// maybe the session is timed out, try login
 	    		if (status == 401) {
@@ -114,5 +134,5 @@ define(['services/services'], function(services){
 	        	if (socket.socket && socket.socket.connected) socket.socket.disconnect();
 	        }
 	    };
-	});
+	}]);
 });

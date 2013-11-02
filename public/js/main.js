@@ -8,12 +8,14 @@ require.config({
 		jquery: 'lib/jquery',
 		jqueryui: 'lib/jqueryui',
 		domready: 'lib/domready',
+		// wavesurfer: 'lib/wavesurfer.min',
 		uiBootstrap: 'lib/ui-bootstrap-tpls-0.5.0',
 		doob: 'lib/doob',
 		io: 'lib/io',
 		effects: 'lib/effects',
 		audio: 'lib/audio',
-		sequencer: 'lib/sequencer'
+		sequencer: 'lib/sequencer',
+		soundManager: 'lib/soundmanager2'
 	},
 	shim: {
 		'jqueryui': { deps: ['jquery'] },
@@ -24,6 +26,8 @@ require.config({
 		},
 		'angularResource': { deps: ['angular'] },
 		'angularCookies': { deps: ['angular'] },
+		// 'wavesurfer': { exports: 'WaveSurfer' },
+		'soundManager': { exports: 'soundManager' },
 		'uiBootstrap': { deps: ['angular'] }
 	}
 });
@@ -33,6 +37,8 @@ require([
 	'angular',
 	'app', 
 	'domready',
+	// 'wavesurfer',
+	'soundManager',
 	'socketio',
 	'jqueryui',
 	'uiBootstrap',
@@ -47,7 +53,9 @@ require([
 	'services/patternsloader',
 	'services/patternloader', 
 	'services/me', 
+	'services/wavesurfer', 
 	'services/settingsloader', 
+	'services/id', 
 	'controllers/ctrl',
 	'controllers/home-ctrl',
 	'controllers/login-ctrl',
@@ -76,8 +84,12 @@ require([
 	'directives/sortable-table', 
 	'directives/add-sound',
 	'directives/file-uploader',
-	], function($, angular, app, domReady, socketio) {
-		
+	'directives/audio-track',
+	'directives/update-time',
+	'filters/time',
+	'filters/file-size'
+	], 
+	function($, angular, app, domReady, soundManager) {
 		'use strict';
 
 		app.config(
@@ -181,6 +193,7 @@ require([
 				controller: 'UploadCtrl', 
 				resolve: {
 					myinfoz: ['me', function(me) {
+						
 						return me();
 					}]
 				}
@@ -235,6 +248,12 @@ require([
 		domReady(function() {
       		angular.bootstrap(document, ['doob']);
       		$('html').addClass('ng-app: doob');
+      	});
+
+      	soundManager.setup({
+      		url: '/public/swf/',
+      		flashVersion: 9,
+      		useHTML5Audio: true
       	});
 	}
 );

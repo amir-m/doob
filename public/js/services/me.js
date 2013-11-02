@@ -12,6 +12,10 @@ define(['services/services'], function(services){
 				// delay.reject();
 
 				function success() {
+
+					if ($rootScope.me) 
+						return delay.resolve($rootScope.me);
+
 					var temp;
 					var _me = auth.me();
 
@@ -34,9 +38,18 @@ define(['services/services'], function(services){
 						delay.resolve(temp);
 
 					}, function(er, status){
-						// console.log(status)
-						// $route.reload();
-						delay.reject('We couldn`t load your data from server! Please reload the page.');
+						
+						// p = auth.authenticate();
+						// p.then
+						if (status == 401) {
+							$http.post('/login').success(function(){
+								success();
+							}).error(function(){
+								delay.reject('We couldn`t load your data from server! Please reload the page.');
+							});
+						}
+						else
+							delay.reject('We couldn`t load your data from server! Please reload the page.');
 					});
 
 				}

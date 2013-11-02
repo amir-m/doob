@@ -17,6 +17,9 @@ module.exports = function(config) {
         // JASMINE,
         // {pattern: 'public/js/lib/**/*.js', included: false},
         // 'public/js/lib/jquery.js',
+
+
+        'public/js/lib/require.js',
         '/socket.io/socket.io.js/',
         'public/js/lib/angular.js',
         'public/js/lib/angular-mocks.js',
@@ -24,16 +27,19 @@ module.exports = function(config) {
         {pattern: 'public/js/controllers/*.js', included: false},
         {pattern: 'public/js/directives/*.js', included: false},
         {pattern: 'public/js/services/*.js', included: false},
-        // {pattern: 'public/js/*.js', included: false},
-        {pattern: 'tests/unit/*Spec.js', included: false},
-        {pattern: 'tests/unit/services/*Spec.js', included: false},
-        {pattern: 'tests/unit/controllers/*Spec.js', included: false},
-        {pattern: 'tests/unit/directives/*Spec.js', included: false},
         'public/js/controllers/controllers.js',
+        'tests/unit/services/socketSpec.js',
+        'public/js/main-test.js'
+
+        
+
+        // {pattern: 'public/js/*.js', included: false},
+        // {pattern: 'tests/unit/*Spec.js', included: false},
+        // {pattern: 'tests/unit/services/*Spec.js', included: false},
+        // {pattern: 'tests/unit/controllers/*Spec.js', included: false},
+        // {pattern: 'tests/unit/directives/*Spec.js', included: false},
         // 'public/js/app-test.js',
-        'public/js/main-test.js',
         // {pattern: 'test/*.js', included: false},
-        // 'public/js/lib/require.js',
         // 'public/js/main.js',
         // 'public/js/lib/angular-mocks.js',
         // 'public/js/lib/angular-resource.js',

@@ -1,7 +1,8 @@
 define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', 'lib/sequencer'], 
 	function(services, _doob, _audio, _io, _effects, _sequencer){
 
-	services.factory('doobio', ['socket', '$http', '$rootScope', '$q',
+	services.factory('doobio', 
+	['socket', '$http', '$rootScope', '$q',
 	function(socket, $http, $rootScope, $q) {
 
 		var loadedAssets = {}, self = this, instances = {}, instanceNames = [];
@@ -760,7 +761,7 @@ define(['services/services', 'lib/doob', 'lib/audio', 'lib/io', 'lib/effects', '
 				return new doob(name);
 			},
 			playInline: function(instance, sound) {
-				
+
 				if (typeof instance == 'string') {
 
 					_audio(instances[instance].env).playSound({

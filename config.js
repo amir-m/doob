@@ -1,5 +1,6 @@
 module.exports = function(app, express, connect, path, cookieParser, useragent, 
-  sessionStore, sessionMaxAge, colors, redisClient, io, mongoose) {
+  sessionStore, sessionMaxAge, colors, redisClient, io, mongoose, 
+  SessionSockets, callback) {
 
 
   // Express configurations.
@@ -68,5 +69,9 @@ module.exports = function(app, express, connect, path, cookieParser, useragent,
     if (err) throw err;
     console.log('connected to mongoDB: %s', mg);
   });
+
+  return {
+    sessionSockets: new SessionSockets(io, sessionStore, cookieParser, 'sessionid')
+  }
 
 };

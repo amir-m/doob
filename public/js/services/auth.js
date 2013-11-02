@@ -53,33 +53,15 @@ define(['services/services'], function(services){
 
 		    	var delay = $q.defer();
 
-		    	// console.log('.....`authenticate` enter')
+	   			$http.get('/ping').success(function(data, status) {
 
-		    	if ($rootScope.username) {
-		    		delay.resolve($rootScope.username);
-		    		// console.log($rootScope.username)
-		    		// console.log('..... `authenticate` if ($rootScope.username)')
-		    	}
-
-
-		   		else {
-
-		   			// console.log('..... `authenticate` else ($rootScope.username)')
-
-		   			$http.get('/ping').success(function() {
-
-		   				// console.log('..... `authenticate` /ping success')
+	   				if (status == 200) {
 
 			   			socket.connect(true);
 			 
-			   			// Scenario 1 - 2.b
 			   			if (!$rootScope.username) {
 			   				
-			   				// console.log('..... /ping success ... !username')
-
 			   				if ($cookies.username) {
-
-			   					// console.log('..... `authenticate` /ping success ... cookie.username')
 
 			   					$rootScope.username = $cookies.username;
 			   					delay.resolve($rootScope.username);
@@ -87,14 +69,9 @@ define(['services/services'], function(services){
 				   			// Scenario 1 - 2.a
 				   			else {
 
-				   				// console.log('..... `authenticate` /ping success ... !cookie.username')
-
 				   				var promise = _getMe({'username': 1});
 
 				   				promise.then(function(data){
-
-				   					// console.log('..... `authenticate` _getMe success')
-				   					// console.log(data)
 
 				   					$rootScope.username = data.username;
 				   					$cookies.username = data.username;
@@ -107,39 +84,40 @@ define(['services/services'], function(services){
 				   				});
 				   			}
 			   			}
+			   			else
+			   				delay.resolve($rootScope.username);
+		   			}
+		   			else if (status == 202) {
+			   			socket.disconnect(false);
+			   			$rootScope.username = null;
+			   			$cookies.username = null;
+		   				
+		   				// console.log('..... `authenticate` _login');
+		   				var promise = _login();
 
-			   		}).error(function(data, status) {
+		   				promise.then(function(username){
+		   					// success
+		   					// console.log('..... `authenticate` _login succeed');
+		   					socket.connect(true);
+		   					$rootScope.username = username;
+		   					$cookies.username = username;
+		   					delay.resolve($rootScope.username);
+		   				}, function(error){
+		   					// error
+		   					// console.log('..... `authenticate` _login failed');
+							delay.reject(error);
+		   				});
+		   			}
+	   				else {
+	   					// console.log('..... `authenticate` ping failed with other status');
+	   					delay.reject();
+	   				}
 
-			   			// console.log('..... `authenticate` /ping failed');
-			   			// console.log(status)
+		   		}).error(function(data, status) {
 
-			   			if (status == 401) {
-				   			socket.disconnect(false);
-				   			$rootScope.username = null;
-				   			$cookies.username = null;
-			   				
-			   				// console.log('..... `authenticate` _login');
-			   				var promise = _login();
+		   			delay.reject();
 
-			   				promise.then(function(username){
-			   					// success
-			   					// console.log('..... `authenticate` _login succeed');
-			   					socket.connect(true);
-			   					$rootScope.username = username;
-			   					$cookies.username = username;
-			   					delay.resolve($rootScope.username);
-			   				}, function(error){
-			   					// error
-			   					// console.log('..... `authenticate` _login failed');
-								delay.reject(error);
-			   				});
-			   			}
-		   				else {
-		   					// console.log('..... `authenticate` ping failed with other status');
-		   					delay.reject();
-		   				}
-			   		});
-		   		}
+		   		});
 
 		   		return delay.promise;
 		    };

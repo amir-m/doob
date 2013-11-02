@@ -60,8 +60,6 @@ module.exports = function(mongoose, async) {
 	};
 
 	var validate = function(user_id, series_id, token, requestor, callbackFn){
-				// console.log(session.series.token)
-				// console.log(session.uid)
 
 		if (!user_id || !series_id || !token || !callbackFn) return;
 

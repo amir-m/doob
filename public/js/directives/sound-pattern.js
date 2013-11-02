@@ -10,7 +10,7 @@ define(['directives/directives'], function(directives){
 			restrict: 'E',
 			replace: true,
 			link: function(scope, element, attrs) {
-
+				
 
 				element.bind("$destroy", function() {
 					scope.stop(scope.instanceName, scope.pattern);

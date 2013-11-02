@@ -8,12 +8,15 @@ module.exports = function(mongoose, async, logins, models) {
 	var AudioSchema = new mongoose.Schema({
 
 		_id: {type: String, required: true, unique: true},
+		isActive: {type: Boolean, default: true},
 		name: String,
 		username: String,
 		userid: String,
+		timestamp: {type: Number, default: new Date().getTime()},
 		fileName: String,
 		bufferLink: String,
-		link: String,
+		link: {type: String, unique: true},
+		duration: Number,
 		bytes: Number,
 		fileSize: String,
 		fileExtension: String,
