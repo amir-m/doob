@@ -28,7 +28,7 @@ module.exports = function(mongoose, async, logins, models) {
 		subscribers: [],
 		subscribedTo: [],
 
-		// Instroments
+		// Instruments
 		projects : {
 			id: String,
 			name: String
